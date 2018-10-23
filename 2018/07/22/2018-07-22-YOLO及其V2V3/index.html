@@ -1,0 +1,820 @@
+<!DOCTYPE html>
+
+
+
+  
+
+
+<html class="theme-next muse use-motion" lang="zh-Hans">
+<head><meta name="generator" content="Hexo 3.8.0">
+  <meta charset="UTF-8">
+<meta http-equiv="X-UA-Compatible" content="IE=edge">
+<meta name="viewport" content="width=device-width, initial-scale=1, maximum-scale=1">
+<meta name="theme-color" content="#222">
+
+
+
+
+
+
+
+
+
+<meta http-equiv="Cache-Control" content="no-transform">
+<meta http-equiv="Cache-Control" content="no-siteapp">
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+  
+  
+  <link href="/lib/fancybox/source/jquery.fancybox.css?v=2.1.5" rel="stylesheet" type="text/css">
+
+
+
+
+
+
+
+<link href="/lib/font-awesome/css/font-awesome.min.css?v=4.6.2" rel="stylesheet" type="text/css">
+
+<link href="/css/main.css?v=5.1.4" rel="stylesheet" type="text/css">
+
+
+  <link rel="apple-touch-icon" sizes="180x180" href="/images/apple-touch-icon-next.png?v=5.1.4">
+
+
+  <link rel="icon" type="image/png" sizes="32x32" href="/images/favicon-32x32-next.png?v=5.1.4">
+
+
+  <link rel="icon" type="image/png" sizes="16x16" href="/images/favicon-16x16-next.png?v=5.1.4">
+
+
+  <link rel="mask-icon" href="/images/logo.svg?v=5.1.4" color="#222">
+
+
+
+
+
+  <meta name="keywords" content="论文,detection,">
+
+
+
+
+
+
+
+
+
+
+<meta name="description" content="yolo及其V2与V3 官网链接：https://pjreddie.com/darknet/yolo/  yolo 之前在做目标检测的过程中，主要是2个阶段，首先生成大量候选框，然后再对候选框做分类，yolo直接使用端到端的方法，进行目标检测，实现了端到端的实时检测。 相对于其他比较主流的检测方法，yolo会出现更多的定位误差，但是误检测更少。 yolo主要的步骤 将图像resize到$448 \">
+<meta name="keywords" content="论文,detection">
+<meta property="og:type" content="article">
+<meta property="og:title" content="YOLO及其V2V3">
+<meta property="og:url" content="git@github.com:littletomatodonkey/littletomatodonkey.github.io.git/2018/07/22/2018-07-22-YOLO及其V2V3/index.html">
+<meta property="og:site_name" content="donkey&#39;s blog">
+<meta property="og:description" content="yolo及其V2与V3 官网链接：https://pjreddie.com/darknet/yolo/  yolo 之前在做目标检测的过程中，主要是2个阶段，首先生成大量候选框，然后再对候选框做分类，yolo直接使用端到端的方法，进行目标检测，实现了端到端的实时检测。 相对于其他比较主流的检测方法，yolo会出现更多的定位误差，但是误检测更少。 yolo主要的步骤 将图像resize到$448 \">
+<meta property="og:locale" content="zh-Hans">
+<meta property="og:image" content="/img/post/20180722-yolo-loss.png">
+<meta property="og:updated_time" content="2018-07-22T16:28:45.871Z">
+<meta name="twitter:card" content="summary">
+<meta name="twitter:title" content="YOLO及其V2V3">
+<meta name="twitter:description" content="yolo及其V2与V3 官网链接：https://pjreddie.com/darknet/yolo/  yolo 之前在做目标检测的过程中，主要是2个阶段，首先生成大量候选框，然后再对候选框做分类，yolo直接使用端到端的方法，进行目标检测，实现了端到端的实时检测。 相对于其他比较主流的检测方法，yolo会出现更多的定位误差，但是误检测更少。 yolo主要的步骤 将图像resize到$448 \">
+<meta name="twitter:image" content="/img/post/20180722-yolo-loss.png">
+
+
+
+<script type="text/javascript" id="hexo.configurations">
+  var NexT = window.NexT || {};
+  var CONFIG = {
+    root: '/',
+    scheme: 'Muse',
+    version: '5.1.4',
+    sidebar: {"position":"left","display":"post","offset":12,"b2t":false,"scrollpercent":false,"onmobile":false},
+    fancybox: true,
+    tabs: true,
+    motion: {"enable":true,"async":false,"transition":{"post_block":"fadeIn","post_header":"slideDownIn","post_body":"slideDownIn","coll_header":"slideLeftIn","sidebar":"slideUpIn"}},
+    duoshuo: {
+      userId: '0',
+      author: '博主'
+    },
+    algolia: {
+      applicationID: '',
+      apiKey: '',
+      indexName: '',
+      hits: {"per_page":10},
+      labels: {"input_placeholder":"Search for Posts","hits_empty":"We didn't find any results for the search: ${query}","hits_stats":"${hits} results found in ${time} ms"}
+    }
+  };
+</script>
+
+
+
+  <link rel="canonical" href="git@github.com:littletomatodonkey/littletomatodonkey.github.io.git/2018/07/22/2018-07-22-YOLO及其V2V3/">
+
+
+
+
+
+  <title>YOLO及其V2V3 | donkey's blog</title>
+  
+
+
+
+
+
+
+
+
+</head>
+
+<body itemscope="" itemtype="http://schema.org/WebPage" lang="zh-Hans">
+
+  
+  
+    
+  
+
+  <div class="container sidebar-position-left page-post-detail">
+    <div class="headband"></div>
+
+    <header id="header" class="header" itemscope="" itemtype="http://schema.org/WPHeader">
+      <div class="header-inner"><div class="site-brand-wrapper">
+  <div class="site-meta ">
+    
+
+    <div class="custom-logo-site-title">
+      <a href="/" class="brand" rel="start">
+        <span class="logo-line-before"><i></i></span>
+        <span class="site-title">donkey's blog</span>
+        <span class="logo-line-after"><i></i></span>
+      </a>
+    </div>
+      
+        <p class="site-subtitle">to be BIG</p>
+      
+  </div>
+
+  <div class="site-nav-toggle">
+    <button>
+      <span class="btn-bar"></span>
+      <span class="btn-bar"></span>
+      <span class="btn-bar"></span>
+    </button>
+  </div>
+</div>
+
+<nav class="site-nav">
+  
+
+  
+    <ul id="menu" class="menu">
+      
+        
+        <li class="menu-item menu-item-home">
+          <a href="/" rel="section">
+            
+              <i class="menu-item-icon fa fa-fw fa-home"></i> <br>
+            
+            首页
+          </a>
+        </li>
+      
+        
+        <li class="menu-item menu-item-about">
+          <a href="/about/" rel="section">
+            
+              <i class="menu-item-icon fa fa-fw fa-user"></i> <br>
+            
+            关于
+          </a>
+        </li>
+      
+        
+        <li class="menu-item menu-item-tags">
+          <a href="/tags/" rel="section">
+            
+              <i class="menu-item-icon fa fa-fw fa-tags"></i> <br>
+            
+            标签
+          </a>
+        </li>
+      
+        
+        <li class="menu-item menu-item-archives">
+          <a href="/archives/" rel="section">
+            
+              <i class="menu-item-icon fa fa-fw fa-archive"></i> <br>
+            
+            归档
+          </a>
+        </li>
+      
+
+      
+    </ul>
+  
+
+  
+</nav>
+
+
+
+ </div>
+    </header>
+
+    <main id="main" class="main">
+      <div class="main-inner">
+        <div class="content-wrap">
+          <div id="content" class="content">
+            
+
+  <div id="posts" class="posts-expand">
+    
+
+  
+
+  
+  
+  
+
+  <article class="post post-type-normal" itemscope="" itemtype="http://schema.org/Article">
+  
+  
+  
+  <div class="post-block">
+    <link itemprop="mainEntityOfPage" href="git@github.com:littletomatodonkey/littletomatodonkey.github.io.git/2018/07/22/2018-07-22-YOLO及其V2V3/">
+
+    <span hidden itemprop="author" itemscope="" itemtype="http://schema.org/Person">
+      <meta itemprop="name" content="donkey">
+      <meta itemprop="description" content="">
+      <meta itemprop="image" content="/avatar/home-self.jpg">
+    </span>
+
+    <span hidden itemprop="publisher" itemscope="" itemtype="http://schema.org/Organization">
+      <meta itemprop="name" content="donkey's blog">
+    </span>
+
+    
+      <header class="post-header">
+
+        
+        
+          <h1 class="post-title" itemprop="name headline">YOLO及其V2V3</h1>
+        
+
+        <div class="post-meta">
+          <span class="post-time">
+            
+              <span class="post-meta-item-icon">
+                <i class="fa fa-calendar-o"></i>
+              </span>
+              
+                <span class="post-meta-item-text">发表于</span>
+              
+              <time title="创建于" itemprop="dateCreated datePublished" datetime="2018-07-22T12:00:00+08:00">
+                2018-07-22
+              </time>
+            
+
+            
+
+            
+          </span>
+
+          
+
+          
+            
+          
+
+          
+          
+
+          
+
+          
+
+          
+
+        </div>
+      </header>
+    
+
+    
+    
+    
+    <div class="post-body" itemprop="articleBody">
+
+      
+      
+
+      
+        <h2 id="yolo及其V2与V3"><a href="#yolo及其V2与V3" class="headerlink" title="yolo及其V2与V3"></a>yolo及其V2与V3</h2><ul>
+<li>官网链接：<a href="https://pjreddie.com/darknet/yolo/" target="_blank" rel="noopener">https://pjreddie.com/darknet/yolo/</a></li>
+</ul>
+<h3 id="yolo"><a href="#yolo" class="headerlink" title="yolo"></a>yolo</h3><ul>
+<li>之前在做目标检测的过程中，主要是2个阶段，首先生成大量候选框，然后再对候选框做分类，yolo直接使用端到端的方法，进行目标检测，实现了端到端的实时检测。</li>
+<li>相对于其他比较主流的检测方法，yolo会出现更多的定位误差，但是误检测更少。</li>
+<li>yolo主要的步骤<ol>
+<li>将图像resize到$448 \times 448$</li>
+<li>CNN</li>
+<li>使用NMS对输出的bbox做筛选，得到最终的检测结果。</li>
+</ol>
+</li>
+<li>yolo在进行CNN的时候，使用的是整张图像，这与之前的<code>滑动窗口</code>或者<code>RPN</code>的方法不同，它们只能看到图像的部分信息，因此yolo的<code>background error</code>比fastRCNN等方法要更小。</li>
+</ul>
+<h4 id="处理流程"><a href="#处理流程" class="headerlink" title="处理流程"></a>处理流程</h4><ul>
+<li>将图像分成$S \times S$个grid cell，如果一个物体的中心落到一个grid cell中，则这个grid cell就<code>responsible for the object detection</code>。</li>
+<li>每个grid cell都用于预测B个bbox以及其置信度(confidence)，最终的置信度的计算方式为$\Pr (Obj)*IOU_{pred}^{truth}$。$\Pr (Obj)$表示该物体为物体还是背景(0或1)。为背景时，置信度为0；为前景时，置信度为IOU。bbox用$(x,y,w,h)$，w和h都是相对于整张图像的大小，(x,y)是相对于grid cell边界的bbox中心的坐标。置信度就是预测的bbox与任意<code>gt bbox</code>的IOU。</li>
+<li>每个grid cell会预测得到物体属于类别C的条件概率。不管这个grid cell中有多少个预测的box，只对每个grid cell预测一组属于类别C的条件概率，即我们假设每个grid cell中只属于一类。将条件概率与之前的$Pr(Obj)$相乘，我们就可以得到grid cell属于某个类别的置信度。</li>
+<li>每个box都会用5个变量来表示，每个grid cell中会预测出属于C个类别的概率，因此最终得到的tensor是$S \times S \times (B*5+C)$维的tensor。</li>
+</ul>
+<h4 id="网络设计"><a href="#网络设计" class="headerlink" title="网络设计"></a>网络设计</h4><ul>
+<li>使用CNN做特征提取，最后加上FC层，做类别预测与bbox回归，CNN借鉴了<code>GoogLeNet</code>的思想，但是稍微修改了其中的<code>inception modules</code>，在3X3的卷积层使用1X1的reduction layer(将feature layer缩减为1层)</li>
+<li>在imageNet的分类任务上与训练卷积层，其尺寸是$224X224$的，因此之后再将分辨率提升一倍，用于论文中的目标检测。</li>
+</ul>
+<h4 id="训练"><a href="#训练" class="headerlink" title="训练"></a>训练</h4><ul>
+<li>使用leakyRelu作为激活函数。loss为bbox预测的loss和class的loss，在实验中发现两者如果权重相等， 容易造成模型不稳定，因此调整了一下2个loss对整体的影响。赋予2个loss不同的权值。最终的loss为</li>
+</ul>
+<p><img src="/img/post/20180722-yolo-loss.png" alt="yolo-loss"></p>
+<p>其中$1_{i}^{obj}$表示第i个grid cell中是否有物体；$1_{ij}^{obj}$表示第i个grid cell中的第j个bbox是否<code>responsible for the object detection</code>(前面提到的，物体中心落在这个bbox中，就responsible for the object，跟grid cell的responsible相似，这里不知道怎么翻译2333)</p>
+<h4 id="测试与结论"><a href="#测试与结论" class="headerlink" title="测试与结论"></a>测试与结论</h4><ul>
+<li>对于pascal voc数据上的图像，每张图像会生成98个bbox，在grid cell的边界处，可能会生成很多个检测的结果，这种问题使用NMS(非极大值抑制)就可以解决。</li>
+<li>yolo速度很快，这是他最大的优势，同时精度也没有下降很多（与非实时的那些算法相比）。</li>
+<li>yolo在每个grid cell中只预测两个bbox，而且一个grid cell只能有1个类，因此对于那些小物体或者一个grid cell中有多个物体，或者一个grid cell中有不同的物体的情况，yolo的表现都不是很好。</li>
+<li>相对于fasterRCNN等方法，yolo的background mistakes要小很多，但是localization mistakes要大很多。</li>
+</ul>
+<h3 id="yoloV2"><a href="#yoloV2" class="headerlink" title="yoloV2"></a>yoloV2</h3><ul>
+<li>之前的yolo中，只能预测20类的物体(针对pascal voc)，yolov2更快更好，可以达到实时，精度也是state-of-art。67FPS时，在VOC2007上，mAP达到了76.8%，40FPS时，mAP达到了78.6%，这比SSD，FasterRCNN等都更快，而且精度更高。同时基于yolov2，也提出了yolo9000,可以检测超过9000类的物体，提出了一个新方法，用于对物体分类与检测同时训练。使用coco检测数据集与imagenet分类数据集进行训练，之前的yolo只能预测200多一点的类别，yolov2可以预测超过9000个类别。</li>
+</ul>
+<h4 id="better"><a href="#better" class="headerlink" title="better"></a>better</h4><ul>
+<li>相对于其他主流的检测方法，之前的yolo有几个比较明显的缺点。<ul>
+<li>yolo的localization mistake比较大</li>
+<li>相对于基于RPN方法的检测算法，yolo的recall比较低。</li>
+</ul>
+</li>
+<li>作者使用<code>batch normalization</code>，去除了<code>dropout</code>，提升了模型的准确度，同时也没有造成过拟合。</li>
+<li>yolo中是使用$224 \times 224$的图像做训练，yolov2直接使用$448 \times 448$的图像做训练（后面提到为了使得feature map有唯一的中心，将图像减小至416），这提升了模型的分辨率，有利于检测。</li>
+<li>借鉴FPN中<code>anchor box</code>的概念，之前的yolo是直接预测bbox的信息，而FPN是预测bbox相对于anchor box的offset，因而使得网络更容易训练。</li>
+<li>yolov2中去除了FC层，使用anchor box去预测bbox；去除了一个pooling layer，使得输出结果的分辨率更高。将图像减小至$416 \times 416$，使得最终的feature map有唯一的中心（输出的feature map有唯一的中心）。最终feature map的大小为$13 \times 13$。</li>
+<li>yolov2中，对于每个anchor box，都单独预测他们的类别以及是否属于物体(或者是背景)的概率。使用这种anchor box的方法，模型的mAP略微下降了一些(69.5-&gt;69.2%)，但是recall有了很大的提升(81%-&gt;88%)。</li>
+<li>作者使用了<code>dimension cluster</code>的方法，之前的anchor的大小都是手动设定的，在yolov2中，作者对训练集的bbox使用<code>kmeans</code>聚类的方法，去找到好的先验框。距离度量方法使用IOU的距离度量（如果使用欧式距离，则大的box会比小的box产生更大的聚类误差）。<br>$$d(box; centroid) = 1 − IOU(box; centroid)$$<br>作者做实验，得到更大的k会导致更高的IOU，但是这也会使得模型变得更加复杂，最终取k=5。这一步主要基于的假设是：<strong>使用与正确的box尺寸更加接近的box去做预测的时候，会使得训练更加容易</strong>。</li>
+</ul>
+<p>假设box的参数为$b_x,b_y,b_w,b_h$，先验box的大小为$p_w,p_h$，则我们使用下面的方法对$t_x,t_y,t_w,t_h,t_o$进行预测。其中$c_x,c_y$是grid cell的尺寸。</p>
+<p>$$\begin{array}{l}<br>{b_x} = \sigma ({t_x}) + {c_x}\<br>{b_x} = \sigma ({t_x}) + {c_x}\<br>{b_w} = {p_w}{e^}\<br>{b_h} = {p_h}{e^}\<br>\Pr (obj)*IOU(b,obj) = \sigma ({t_o})<br>\end{array}$$</p>
+<ul>
+<li>fasterRCNN与SSD等都是通过在不同的feature map上使用proposal network，实现对不同尺度的物体的检测，而yolov2中，直接将$26\times 26$的feature map通过passthrough layer传递到最后，实现对细粒度物体的检测。具体方法：将$26 ×26×512$的feature map直接转化为$13\times13\times2048$的feature map，再与最后一层做concatenation。</li>
+<li>作者在多个不同的尺寸下进行了训练。</li>
+</ul>
+<h4 id="faster"><a href="#faster" class="headerlink" title="faster"></a>faster</h4><ul>
+<li>提出了新的分类模型作为yolov2的base network，称之为<code>darknet-19</code>。其中有19个卷积层，5个最大池化层（卷积层不减小feature map的尺寸，max pooling每次减小一半）。</li>
+</ul>
+<h4 id="stronger"><a href="#stronger" class="headerlink" title="stronger"></a>stronger</h4><ul>
+<li>作者提出了一种将分类和检测进行联合训练的方法，在训练的过程中，如果它是用于检测的图像，则BP的时候，会计算yolov2的loss，如果是用于分类的图像，则在BP的时候，只返回用于分类的那部分的loss。</li>
+<li>这种架构也可以被用于更多种类的物体的分类与检测，即作者提出yolo9000，在这里就不详细展开了。</li>
+</ul>
+<h3 id="yolov3"><a href="#yolov3" class="headerlink" title="yolov3"></a>yolov3</h3><ul>
+<li>v2对小的物体的检测效果还是一般，因此v3中对其又做了一些改进</li>
+</ul>
+<h4 id="Bounding-Box-Prediction"><a href="#Bounding-Box-Prediction" class="headerlink" title="Bounding Box Prediction"></a>Bounding Box Prediction</h4><ul>
+<li>这一步骤和v2中的相同，在计算loss的时候使用SSE，因为更加方便计算。</li>
+<li>使用logistic regression对bbox是否属于object进行预测，如果一个prior box与gt box的IOU大于其他所有的prior box与gt box的IOU，则该prior box的值为1。</li>
+<li>class prediction：之前使用的是softmax，这种进行multilabel的预测时，某个label的值会抑制其他label的值，因此v3使用logistic classifier。</li>
+<li>v3在三种不同的尺度上进行bbox的预测，在每个尺寸上，都预测3个box，因此每个尺度上输出的tensor是$N \times N \times [3 ∗ (4 + 1 + 80)]$，80是类别数，1是是否为物体(或者是背景)，4表示bbox的预测。</li>
+<li>将当前feature map经过上采样，提取浅层网络中的feature map，与经过上采样的feature map做concatenation，这有利于获得图像的语义信息以及细粒度的信息。</li>
+<li>v3中仍然使用kmeans用于确定prior box的尺寸(9个cluster)。</li>
+<li>Feature Extractor：作者采用了一个新的网络结构，因为有53层卷积层，因此命名为<code>darknet-53</code>。这个在分类任务上精度可以与<code>ResNet-152</code>媲美，但是速度要快一倍。</li>
+</ul>
+<h4 id="尝试过但是没有用的"><a href="#尝试过但是没有用的" class="headerlink" title="尝试过但是没有用的"></a>尝试过但是没有用的</h4><ul>
+<li>对anchor box的x,y偏移使用线性激活函数做基于box宽高倍数的预测，但是最后发现效果不好，而且模型不稳定。</li>
+<li>使用线性预测而非logistic预测直接预测anchor box的x与y，发现模型的mAP会下降一些。</li>
+<li>想使用focal loss，发现这种方法也会使得mAP下降。</li>
+<li>Dual IOU thresholds and truth assignment：fasterRCNN在训练中中使用双边IOU阈值，大于大的阈值被视为正例，小于小的被视为反例，在这之前的不做处理。在v3中使用了近似的策略，但是也没有取得很好的效果。</li>
+</ul>
+
+      
+    </div>
+    
+    
+    
+
+    
+
+    
+
+    
+
+    <footer class="post-footer">
+      
+        <div class="post-tags">
+          
+            <a href="/tags/论文/" rel="tag"># 论文</a>
+          
+            <a href="/tags/detection/" rel="tag"># detection</a>
+          
+        </div>
+      
+
+      
+      
+      
+
+      
+        <div class="post-nav">
+          <div class="post-nav-next post-nav-item">
+            
+              <a href="/2018/07/10/2018-07-10-实例分割之FCIS/" rel="next" title="实例分割之FCIS">
+                <i class="fa fa-chevron-left"></i> 实例分割之FCIS
+              </a>
+            
+          </div>
+
+          <span class="post-nav-divider"></span>
+
+          <div class="post-nav-prev post-nav-item">
+            
+              <a href="/2018/07/23/2018-07-23-目标检测之SSD/" rel="prev" title="目标检测之SSD">
+                目标检测之SSD <i class="fa fa-chevron-right"></i>
+              </a>
+            
+          </div>
+        </div>
+      
+
+      
+      
+    </footer>
+  </div>
+  
+  
+  
+  </article>
+
+
+
+    <div class="post-spread">
+      
+    </div>
+  </div>
+
+
+          </div>
+          
+
+
+          
+
+  
+
+
+
+        </div>
+        
+          
+  
+  <div class="sidebar-toggle">
+    <div class="sidebar-toggle-line-wrap">
+      <span class="sidebar-toggle-line sidebar-toggle-line-first"></span>
+      <span class="sidebar-toggle-line sidebar-toggle-line-middle"></span>
+      <span class="sidebar-toggle-line sidebar-toggle-line-last"></span>
+    </div>
+  </div>
+
+  <aside id="sidebar" class="sidebar">
+    
+    <div class="sidebar-inner">
+
+      
+
+      
+        <ul class="sidebar-nav motion-element">
+          <li class="sidebar-nav-toc sidebar-nav-active" data-target="post-toc-wrap">
+            文章目录
+          </li>
+          <li class="sidebar-nav-overview" data-target="site-overview-wrap">
+            站点概览
+          </li>
+        </ul>
+      
+
+      <section class="site-overview-wrap sidebar-panel">
+        <div class="site-overview">
+          <div class="site-author motion-element" itemprop="author" itemscope="" itemtype="http://schema.org/Person">
+            
+              <img class="site-author-image" itemprop="image" src="/avatar/home-self.jpg" alt="donkey">
+            
+              <p class="site-author-name" itemprop="name">donkey</p>
+              <p class="site-description motion-element" itemprop="description">want to be an engineer</p>
+          </div>
+
+          <nav class="site-state motion-element">
+
+            
+              <div class="site-state-item site-state-posts">
+              
+                <a href="/archives/">
+              
+                  <span class="site-state-item-count">36</span>
+                  <span class="site-state-item-name">日志</span>
+                </a>
+              </div>
+            
+
+            
+
+            
+              
+              
+              <div class="site-state-item site-state-tags">
+                <a href="/tags/index.html">
+                  <span class="site-state-item-count">19</span>
+                  <span class="site-state-item-name">标签</span>
+                </a>
+              </div>
+            
+
+          </nav>
+
+          
+
+          
+            <div class="links-of-author motion-element">
+                
+                  <span class="links-of-author-item">
+                    <a href="https://github.com/littletomatodonkey" target="_blank" title="GitHub">
+                      
+                        <i class="fa fa-fw fa-github"></i>GitHub</a>
+                  </span>
+                
+                  <span class="links-of-author-item">
+                    <a href="https://blog.csdn.net/u012526003" target="_blank" title="CSDN">
+                      
+                        <i class="fa fa-fw fa-crosshairs"></i>CSDN</a>
+                  </span>
+                
+            </div>
+          
+
+          
+          
+
+          
+          
+
+          
+
+        </div>
+      </section>
+
+      
+      <!--noindex-->
+        <section class="post-toc-wrap motion-element sidebar-panel sidebar-panel-active">
+          <div class="post-toc">
+
+            
+              
+            
+
+            
+              <div class="post-toc-content"><ol class="nav"><li class="nav-item nav-level-2"><a class="nav-link" href="#yolo及其V2与V3"><span class="nav-number">1.</span> <span class="nav-text">yolo及其V2与V3</span></a><ol class="nav-child"><li class="nav-item nav-level-3"><a class="nav-link" href="#yolo"><span class="nav-number">1.1.</span> <span class="nav-text">yolo</span></a><ol class="nav-child"><li class="nav-item nav-level-4"><a class="nav-link" href="#处理流程"><span class="nav-number">1.1.1.</span> <span class="nav-text">处理流程</span></a></li><li class="nav-item nav-level-4"><a class="nav-link" href="#网络设计"><span class="nav-number">1.1.2.</span> <span class="nav-text">网络设计</span></a></li><li class="nav-item nav-level-4"><a class="nav-link" href="#训练"><span class="nav-number">1.1.3.</span> <span class="nav-text">训练</span></a></li><li class="nav-item nav-level-4"><a class="nav-link" href="#测试与结论"><span class="nav-number">1.1.4.</span> <span class="nav-text">测试与结论</span></a></li></ol></li><li class="nav-item nav-level-3"><a class="nav-link" href="#yoloV2"><span class="nav-number">1.2.</span> <span class="nav-text">yoloV2</span></a><ol class="nav-child"><li class="nav-item nav-level-4"><a class="nav-link" href="#better"><span class="nav-number">1.2.1.</span> <span class="nav-text">better</span></a></li><li class="nav-item nav-level-4"><a class="nav-link" href="#faster"><span class="nav-number">1.2.2.</span> <span class="nav-text">faster</span></a></li><li class="nav-item nav-level-4"><a class="nav-link" href="#stronger"><span class="nav-number">1.2.3.</span> <span class="nav-text">stronger</span></a></li></ol></li><li class="nav-item nav-level-3"><a class="nav-link" href="#yolov3"><span class="nav-number">1.3.</span> <span class="nav-text">yolov3</span></a><ol class="nav-child"><li class="nav-item nav-level-4"><a class="nav-link" href="#Bounding-Box-Prediction"><span class="nav-number">1.3.1.</span> <span class="nav-text">Bounding Box Prediction</span></a></li><li class="nav-item nav-level-4"><a class="nav-link" href="#尝试过但是没有用的"><span class="nav-number">1.3.2.</span> <span class="nav-text">尝试过但是没有用的</span></a></li></ol></li></ol></li></ol></div>
+            
+
+          </div>
+        </section>
+      <!--/noindex-->
+      
+
+      
+
+    </div>
+  </aside>
+
+
+        
+      </div>
+    </main>
+
+    <footer id="footer" class="footer">
+      <div class="footer-inner">
+        <div class="copyright">&copy; <span itemprop="copyrightYear">2018</span>
+  <span class="with-love">
+    <i class="fa fa-user"></i>
+  </span>
+  <span class="author" itemprop="copyrightHolder">donkey</span>
+
+  
+</div>
+
+
+  <div class="powered-by">由 <a class="theme-link" target="_blank" href="https://hexo.io">Hexo</a> 强力驱动</div>
+
+
+
+  <span class="post-meta-divider">|</span>
+
+
+
+  <div class="theme-info">主题 &mdash; <a class="theme-link" target="_blank" href="https://github.com/iissnan/hexo-theme-next">NexT.Muse</a> v5.1.4</div>
+
+
+
+
+        
+
+
+
+
+
+
+
+        
+      </div>
+    </footer>
+
+    
+      <div class="back-to-top">
+        <i class="fa fa-arrow-up"></i>
+        
+      </div>
+    
+
+    
+
+  </div>
+
+  
+
+<script type="text/javascript">
+  if (Object.prototype.toString.call(window.Promise) !== '[object Function]') {
+    window.Promise = null;
+  }
+</script>
+
+
+
+
+
+
+
+
+
+  
+
+
+
+
+
+
+
+
+
+
+
+
+  
+  
+    <script type="text/javascript" src="/lib/jquery/index.js?v=2.1.3"></script>
+  
+
+  
+  
+    <script type="text/javascript" src="/lib/fastclick/lib/fastclick.min.js?v=1.0.6"></script>
+  
+
+  
+  
+    <script type="text/javascript" src="/lib/jquery_lazyload/jquery.lazyload.js?v=1.9.7"></script>
+  
+
+  
+  
+    <script type="text/javascript" src="/lib/velocity/velocity.min.js?v=1.2.1"></script>
+  
+
+  
+  
+    <script type="text/javascript" src="/lib/velocity/velocity.ui.min.js?v=1.2.1"></script>
+  
+
+  
+  
+    <script type="text/javascript" src="/lib/fancybox/source/jquery.fancybox.pack.js?v=2.1.5"></script>
+  
+
+
+  
+
+
+  <script type="text/javascript" src="/js/src/utils.js?v=5.1.4"></script>
+
+  <script type="text/javascript" src="/js/src/motion.js?v=5.1.4"></script>
+
+
+
+  
+  
+
+  
+  <script type="text/javascript" src="/js/src/scrollspy.js?v=5.1.4"></script>
+<script type="text/javascript" src="/js/src/post-details.js?v=5.1.4"></script>
+
+
+
+  
+
+
+  <script type="text/javascript" src="/js/src/bootstrap.js?v=5.1.4"></script>
+
+
+
+  
+
+
+  
+
+
+
+
+	
+
+
+
+
+
+  
+
+
+
+
+
+  
+
+
+
+
+
+
+
+
+
+
+
+
+  
+
+
+
+
+
+  
+
+  
+
+  
+
+  
+  
+
+  
+  
+    <script type="text/x-mathjax-config">
+      MathJax.Hub.Config({
+        tex2jax: {
+          inlineMath: [ ['$','$'], ["\\(","\\)"]  ],
+          processEscapes: true,
+          skipTags: ['script', 'noscript', 'style', 'textarea', 'pre', 'code']
+        }
+      });
+    </script>
+
+    <script type="text/x-mathjax-config">
+      MathJax.Hub.Queue(function() {
+        var all = MathJax.Hub.getAllJax(), i;
+        for (i=0; i < all.length; i += 1) {
+          all[i].SourceElement().parentNode.className += ' has-jax';
+        }
+      });
+    </script>
+    <script type="text/javascript" src="//cdn.bootcss.com/mathjax/2.7.1/latest.js?config=TeX-AMS-MML_HTMLorMML"></script>
+  
+
+
+  
+
+  
+
+</body>
+</html>

@@ -1,0 +1,794 @@
+<!DOCTYPE html>
+
+
+
+  
+
+
+<html class="theme-next muse use-motion" lang="zh-Hans">
+<head><meta name="generator" content="Hexo 3.8.0">
+  <meta charset="UTF-8">
+<meta http-equiv="X-UA-Compatible" content="IE=edge">
+<meta name="viewport" content="width=device-width, initial-scale=1, maximum-scale=1">
+<meta name="theme-color" content="#222">
+
+
+
+
+
+
+
+
+
+<meta http-equiv="Cache-Control" content="no-transform">
+<meta http-equiv="Cache-Control" content="no-siteapp">
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+  
+  
+  <link href="/lib/fancybox/source/jquery.fancybox.css?v=2.1.5" rel="stylesheet" type="text/css">
+
+
+
+
+
+
+
+<link href="/lib/font-awesome/css/font-awesome.min.css?v=4.6.2" rel="stylesheet" type="text/css">
+
+<link href="/css/main.css?v=5.1.4" rel="stylesheet" type="text/css">
+
+
+  <link rel="apple-touch-icon" sizes="180x180" href="/images/apple-touch-icon-next.png?v=5.1.4">
+
+
+  <link rel="icon" type="image/png" sizes="32x32" href="/images/favicon-32x32-next.png?v=5.1.4">
+
+
+  <link rel="icon" type="image/png" sizes="16x16" href="/images/favicon-16x16-next.png?v=5.1.4">
+
+
+  <link rel="mask-icon" href="/images/logo.svg?v=5.1.4" color="#222">
+
+
+
+
+
+  <meta name="keywords" content="论文,目标检测,">
+
+
+
+
+
+
+
+
+
+
+<meta name="description" content="abstract 论文地址：Focal Loss for Dense Object Detection 论文主要提出了一种新的loss，称为focal loss，用于解决one stage目标检测过程中正负样本数量差距太大的情况。 基于FPN提出了一个新的one stage目标检测框架，称为RetinaNet，目前在精度和速度方面达到了最好的平衡。  introduction 当前detectio">
+<meta name="keywords" content="论文,目标检测">
+<meta property="og:type" content="article">
+<meta property="og:title" content="目标检测之retinanet">
+<meta property="og:url" content="git@github.com:littletomatodonkey/littletomatodonkey.github.io.git/2018/10/19/2018-10-19-目标检测之RetinaNet/index.html">
+<meta property="og:site_name" content="donkey&#39;s blog">
+<meta property="og:description" content="abstract 论文地址：Focal Loss for Dense Object Detection 论文主要提出了一种新的loss，称为focal loss，用于解决one stage目标检测过程中正负样本数量差距太大的情况。 基于FPN提出了一个新的one stage目标检测框架，称为RetinaNet，目前在精度和速度方面达到了最好的平衡。  introduction 当前detectio">
+<meta property="og:locale" content="zh-Hans">
+<meta property="og:image" content="/img/post/20181019-retinanet-效果.png">
+<meta property="og:image" content="/img/post/20181019-retinanet-流程.png">
+<meta property="og:image" content="/img/post/20181019-retinanet-mAP.png">
+<meta property="og:updated_time" content="2018-10-19T08:17:37.581Z">
+<meta name="twitter:card" content="summary">
+<meta name="twitter:title" content="目标检测之retinanet">
+<meta name="twitter:description" content="abstract 论文地址：Focal Loss for Dense Object Detection 论文主要提出了一种新的loss，称为focal loss，用于解决one stage目标检测过程中正负样本数量差距太大的情况。 基于FPN提出了一个新的one stage目标检测框架，称为RetinaNet，目前在精度和速度方面达到了最好的平衡。  introduction 当前detectio">
+<meta name="twitter:image" content="/img/post/20181019-retinanet-效果.png">
+
+
+
+<script type="text/javascript" id="hexo.configurations">
+  var NexT = window.NexT || {};
+  var CONFIG = {
+    root: '/',
+    scheme: 'Muse',
+    version: '5.1.4',
+    sidebar: {"position":"left","display":"post","offset":12,"b2t":false,"scrollpercent":false,"onmobile":false},
+    fancybox: true,
+    tabs: true,
+    motion: {"enable":true,"async":false,"transition":{"post_block":"fadeIn","post_header":"slideDownIn","post_body":"slideDownIn","coll_header":"slideLeftIn","sidebar":"slideUpIn"}},
+    duoshuo: {
+      userId: '0',
+      author: '博主'
+    },
+    algolia: {
+      applicationID: '',
+      apiKey: '',
+      indexName: '',
+      hits: {"per_page":10},
+      labels: {"input_placeholder":"Search for Posts","hits_empty":"We didn't find any results for the search: ${query}","hits_stats":"${hits} results found in ${time} ms"}
+    }
+  };
+</script>
+
+
+
+  <link rel="canonical" href="git@github.com:littletomatodonkey/littletomatodonkey.github.io.git/2018/10/19/2018-10-19-目标检测之RetinaNet/">
+
+
+
+
+
+  <title>目标检测之retinanet | donkey's blog</title>
+  
+
+
+
+
+
+
+
+
+</head>
+
+<body itemscope="" itemtype="http://schema.org/WebPage" lang="zh-Hans">
+
+  
+  
+    
+  
+
+  <div class="container sidebar-position-left page-post-detail">
+    <div class="headband"></div>
+
+    <header id="header" class="header" itemscope="" itemtype="http://schema.org/WPHeader">
+      <div class="header-inner"><div class="site-brand-wrapper">
+  <div class="site-meta ">
+    
+
+    <div class="custom-logo-site-title">
+      <a href="/" class="brand" rel="start">
+        <span class="logo-line-before"><i></i></span>
+        <span class="site-title">donkey's blog</span>
+        <span class="logo-line-after"><i></i></span>
+      </a>
+    </div>
+      
+        <p class="site-subtitle">to be BIG</p>
+      
+  </div>
+
+  <div class="site-nav-toggle">
+    <button>
+      <span class="btn-bar"></span>
+      <span class="btn-bar"></span>
+      <span class="btn-bar"></span>
+    </button>
+  </div>
+</div>
+
+<nav class="site-nav">
+  
+
+  
+    <ul id="menu" class="menu">
+      
+        
+        <li class="menu-item menu-item-home">
+          <a href="/" rel="section">
+            
+              <i class="menu-item-icon fa fa-fw fa-home"></i> <br>
+            
+            首页
+          </a>
+        </li>
+      
+        
+        <li class="menu-item menu-item-about">
+          <a href="/about/" rel="section">
+            
+              <i class="menu-item-icon fa fa-fw fa-user"></i> <br>
+            
+            关于
+          </a>
+        </li>
+      
+        
+        <li class="menu-item menu-item-tags">
+          <a href="/tags/" rel="section">
+            
+              <i class="menu-item-icon fa fa-fw fa-tags"></i> <br>
+            
+            标签
+          </a>
+        </li>
+      
+        
+        <li class="menu-item menu-item-archives">
+          <a href="/archives/" rel="section">
+            
+              <i class="menu-item-icon fa fa-fw fa-archive"></i> <br>
+            
+            归档
+          </a>
+        </li>
+      
+
+      
+    </ul>
+  
+
+  
+</nav>
+
+
+
+ </div>
+    </header>
+
+    <main id="main" class="main">
+      <div class="main-inner">
+        <div class="content-wrap">
+          <div id="content" class="content">
+            
+
+  <div id="posts" class="posts-expand">
+    
+
+  
+
+  
+  
+  
+
+  <article class="post post-type-normal" itemscope="" itemtype="http://schema.org/Article">
+  
+  
+  
+  <div class="post-block">
+    <link itemprop="mainEntityOfPage" href="git@github.com:littletomatodonkey/littletomatodonkey.github.io.git/2018/10/19/2018-10-19-目标检测之RetinaNet/">
+
+    <span hidden itemprop="author" itemscope="" itemtype="http://schema.org/Person">
+      <meta itemprop="name" content="donkey">
+      <meta itemprop="description" content="">
+      <meta itemprop="image" content="/avatar/home-self.jpg">
+    </span>
+
+    <span hidden itemprop="publisher" itemscope="" itemtype="http://schema.org/Organization">
+      <meta itemprop="name" content="donkey's blog">
+    </span>
+
+    
+      <header class="post-header">
+
+        
+        
+          <h1 class="post-title" itemprop="name headline">目标检测之retinanet</h1>
+        
+
+        <div class="post-meta">
+          <span class="post-time">
+            
+              <span class="post-meta-item-icon">
+                <i class="fa fa-calendar-o"></i>
+              </span>
+              
+                <span class="post-meta-item-text">发表于</span>
+              
+              <time title="创建于" itemprop="dateCreated datePublished" datetime="2018-10-19T10:00:00+08:00">
+                2018-10-19
+              </time>
+            
+
+            
+
+            
+          </span>
+
+          
+
+          
+            
+          
+
+          
+          
+
+          
+
+          
+
+          
+
+        </div>
+      </header>
+    
+
+    
+    
+    
+    <div class="post-body" itemprop="articleBody">
+
+      
+      
+
+      
+        <h2 id="abstract"><a href="#abstract" class="headerlink" title="abstract"></a>abstract</h2><ul>
+<li>论文地址：<a href="https://arxiv.org/abs/1708.02002" target="_blank" rel="noopener">Focal Loss for Dense Object Detection</a></li>
+<li>论文主要提出了一种新的loss，称为focal loss，用于解决one stage目标检测过程中正负样本数量差距太大的情况。</li>
+<li>基于FPN提出了一个新的one stage目标检测框架，称为RetinaNet，目前在精度和速度方面达到了最好的平衡。</li>
+</ul>
+<h2 id="introduction"><a href="#introduction" class="headerlink" title="introduction"></a>introduction</h2><ul>
+<li>当前detection主要有one stage与two stage两种方法<ul>
+<li>one stage是直接对生成的bbox进行细分类，在这些bbox中，正负样本数量差距很大，即类别严重不均衡。但是它的速度很快。</li>
+<li>two stage是首先使用RPN等方法对生成的proposal进行一个二分类（属于前景还是背景），在这个过程中，大量属于背景的bbox会从所有的region proposals列表中删除。相当于这一步会稍微减小正负样本类别不均衡的现象；之后再使用Roi net等做后续的分类与bbox regression任务等。但是two stage方法的速度很慢。</li>
+</ul>
+</li>
+<li>作者希望能够结合one stage与two stage的优点。one stage精度较差的主要原因是bbox的正负样本极度不均衡，之前有确定前景-背景proposal比例、OHEM等方法用于解决类别不均衡的问题。但是这些都是two stage的方法。在one stage方法中，会有更多的candidate bbox(~100K)，因此使用之前的这些方法可能并不是很有效，因为one stage中的类别不均衡现象更加严重，绝大部分都是background。</li>
+<li>基于上述问题，论文中提出一种新的loss，即focal loss，与focal loss相似的变体都可以达到很好的检测效果。</li>
+<li>为了进行这种想法的验证，作者将FPN作为backbone，提出一种one stage检测框架，称之为RetinaNet。目前精度秒杀one stage方法，速度秒杀two stage方法，对比图如下。</li>
+</ul>
+<p><img src="/img/post/20181019-retinanet-效果.png" alt="retinanet-效果.png"></p>
+<ul>
+<li>RetinaNet主要是在loss方面做了改进，网络结构并没有改进，因此detection结果精度的提升主要是基于loss的改进。</li>
+</ul>
+<h2 id="focal-loss"><a href="#focal-loss" class="headerlink" title="focal loss"></a>focal loss</h2><h3 id="definition"><a href="#definition" class="headerlink" title="definition"></a>definition</h3><ul>
+<li>对于二分类问题，传统的<code>cross entropy loss</code>为</li>
+</ul>
+<p>$$CE(p,y) = CE(p_t) = -log(p_t)$$</p>
+<ul>
+<li>之前有人已经提出了<code>balanced cross entropy</code>，公式为</li>
+</ul>
+<p>$$CE(p_t) = -\alpha_t log(p_t)$$</p>
+<p>$\alpha_t$与类别t的样本数量成反比，即数量越少的类别，其loss权重越大。这也是本文中提出的focal loss的baseline。</p>
+<ul>
+<li>focal loss的定义如下</li>
+</ul>
+<p>$$FL(p_t) = -(1 - p_t)^{\gamma} log(p_t)$$</p>
+<p>$\gamma$是超参数，论文中$\gamma = 2$效果最好。$\gamma = 0$时，与传统的<code>cross entropy loss function</code>相同。</p>
+<ul>
+<li>结合<code>balanced cross entrop</code>，focal loss的最终公式如下：</li>
+</ul>
+<p>$$FL(p_t) = -\alpha (1 - p_t)^{\gamma} log(p_t)$$</p>
+<p>上面的公式相对于不加参数$\alpha$的loss，最终训练出的模型精度略微提升了一些。</p>
+<h3 id="Class-Imbalance-and-Model-Initialization"><a href="#Class-Imbalance-and-Model-Initialization" class="headerlink" title="Class Imbalance and Model Initialization"></a>Class Imbalance and Model Initialization</h3><ul>
+<li>在二分类模型中，默认的二分类的输出概率是相等的。在类别不均衡的情况中，那些数量很多的类别的loss可能会占据最终loss的绝大部分，因此引入<code>prior</code>的概念，用$\pi$去表示这个prior，使得那些<code>珍稀样本</code>的<code>prior</code>很小，这会在类别不均衡的情况下，提升训练的稳定性。</li>
+</ul>
+<h2 id="RetinaNet-Detector"><a href="#RetinaNet-Detector" class="headerlink" title="RetinaNet Detector"></a>RetinaNet Detector</h2><h3 id="主要结构"><a href="#主要结构" class="headerlink" title="主要结构"></a>主要结构</h3><ul>
+<li>Feature Pyramid Network Backbone：基于FPN的backbone，给定单一尺度的图像信息，FPN可以提取多尺度的特征信息。论文中是基于resnet构建了FPN。</li>
+<li>anchor box在P3与P7的<code>feature pyramid</code>上分别表示$32^2$与$512^2$的大小，每个pyramid level，设置$aspect ratio={1:2,1:1,2:1}$，$scale\;ratio={0,2^{1/3},2^{2/3}}$。相当于每个level上会产生9个<code>anchor box</code>。</li>
+<li><p>对于每个anchor box，预测其类别(K-vector)，并进行bbox regression(4-vector)。</p>
+</li>
+<li><p>RetinaNet主要流程如下。</p>
+</li>
+</ul>
+<p><img src="/img/post/20181019-retinanet-流程.png" alt="retinanet-流程.png"></p>
+<h2 id="results"><a href="#results" class="headerlink" title="results"></a>results</h2><ul>
+<li>RetinaNet的mAP结果如下</li>
+</ul>
+<p><img src="/img/post/20181019-retinanet-mAP.png" alt="retinanet-mAP.png"></p>
+<h2 id="conclusion"><a href="#conclusion" class="headerlink" title="conclusion"></a>conclusion</h2><ul>
+<li>论文中主要针对类别不均衡的问题，提出了focal loss这种新的loss function。</li>
+<li>基于focal loss提出了one stage的目标检测方法，称为RetinaNet，它在速度和精度上都达到了state of art的水平。</li>
+</ul>
+
+      
+    </div>
+    
+    
+    
+
+    
+
+    
+
+    
+
+    <footer class="post-footer">
+      
+        <div class="post-tags">
+          
+            <a href="/tags/论文/" rel="tag"># 论文</a>
+          
+            <a href="/tags/目标检测/" rel="tag"># 目标检测</a>
+          
+        </div>
+      
+
+      
+      
+      
+
+      
+        <div class="post-nav">
+          <div class="post-nav-next post-nav-item">
+            
+              <a href="/2018/10/18/2018-10-18-困难样本挖掘之OHEM/" rel="next" title="困难样本挖掘之OHEM">
+                <i class="fa fa-chevron-left"></i> 困难样本挖掘之OHEM
+              </a>
+            
+          </div>
+
+          <span class="post-nav-divider"></span>
+
+          <div class="post-nav-prev post-nav-item">
+            
+          </div>
+        </div>
+      
+
+      
+      
+    </footer>
+  </div>
+  
+  
+  
+  </article>
+
+
+
+    <div class="post-spread">
+      
+    </div>
+  </div>
+
+
+          </div>
+          
+
+
+          
+
+  
+
+
+
+        </div>
+        
+          
+  
+  <div class="sidebar-toggle">
+    <div class="sidebar-toggle-line-wrap">
+      <span class="sidebar-toggle-line sidebar-toggle-line-first"></span>
+      <span class="sidebar-toggle-line sidebar-toggle-line-middle"></span>
+      <span class="sidebar-toggle-line sidebar-toggle-line-last"></span>
+    </div>
+  </div>
+
+  <aside id="sidebar" class="sidebar">
+    
+    <div class="sidebar-inner">
+
+      
+
+      
+        <ul class="sidebar-nav motion-element">
+          <li class="sidebar-nav-toc sidebar-nav-active" data-target="post-toc-wrap">
+            文章目录
+          </li>
+          <li class="sidebar-nav-overview" data-target="site-overview-wrap">
+            站点概览
+          </li>
+        </ul>
+      
+
+      <section class="site-overview-wrap sidebar-panel">
+        <div class="site-overview">
+          <div class="site-author motion-element" itemprop="author" itemscope="" itemtype="http://schema.org/Person">
+            
+              <img class="site-author-image" itemprop="image" src="/avatar/home-self.jpg" alt="donkey">
+            
+              <p class="site-author-name" itemprop="name">donkey</p>
+              <p class="site-description motion-element" itemprop="description">want to be an engineer</p>
+          </div>
+
+          <nav class="site-state motion-element">
+
+            
+              <div class="site-state-item site-state-posts">
+              
+                <a href="/archives/">
+              
+                  <span class="site-state-item-count">36</span>
+                  <span class="site-state-item-name">日志</span>
+                </a>
+              </div>
+            
+
+            
+
+            
+              
+              
+              <div class="site-state-item site-state-tags">
+                <a href="/tags/index.html">
+                  <span class="site-state-item-count">19</span>
+                  <span class="site-state-item-name">标签</span>
+                </a>
+              </div>
+            
+
+          </nav>
+
+          
+
+          
+            <div class="links-of-author motion-element">
+                
+                  <span class="links-of-author-item">
+                    <a href="https://github.com/littletomatodonkey" target="_blank" title="GitHub">
+                      
+                        <i class="fa fa-fw fa-github"></i>GitHub</a>
+                  </span>
+                
+                  <span class="links-of-author-item">
+                    <a href="https://blog.csdn.net/u012526003" target="_blank" title="CSDN">
+                      
+                        <i class="fa fa-fw fa-crosshairs"></i>CSDN</a>
+                  </span>
+                
+            </div>
+          
+
+          
+          
+
+          
+          
+
+          
+
+        </div>
+      </section>
+
+      
+      <!--noindex-->
+        <section class="post-toc-wrap motion-element sidebar-panel sidebar-panel-active">
+          <div class="post-toc">
+
+            
+              
+            
+
+            
+              <div class="post-toc-content"><ol class="nav"><li class="nav-item nav-level-2"><a class="nav-link" href="#abstract"><span class="nav-number">1.</span> <span class="nav-text">abstract</span></a></li><li class="nav-item nav-level-2"><a class="nav-link" href="#introduction"><span class="nav-number">2.</span> <span class="nav-text">introduction</span></a></li><li class="nav-item nav-level-2"><a class="nav-link" href="#focal-loss"><span class="nav-number">3.</span> <span class="nav-text">focal loss</span></a><ol class="nav-child"><li class="nav-item nav-level-3"><a class="nav-link" href="#definition"><span class="nav-number">3.1.</span> <span class="nav-text">definition</span></a></li><li class="nav-item nav-level-3"><a class="nav-link" href="#Class-Imbalance-and-Model-Initialization"><span class="nav-number">3.2.</span> <span class="nav-text">Class Imbalance and Model Initialization</span></a></li></ol></li><li class="nav-item nav-level-2"><a class="nav-link" href="#RetinaNet-Detector"><span class="nav-number">4.</span> <span class="nav-text">RetinaNet Detector</span></a><ol class="nav-child"><li class="nav-item nav-level-3"><a class="nav-link" href="#主要结构"><span class="nav-number">4.1.</span> <span class="nav-text">主要结构</span></a></li></ol></li><li class="nav-item nav-level-2"><a class="nav-link" href="#results"><span class="nav-number">5.</span> <span class="nav-text">results</span></a></li><li class="nav-item nav-level-2"><a class="nav-link" href="#conclusion"><span class="nav-number">6.</span> <span class="nav-text">conclusion</span></a></li></ol></div>
+            
+
+          </div>
+        </section>
+      <!--/noindex-->
+      
+
+      
+
+    </div>
+  </aside>
+
+
+        
+      </div>
+    </main>
+
+    <footer id="footer" class="footer">
+      <div class="footer-inner">
+        <div class="copyright">&copy; <span itemprop="copyrightYear">2018</span>
+  <span class="with-love">
+    <i class="fa fa-user"></i>
+  </span>
+  <span class="author" itemprop="copyrightHolder">donkey</span>
+
+  
+</div>
+
+
+  <div class="powered-by">由 <a class="theme-link" target="_blank" href="https://hexo.io">Hexo</a> 强力驱动</div>
+
+
+
+  <span class="post-meta-divider">|</span>
+
+
+
+  <div class="theme-info">主题 &mdash; <a class="theme-link" target="_blank" href="https://github.com/iissnan/hexo-theme-next">NexT.Muse</a> v5.1.4</div>
+
+
+
+
+        
+
+
+
+
+
+
+
+        
+      </div>
+    </footer>
+
+    
+      <div class="back-to-top">
+        <i class="fa fa-arrow-up"></i>
+        
+      </div>
+    
+
+    
+
+  </div>
+
+  
+
+<script type="text/javascript">
+  if (Object.prototype.toString.call(window.Promise) !== '[object Function]') {
+    window.Promise = null;
+  }
+</script>
+
+
+
+
+
+
+
+
+
+  
+
+
+
+
+
+
+
+
+
+
+
+
+  
+  
+    <script type="text/javascript" src="/lib/jquery/index.js?v=2.1.3"></script>
+  
+
+  
+  
+    <script type="text/javascript" src="/lib/fastclick/lib/fastclick.min.js?v=1.0.6"></script>
+  
+
+  
+  
+    <script type="text/javascript" src="/lib/jquery_lazyload/jquery.lazyload.js?v=1.9.7"></script>
+  
+
+  
+  
+    <script type="text/javascript" src="/lib/velocity/velocity.min.js?v=1.2.1"></script>
+  
+
+  
+  
+    <script type="text/javascript" src="/lib/velocity/velocity.ui.min.js?v=1.2.1"></script>
+  
+
+  
+  
+    <script type="text/javascript" src="/lib/fancybox/source/jquery.fancybox.pack.js?v=2.1.5"></script>
+  
+
+
+  
+
+
+  <script type="text/javascript" src="/js/src/utils.js?v=5.1.4"></script>
+
+  <script type="text/javascript" src="/js/src/motion.js?v=5.1.4"></script>
+
+
+
+  
+  
+
+  
+  <script type="text/javascript" src="/js/src/scrollspy.js?v=5.1.4"></script>
+<script type="text/javascript" src="/js/src/post-details.js?v=5.1.4"></script>
+
+
+
+  
+
+
+  <script type="text/javascript" src="/js/src/bootstrap.js?v=5.1.4"></script>
+
+
+
+  
+
+
+  
+
+
+
+
+	
+
+
+
+
+
+  
+
+
+
+
+
+  
+
+
+
+
+
+
+
+
+
+
+
+
+  
+
+
+
+
+
+  
+
+  
+
+  
+
+  
+  
+
+  
+  
+    <script type="text/x-mathjax-config">
+      MathJax.Hub.Config({
+        tex2jax: {
+          inlineMath: [ ['$','$'], ["\\(","\\)"]  ],
+          processEscapes: true,
+          skipTags: ['script', 'noscript', 'style', 'textarea', 'pre', 'code']
+        }
+      });
+    </script>
+
+    <script type="text/x-mathjax-config">
+      MathJax.Hub.Queue(function() {
+        var all = MathJax.Hub.getAllJax(), i;
+        for (i=0; i < all.length; i += 1) {
+          all[i].SourceElement().parentNode.className += ' has-jax';
+        }
+      });
+    </script>
+    <script type="text/javascript" src="//cdn.bootcss.com/mathjax/2.7.1/latest.js?config=TeX-AMS-MML_HTMLorMML"></script>
+  
+
+
+  
+
+  
+
+</body>
+</html>

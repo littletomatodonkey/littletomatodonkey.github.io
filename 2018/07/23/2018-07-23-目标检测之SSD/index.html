@@ -1,0 +1,774 @@
+<!DOCTYPE html>
+
+
+
+  
+
+
+<html class="theme-next muse use-motion" lang="zh-Hans">
+<head><meta name="generator" content="Hexo 3.8.0">
+  <meta charset="UTF-8">
+<meta http-equiv="X-UA-Compatible" content="IE=edge">
+<meta name="viewport" content="width=device-width, initial-scale=1, maximum-scale=1">
+<meta name="theme-color" content="#222">
+
+
+
+
+
+
+
+
+
+<meta http-equiv="Cache-Control" content="no-transform">
+<meta http-equiv="Cache-Control" content="no-siteapp">
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+  
+  
+  <link href="/lib/fancybox/source/jquery.fancybox.css?v=2.1.5" rel="stylesheet" type="text/css">
+
+
+
+
+
+
+
+<link href="/lib/font-awesome/css/font-awesome.min.css?v=4.6.2" rel="stylesheet" type="text/css">
+
+<link href="/css/main.css?v=5.1.4" rel="stylesheet" type="text/css">
+
+
+  <link rel="apple-touch-icon" sizes="180x180" href="/images/apple-touch-icon-next.png?v=5.1.4">
+
+
+  <link rel="icon" type="image/png" sizes="32x32" href="/images/favicon-32x32-next.png?v=5.1.4">
+
+
+  <link rel="icon" type="image/png" sizes="16x16" href="/images/favicon-16x16-next.png?v=5.1.4">
+
+
+  <link rel="mask-icon" href="/images/logo.svg?v=5.1.4" color="#222">
+
+
+
+
+
+  <meta name="keywords" content="论文,detection,">
+
+
+
+
+
+
+
+
+
+
+<meta name="description" content="SSD 论文地址：https://arxiv.org/abs/1512.02325Abstract SSD之一种one stage的目标检测方法，可以直接实现端到端的detection。 SSD生成大量default box(这是在很多feature map上使用不同的aspect ratio以及scale，即每个位置都会生成很多box)，然后预测其所属类别概率，并对box位置进行调整，最终得到预">
+<meta name="keywords" content="论文,detection">
+<meta property="og:type" content="article">
+<meta property="og:title" content="目标检测之SSD">
+<meta property="og:url" content="git@github.com:littletomatodonkey/littletomatodonkey.github.io.git/2018/07/23/2018-07-23-目标检测之SSD/index.html">
+<meta property="og:site_name" content="donkey&#39;s blog">
+<meta property="og:description" content="SSD 论文地址：https://arxiv.org/abs/1512.02325Abstract SSD之一种one stage的目标检测方法，可以直接实现端到端的detection。 SSD生成大量default box(这是在很多feature map上使用不同的aspect ratio以及scale，即每个位置都会生成很多box)，然后预测其所属类别概率，并对box位置进行调整，最终得到预">
+<meta property="og:locale" content="zh-Hans">
+<meta property="og:updated_time" content="2018-10-23T08:41:10.796Z">
+<meta name="twitter:card" content="summary">
+<meta name="twitter:title" content="目标检测之SSD">
+<meta name="twitter:description" content="SSD 论文地址：https://arxiv.org/abs/1512.02325Abstract SSD之一种one stage的目标检测方法，可以直接实现端到端的detection。 SSD生成大量default box(这是在很多feature map上使用不同的aspect ratio以及scale，即每个位置都会生成很多box)，然后预测其所属类别概率，并对box位置进行调整，最终得到预">
+
+
+
+<script type="text/javascript" id="hexo.configurations">
+  var NexT = window.NexT || {};
+  var CONFIG = {
+    root: '/',
+    scheme: 'Muse',
+    version: '5.1.4',
+    sidebar: {"position":"left","display":"post","offset":12,"b2t":false,"scrollpercent":false,"onmobile":false},
+    fancybox: true,
+    tabs: true,
+    motion: {"enable":true,"async":false,"transition":{"post_block":"fadeIn","post_header":"slideDownIn","post_body":"slideDownIn","coll_header":"slideLeftIn","sidebar":"slideUpIn"}},
+    duoshuo: {
+      userId: '0',
+      author: '博主'
+    },
+    algolia: {
+      applicationID: '',
+      apiKey: '',
+      indexName: '',
+      hits: {"per_page":10},
+      labels: {"input_placeholder":"Search for Posts","hits_empty":"We didn't find any results for the search: ${query}","hits_stats":"${hits} results found in ${time} ms"}
+    }
+  };
+</script>
+
+
+
+  <link rel="canonical" href="git@github.com:littletomatodonkey/littletomatodonkey.github.io.git/2018/07/23/2018-07-23-目标检测之SSD/">
+
+
+
+
+
+  <title>目标检测之SSD | donkey's blog</title>
+  
+
+
+
+
+
+
+
+
+</head>
+
+<body itemscope="" itemtype="http://schema.org/WebPage" lang="zh-Hans">
+
+  
+  
+    
+  
+
+  <div class="container sidebar-position-left page-post-detail">
+    <div class="headband"></div>
+
+    <header id="header" class="header" itemscope="" itemtype="http://schema.org/WPHeader">
+      <div class="header-inner"><div class="site-brand-wrapper">
+  <div class="site-meta ">
+    
+
+    <div class="custom-logo-site-title">
+      <a href="/" class="brand" rel="start">
+        <span class="logo-line-before"><i></i></span>
+        <span class="site-title">donkey's blog</span>
+        <span class="logo-line-after"><i></i></span>
+      </a>
+    </div>
+      
+        <p class="site-subtitle">to be BIG</p>
+      
+  </div>
+
+  <div class="site-nav-toggle">
+    <button>
+      <span class="btn-bar"></span>
+      <span class="btn-bar"></span>
+      <span class="btn-bar"></span>
+    </button>
+  </div>
+</div>
+
+<nav class="site-nav">
+  
+
+  
+    <ul id="menu" class="menu">
+      
+        
+        <li class="menu-item menu-item-home">
+          <a href="/" rel="section">
+            
+              <i class="menu-item-icon fa fa-fw fa-home"></i> <br>
+            
+            首页
+          </a>
+        </li>
+      
+        
+        <li class="menu-item menu-item-about">
+          <a href="/about/" rel="section">
+            
+              <i class="menu-item-icon fa fa-fw fa-user"></i> <br>
+            
+            关于
+          </a>
+        </li>
+      
+        
+        <li class="menu-item menu-item-tags">
+          <a href="/tags/" rel="section">
+            
+              <i class="menu-item-icon fa fa-fw fa-tags"></i> <br>
+            
+            标签
+          </a>
+        </li>
+      
+        
+        <li class="menu-item menu-item-archives">
+          <a href="/archives/" rel="section">
+            
+              <i class="menu-item-icon fa fa-fw fa-archive"></i> <br>
+            
+            归档
+          </a>
+        </li>
+      
+
+      
+    </ul>
+  
+
+  
+</nav>
+
+
+
+ </div>
+    </header>
+
+    <main id="main" class="main">
+      <div class="main-inner">
+        <div class="content-wrap">
+          <div id="content" class="content">
+            
+
+  <div id="posts" class="posts-expand">
+    
+
+  
+
+  
+  
+  
+
+  <article class="post post-type-normal" itemscope="" itemtype="http://schema.org/Article">
+  
+  
+  
+  <div class="post-block">
+    <link itemprop="mainEntityOfPage" href="git@github.com:littletomatodonkey/littletomatodonkey.github.io.git/2018/07/23/2018-07-23-目标检测之SSD/">
+
+    <span hidden itemprop="author" itemscope="" itemtype="http://schema.org/Person">
+      <meta itemprop="name" content="donkey">
+      <meta itemprop="description" content="">
+      <meta itemprop="image" content="/avatar/home-self.jpg">
+    </span>
+
+    <span hidden itemprop="publisher" itemscope="" itemtype="http://schema.org/Organization">
+      <meta itemprop="name" content="donkey's blog">
+    </span>
+
+    
+      <header class="post-header">
+
+        
+        
+          <h1 class="post-title" itemprop="name headline">目标检测之SSD</h1>
+        
+
+        <div class="post-meta">
+          <span class="post-time">
+            
+              <span class="post-meta-item-icon">
+                <i class="fa fa-calendar-o"></i>
+              </span>
+              
+                <span class="post-meta-item-text">发表于</span>
+              
+              <time title="创建于" itemprop="dateCreated datePublished" datetime="2018-07-23T12:00:00+08:00">
+                2018-07-23
+              </time>
+            
+
+            
+
+            
+          </span>
+
+          
+
+          
+            
+          
+
+          
+          
+
+          
+
+          
+
+          
+
+        </div>
+      </header>
+    
+
+    
+    
+    
+    <div class="post-body" itemprop="articleBody">
+
+      
+      
+
+      
+        <h2 id="SSD"><a href="#SSD" class="headerlink" title="SSD"></a>SSD</h2><ul>
+<li>论文地址：<a href="https://arxiv.org/abs/1512.02325" target="_blank" rel="noopener">https://arxiv.org/abs/1512.02325</a><h3 id="Abstract"><a href="#Abstract" class="headerlink" title="Abstract"></a>Abstract</h3></li>
+<li>SSD之一种<code>one stage</code>的目标检测方法，可以直接实现端到端的detection。</li>
+<li>SSD生成大量<code>default box</code>(这是在很多feature map上使用不同的aspect ratio以及scale，即每个位置都会生成很多box)，然后预测其所属类别概率，并对box位置进行调整，最终得到预测结果。</li>
+</ul>
+<h3 id="introduction"><a href="#introduction" class="headerlink" title="introduction"></a>introduction</h3><ul>
+<li>fasterRCNN等方法是<code>two stage</code>的方法，首先生成很多proposal box，然后再对其进行分类。SSD由于是一种<code>one stage</code>的方法，因此在保证精度保持<code>state of art</code>的前提下，仍然能够达到实时的效果（去除了候选框生成的过程）。</li>
+<li>SSD使用卷积层去预测物体类别以及bbox的offset(之前在很多类别预测的任务中，最后都是加上全连接层，再用softmax激活函数做处理)，同时对于不同<code>aspect ratio</code>的detection，使用不同的filter。<h3 id="The-Single-Shot-Detector"><a href="#The-Single-Shot-Detector" class="headerlink" title="The Single Shot Detector"></a>The Single Shot Detector</h3></li>
+</ul>
+<h4 id="model"><a href="#model" class="headerlink" title="model"></a>model</h4><ul>
+<li>SSD是基于前向的CNN，生成国定数目的bbox，然后再使用NMS去除一些bbox，得到最终的结果。</li>
+<li>对多个不同尺度的feature map做detection，这使得SSD针对多尺度的物体检测的效果也很好。Yolo只在一个feature map上做detection，SSD则是在不同的feature map上做detection。</li>
+<li>使用CNN做detection的预测。对于一个$m \times n \times p$的feature map，只需要使用一个$3 \times 3 \times p$的filter，就可以实现feature map上每个点的预测(对于特定类别物体的得分或者相对default box的offset)。</li>
+<li>在每个feature map cell中，都会生成一系列的<code>default box</code>，这是通过设置aspect ratio和scale生成的，假设一个feature map cell中会生成k个default box，则对于每个default box，会计算其针对c个类别的得分以及box相对于default box的offset的信息，因此对于一个大小为$m \times n$的feature map，会生成$mnk(c+4)$个输出。这个<code>default box</code>的概念与anchor box的概念类似，但是SSD中，对不同尺度的feature map都使用了<code>default box</code>。</li>
+</ul>
+<h4 id="training"><a href="#training" class="headerlink" title="training"></a>training</h4><ul>
+<li>在训练过程中，主要就是怎样将<code>gt box</code>与default box做匹配。SSD中使用的匹配策略如下：如果<code>gt box</code>与某个default box的IOU大于某个阈值(论文中设置的是0.5)，则认为这个default box与<code>gt box</code>可以匹配。因此每个<code>gt box</code>可能会与多个bbox进行匹配。</li>
+<li>SSD的loss的由定位误差和类别误差进行确定，具体公式如下<br>$$L(x, c, l, g) = \frac{1}{N}(Lconf(x, c) + \alpha Lloc(x, l, g))$$<br>其中N是匹配的default box的个数，(N=0的话，loss为0)，定位误差使用Smooth L1 loss，物体confidence loss使用softmax loss，$\alpha$是超参数。</li>
+<li>为了处理不同的尺度的物体检测，使用不同的aspect ratio与scale去生成不同的default box。假设总共处理m个feature map(大小依次递减)，则对于每个feature map，其scale计算方式如下：<br>$$s_k = s_{min} + \frac{s_{max}-s_{min}}{m-1}(k+1),k=1,2,…,m$$</li>
+</ul>
+<p>作者设置$s_{min}=0.2,s_{max}=0.9,a_r={ 1,2,3,\frac{1}{2},\frac{1}{3}}$，每个default box的$w_k^a=s_k \sqrt{a_r}$,$h_k^a=s_k / \sqrt{a_r}$，中心点为$(\frac{i + 0.5}{\left| {f_k} \right|},\frac{j + 0.5}{\left| {f_k} \right|})$，其中$f_k$是第k个feature map的大小。</p>
+<ul>
+<li>因为设置了很多个default box，因此在训练的时候，有很多个negative box，只有很少的positive box(与gt box匹配的都是positive，其他的都是negative)，因此我们不使用全部的negative box，基于confidence loss进行排序，只选取loss最高的那些negative box，使得最终的negative:positive最多为3:1。</li>
+<li>论文中使用了集中数据增强的方式<ul>
+<li>使用整张输入图像</li>
+<li>取图像块，使得patch与物体的IOU分别为0.1,0.3,0.5,0.7或者0.9。</li>
+<li>随机采样图像块(在原图中随机裁剪出一个图像块，使得图像块与CNN的输入大小相同即可。)</li>
+</ul>
+</li>
+</ul>
+<h3 id="result"><a href="#result" class="headerlink" title="result"></a>result</h3><ul>
+<li>作者通过实验，证明了在SSD中，数据增强是非常重要的，在<code>VOC2007</code>上可以使得mAP提升8.8%，大当然使用更多的aspect ratio也会使得效果更好。</li>
+<li>如果只在很少的feature map上进行bbox的预测，则mAP会下降很多，因此何种multi feature map的设计对提升mAP是很有好处的。</li>
+<li>此外作者在VOC2012，coco等数据集上做了测试，效果都是state of art的，同时速度可以达到实时。</li>
+</ul>
+<h3 id="conclusion"><a href="#conclusion" class="headerlink" title="conclusion"></a>conclusion</h3><ul>
+<li>SSD512比fasterRCNN快3倍以上，同时在pascal voc以及coco数据集上，mAP都超过了fasterRCNN。SSD300可以达到59FPS，比yolo的速度快，精度方面也有明显的优势。</li>
+</ul>
+
+      
+    </div>
+    
+    
+    
+
+    
+
+    
+
+    
+
+    <footer class="post-footer">
+      
+        <div class="post-tags">
+          
+            <a href="/tags/论文/" rel="tag"># 论文</a>
+          
+            <a href="/tags/detection/" rel="tag"># detection</a>
+          
+        </div>
+      
+
+      
+      
+      
+
+      
+        <div class="post-nav">
+          <div class="post-nav-next post-nav-item">
+            
+              <a href="/2018/07/22/2018-07-22-YOLO及其V2V3/" rel="next" title="YOLO及其V2V3">
+                <i class="fa fa-chevron-left"></i> YOLO及其V2V3
+              </a>
+            
+          </div>
+
+          <span class="post-nav-divider"></span>
+
+          <div class="post-nav-prev post-nav-item">
+            
+              <a href="/2018/08/29/2018-08-29-RCNN流派的检测方法总结/" rel="prev" title="RCNN流派的检测方法总结">
+                RCNN流派的检测方法总结 <i class="fa fa-chevron-right"></i>
+              </a>
+            
+          </div>
+        </div>
+      
+
+      
+      
+    </footer>
+  </div>
+  
+  
+  
+  </article>
+
+
+
+    <div class="post-spread">
+      
+    </div>
+  </div>
+
+
+          </div>
+          
+
+
+          
+
+  
+
+
+
+        </div>
+        
+          
+  
+  <div class="sidebar-toggle">
+    <div class="sidebar-toggle-line-wrap">
+      <span class="sidebar-toggle-line sidebar-toggle-line-first"></span>
+      <span class="sidebar-toggle-line sidebar-toggle-line-middle"></span>
+      <span class="sidebar-toggle-line sidebar-toggle-line-last"></span>
+    </div>
+  </div>
+
+  <aside id="sidebar" class="sidebar">
+    
+    <div class="sidebar-inner">
+
+      
+
+      
+        <ul class="sidebar-nav motion-element">
+          <li class="sidebar-nav-toc sidebar-nav-active" data-target="post-toc-wrap">
+            文章目录
+          </li>
+          <li class="sidebar-nav-overview" data-target="site-overview-wrap">
+            站点概览
+          </li>
+        </ul>
+      
+
+      <section class="site-overview-wrap sidebar-panel">
+        <div class="site-overview">
+          <div class="site-author motion-element" itemprop="author" itemscope="" itemtype="http://schema.org/Person">
+            
+              <img class="site-author-image" itemprop="image" src="/avatar/home-self.jpg" alt="donkey">
+            
+              <p class="site-author-name" itemprop="name">donkey</p>
+              <p class="site-description motion-element" itemprop="description">want to be an engineer</p>
+          </div>
+
+          <nav class="site-state motion-element">
+
+            
+              <div class="site-state-item site-state-posts">
+              
+                <a href="/archives/">
+              
+                  <span class="site-state-item-count">36</span>
+                  <span class="site-state-item-name">日志</span>
+                </a>
+              </div>
+            
+
+            
+
+            
+              
+              
+              <div class="site-state-item site-state-tags">
+                <a href="/tags/index.html">
+                  <span class="site-state-item-count">19</span>
+                  <span class="site-state-item-name">标签</span>
+                </a>
+              </div>
+            
+
+          </nav>
+
+          
+
+          
+            <div class="links-of-author motion-element">
+                
+                  <span class="links-of-author-item">
+                    <a href="https://github.com/littletomatodonkey" target="_blank" title="GitHub">
+                      
+                        <i class="fa fa-fw fa-github"></i>GitHub</a>
+                  </span>
+                
+                  <span class="links-of-author-item">
+                    <a href="https://blog.csdn.net/u012526003" target="_blank" title="CSDN">
+                      
+                        <i class="fa fa-fw fa-crosshairs"></i>CSDN</a>
+                  </span>
+                
+            </div>
+          
+
+          
+          
+
+          
+          
+
+          
+
+        </div>
+      </section>
+
+      
+      <!--noindex-->
+        <section class="post-toc-wrap motion-element sidebar-panel sidebar-panel-active">
+          <div class="post-toc">
+
+            
+              
+            
+
+            
+              <div class="post-toc-content"><ol class="nav"><li class="nav-item nav-level-2"><a class="nav-link" href="#SSD"><span class="nav-number">1.</span> <span class="nav-text">SSD</span></a><ol class="nav-child"><li class="nav-item nav-level-3"><a class="nav-link" href="#Abstract"><span class="nav-number">1.1.</span> <span class="nav-text">Abstract</span></a></li><li class="nav-item nav-level-3"><a class="nav-link" href="#introduction"><span class="nav-number">1.2.</span> <span class="nav-text">introduction</span></a></li><li class="nav-item nav-level-3"><a class="nav-link" href="#The-Single-Shot-Detector"><span class="nav-number">1.3.</span> <span class="nav-text">The Single Shot Detector</span></a><ol class="nav-child"><li class="nav-item nav-level-4"><a class="nav-link" href="#model"><span class="nav-number">1.3.1.</span> <span class="nav-text">model</span></a></li><li class="nav-item nav-level-4"><a class="nav-link" href="#training"><span class="nav-number">1.3.2.</span> <span class="nav-text">training</span></a></li></ol></li><li class="nav-item nav-level-3"><a class="nav-link" href="#result"><span class="nav-number">1.4.</span> <span class="nav-text">result</span></a></li><li class="nav-item nav-level-3"><a class="nav-link" href="#conclusion"><span class="nav-number">1.5.</span> <span class="nav-text">conclusion</span></a></li></ol></li></ol></div>
+            
+
+          </div>
+        </section>
+      <!--/noindex-->
+      
+
+      
+
+    </div>
+  </aside>
+
+
+        
+      </div>
+    </main>
+
+    <footer id="footer" class="footer">
+      <div class="footer-inner">
+        <div class="copyright">&copy; <span itemprop="copyrightYear">2018</span>
+  <span class="with-love">
+    <i class="fa fa-user"></i>
+  </span>
+  <span class="author" itemprop="copyrightHolder">donkey</span>
+
+  
+</div>
+
+
+  <div class="powered-by">由 <a class="theme-link" target="_blank" href="https://hexo.io">Hexo</a> 强力驱动</div>
+
+
+
+  <span class="post-meta-divider">|</span>
+
+
+
+  <div class="theme-info">主题 &mdash; <a class="theme-link" target="_blank" href="https://github.com/iissnan/hexo-theme-next">NexT.Muse</a> v5.1.4</div>
+
+
+
+
+        
+
+
+
+
+
+
+
+        
+      </div>
+    </footer>
+
+    
+      <div class="back-to-top">
+        <i class="fa fa-arrow-up"></i>
+        
+      </div>
+    
+
+    
+
+  </div>
+
+  
+
+<script type="text/javascript">
+  if (Object.prototype.toString.call(window.Promise) !== '[object Function]') {
+    window.Promise = null;
+  }
+</script>
+
+
+
+
+
+
+
+
+
+  
+
+
+
+
+
+
+
+
+
+
+
+
+  
+  
+    <script type="text/javascript" src="/lib/jquery/index.js?v=2.1.3"></script>
+  
+
+  
+  
+    <script type="text/javascript" src="/lib/fastclick/lib/fastclick.min.js?v=1.0.6"></script>
+  
+
+  
+  
+    <script type="text/javascript" src="/lib/jquery_lazyload/jquery.lazyload.js?v=1.9.7"></script>
+  
+
+  
+  
+    <script type="text/javascript" src="/lib/velocity/velocity.min.js?v=1.2.1"></script>
+  
+
+  
+  
+    <script type="text/javascript" src="/lib/velocity/velocity.ui.min.js?v=1.2.1"></script>
+  
+
+  
+  
+    <script type="text/javascript" src="/lib/fancybox/source/jquery.fancybox.pack.js?v=2.1.5"></script>
+  
+
+
+  
+
+
+  <script type="text/javascript" src="/js/src/utils.js?v=5.1.4"></script>
+
+  <script type="text/javascript" src="/js/src/motion.js?v=5.1.4"></script>
+
+
+
+  
+  
+
+  
+  <script type="text/javascript" src="/js/src/scrollspy.js?v=5.1.4"></script>
+<script type="text/javascript" src="/js/src/post-details.js?v=5.1.4"></script>
+
+
+
+  
+
+
+  <script type="text/javascript" src="/js/src/bootstrap.js?v=5.1.4"></script>
+
+
+
+  
+
+
+  
+
+
+
+
+	
+
+
+
+
+
+  
+
+
+
+
+
+  
+
+
+
+
+
+
+
+
+
+
+
+
+  
+
+
+
+
+
+  
+
+  
+
+  
+
+  
+  
+
+  
+  
+    <script type="text/x-mathjax-config">
+      MathJax.Hub.Config({
+        tex2jax: {
+          inlineMath: [ ['$','$'], ["\\(","\\)"]  ],
+          processEscapes: true,
+          skipTags: ['script', 'noscript', 'style', 'textarea', 'pre', 'code']
+        }
+      });
+    </script>
+
+    <script type="text/x-mathjax-config">
+      MathJax.Hub.Queue(function() {
+        var all = MathJax.Hub.getAllJax(), i;
+        for (i=0; i < all.length; i += 1) {
+          all[i].SourceElement().parentNode.className += ' has-jax';
+        }
+      });
+    </script>
+    <script type="text/javascript" src="//cdn.bootcss.com/mathjax/2.7.1/latest.js?config=TeX-AMS-MML_HTMLorMML"></script>
+  
+
+
+  
+
+  
+
+</body>
+</html>

@@ -1,0 +1,870 @@
+<!DOCTYPE html>
+
+
+
+  
+
+
+<html class="theme-next muse use-motion" lang="zh-Hans">
+<head><meta name="generator" content="Hexo 3.8.0">
+  <meta charset="UTF-8">
+<meta http-equiv="X-UA-Compatible" content="IE=edge">
+<meta name="viewport" content="width=device-width, initial-scale=1, maximum-scale=1">
+<meta name="theme-color" content="#222">
+
+
+
+
+
+
+
+
+
+<meta http-equiv="Cache-Control" content="no-transform">
+<meta http-equiv="Cache-Control" content="no-siteapp">
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+  
+  
+  <link href="/lib/fancybox/source/jquery.fancybox.css?v=2.1.5" rel="stylesheet" type="text/css">
+
+
+
+
+
+
+
+<link href="/lib/font-awesome/css/font-awesome.min.css?v=4.6.2" rel="stylesheet" type="text/css">
+
+<link href="/css/main.css?v=5.1.4" rel="stylesheet" type="text/css">
+
+
+  <link rel="apple-touch-icon" sizes="180x180" href="/images/apple-touch-icon-next.png?v=5.1.4">
+
+
+  <link rel="icon" type="image/png" sizes="32x32" href="/images/favicon-32x32-next.png?v=5.1.4">
+
+
+  <link rel="icon" type="image/png" sizes="16x16" href="/images/favicon-16x16-next.png?v=5.1.4">
+
+
+  <link rel="mask-icon" href="/images/logo.svg?v=5.1.4" color="#222">
+
+
+
+
+
+  <meta name="keywords" content="论文,Network Architecture Search,">
+
+
+
+
+
+
+
+
+
+
+<meta name="description" content="NAS 论文地址：NEURAL ARCHITECTURE SEARCH WITH REINFORCEMENT LEARNING 这篇文章是NAS的第一篇论文，在小的数据集上做了网络结构搜索优化，之后有很多论文都是基于这个思想，在分类、识别、分割等任务上做了一些尝试。  abstract 神经网络在视觉任务方面表现很好，但是需要手工设计良好的网络结构。在本文中，作者使用基于增强学习的RNN设计神经网">
+<meta name="keywords" content="论文,Network Architecture Search">
+<meta property="og:type" content="article">
+<meta property="og:title" content="网络结构搜索之NasNet">
+<meta property="og:url" content="git@github.com:littletomatodonkey/littletomatodonkey.github.io.git/2018/10/07/2018-10-07-网络搜索之NasNet及MnasNet/index.html">
+<meta property="og:site_name" content="donkey&#39;s blog">
+<meta property="og:description" content="NAS 论文地址：NEURAL ARCHITECTURE SEARCH WITH REINFORCEMENT LEARNING 这篇文章是NAS的第一篇论文，在小的数据集上做了网络结构搜索优化，之后有很多论文都是基于这个思想，在分类、识别、分割等任务上做了一些尝试。  abstract 神经网络在视觉任务方面表现很好，但是需要手工设计良好的网络结构。在本文中，作者使用基于增强学习的RNN设计神经网">
+<meta property="og:locale" content="zh-Hans">
+<meta property="og:image" content="/img/post/20181007-NAS-overview.png">
+<meta property="og:image" content="/img/post/20181007-NAS-RNN预测CNN.png">
+<meta property="og:image" content="/img/post/20181007-NAS-cifar结果.png">
+<meta property="og:image" content="/img/post/20181007-NasNet-结构.png">
+<meta property="og:image" content="/img/post/20181007-NasNet-block.png">
+<meta property="og:image" content="/img/post/20181007-NasNet-最优cell.png">
+<meta property="og:image" content="/img/post/20181007-NasNet-cifar10.png">
+<meta property="og:image" content="/img/post/20181007-mnasnet-分层搜索结构.png">
+<meta property="og:image" content="/img/post/20181007-mnasnet-分类性能.png">
+<meta property="og:image" content="/img/post/20181007-mnasnet-检测性能.png">
+<meta property="og:updated_time" content="2018-10-07T14:54:26.373Z">
+<meta name="twitter:card" content="summary">
+<meta name="twitter:title" content="网络结构搜索之NasNet">
+<meta name="twitter:description" content="NAS 论文地址：NEURAL ARCHITECTURE SEARCH WITH REINFORCEMENT LEARNING 这篇文章是NAS的第一篇论文，在小的数据集上做了网络结构搜索优化，之后有很多论文都是基于这个思想，在分类、识别、分割等任务上做了一些尝试。  abstract 神经网络在视觉任务方面表现很好，但是需要手工设计良好的网络结构。在本文中，作者使用基于增强学习的RNN设计神经网">
+<meta name="twitter:image" content="/img/post/20181007-NAS-overview.png">
+
+
+
+<script type="text/javascript" id="hexo.configurations">
+  var NexT = window.NexT || {};
+  var CONFIG = {
+    root: '/',
+    scheme: 'Muse',
+    version: '5.1.4',
+    sidebar: {"position":"left","display":"post","offset":12,"b2t":false,"scrollpercent":false,"onmobile":false},
+    fancybox: true,
+    tabs: true,
+    motion: {"enable":true,"async":false,"transition":{"post_block":"fadeIn","post_header":"slideDownIn","post_body":"slideDownIn","coll_header":"slideLeftIn","sidebar":"slideUpIn"}},
+    duoshuo: {
+      userId: '0',
+      author: '博主'
+    },
+    algolia: {
+      applicationID: '',
+      apiKey: '',
+      indexName: '',
+      hits: {"per_page":10},
+      labels: {"input_placeholder":"Search for Posts","hits_empty":"We didn't find any results for the search: ${query}","hits_stats":"${hits} results found in ${time} ms"}
+    }
+  };
+</script>
+
+
+
+  <link rel="canonical" href="git@github.com:littletomatodonkey/littletomatodonkey.github.io.git/2018/10/07/2018-10-07-网络搜索之NasNet及MnasNet/">
+
+
+
+
+
+  <title>网络结构搜索之NasNet | donkey's blog</title>
+  
+
+
+
+
+
+
+
+
+</head>
+
+<body itemscope="" itemtype="http://schema.org/WebPage" lang="zh-Hans">
+
+  
+  
+    
+  
+
+  <div class="container sidebar-position-left page-post-detail">
+    <div class="headband"></div>
+
+    <header id="header" class="header" itemscope="" itemtype="http://schema.org/WPHeader">
+      <div class="header-inner"><div class="site-brand-wrapper">
+  <div class="site-meta ">
+    
+
+    <div class="custom-logo-site-title">
+      <a href="/" class="brand" rel="start">
+        <span class="logo-line-before"><i></i></span>
+        <span class="site-title">donkey's blog</span>
+        <span class="logo-line-after"><i></i></span>
+      </a>
+    </div>
+      
+        <p class="site-subtitle">to be BIG</p>
+      
+  </div>
+
+  <div class="site-nav-toggle">
+    <button>
+      <span class="btn-bar"></span>
+      <span class="btn-bar"></span>
+      <span class="btn-bar"></span>
+    </button>
+  </div>
+</div>
+
+<nav class="site-nav">
+  
+
+  
+    <ul id="menu" class="menu">
+      
+        
+        <li class="menu-item menu-item-home">
+          <a href="/" rel="section">
+            
+              <i class="menu-item-icon fa fa-fw fa-home"></i> <br>
+            
+            首页
+          </a>
+        </li>
+      
+        
+        <li class="menu-item menu-item-about">
+          <a href="/about/" rel="section">
+            
+              <i class="menu-item-icon fa fa-fw fa-user"></i> <br>
+            
+            关于
+          </a>
+        </li>
+      
+        
+        <li class="menu-item menu-item-tags">
+          <a href="/tags/" rel="section">
+            
+              <i class="menu-item-icon fa fa-fw fa-tags"></i> <br>
+            
+            标签
+          </a>
+        </li>
+      
+        
+        <li class="menu-item menu-item-archives">
+          <a href="/archives/" rel="section">
+            
+              <i class="menu-item-icon fa fa-fw fa-archive"></i> <br>
+            
+            归档
+          </a>
+        </li>
+      
+
+      
+    </ul>
+  
+
+  
+</nav>
+
+
+
+ </div>
+    </header>
+
+    <main id="main" class="main">
+      <div class="main-inner">
+        <div class="content-wrap">
+          <div id="content" class="content">
+            
+
+  <div id="posts" class="posts-expand">
+    
+
+  
+
+  
+  
+  
+
+  <article class="post post-type-normal" itemscope="" itemtype="http://schema.org/Article">
+  
+  
+  
+  <div class="post-block">
+    <link itemprop="mainEntityOfPage" href="git@github.com:littletomatodonkey/littletomatodonkey.github.io.git/2018/10/07/2018-10-07-网络搜索之NasNet及MnasNet/">
+
+    <span hidden itemprop="author" itemscope="" itemtype="http://schema.org/Person">
+      <meta itemprop="name" content="donkey">
+      <meta itemprop="description" content="">
+      <meta itemprop="image" content="/avatar/home-self.jpg">
+    </span>
+
+    <span hidden itemprop="publisher" itemscope="" itemtype="http://schema.org/Organization">
+      <meta itemprop="name" content="donkey's blog">
+    </span>
+
+    
+      <header class="post-header">
+
+        
+        
+          <h1 class="post-title" itemprop="name headline">网络结构搜索之NasNet</h1>
+        
+
+        <div class="post-meta">
+          <span class="post-time">
+            
+              <span class="post-meta-item-icon">
+                <i class="fa fa-calendar-o"></i>
+              </span>
+              
+                <span class="post-meta-item-text">发表于</span>
+              
+              <time title="创建于" itemprop="dateCreated datePublished" datetime="2018-10-07T10:00:00+08:00">
+                2018-10-07
+              </time>
+            
+
+            
+
+            
+          </span>
+
+          
+
+          
+            
+          
+
+          
+          
+
+          
+
+          
+
+          
+
+        </div>
+      </header>
+    
+
+    
+    
+    
+    <div class="post-body" itemprop="articleBody">
+
+      
+      
+
+      
+        <h1 id="NAS"><a href="#NAS" class="headerlink" title="NAS"></a>NAS</h1><ul>
+<li>论文地址：<a href="https://arxiv.org/abs/1611.01578" target="_blank" rel="noopener">NEURAL ARCHITECTURE SEARCH WITH REINFORCEMENT LEARNING</a></li>
+<li>这篇文章是NAS的第一篇论文，在小的数据集上做了网络结构搜索优化，之后有很多论文都是基于这个思想，在分类、识别、分割等任务上做了一些尝试。</li>
+</ul>
+<h2 id="abstract"><a href="#abstract" class="headerlink" title="abstract"></a>abstract</h2><ul>
+<li>神经网络在视觉任务方面表现很好，但是需要手工设计良好的网络结构。在本文中，作者使用基于增强学习的RNN设计神经网络，主要有卷积网络与RNN结构。</li>
+<li>论文的方法在<code>cifar-10</code>数据集上表现超过了所有手工设计的网络结构，这是在神经网络搜索优化方面的初步探索，因此使用的数据集较小，</li>
+</ul>
+<h2 id="introduction"><a href="#introduction" class="headerlink" title="introduction"></a>introduction</h2><ul>
+<li>NAS优化控制框图如下所示</li>
+</ul>
+<p><img src="/img/post/20181007-NAS-overview.png" alt="NAS-overview"></p>
+<p>将模型的准确度作为reward，使用策略梯度更新控制器。对于准确度更高的结构，控制器会赋予其更大的概率。</p>
+<ul>
+<li>关于超参数调节或者参数优化方面，之前有过较多的研究，比如说随机搜索、贝叶斯优化等方法，但是这些在网络结构搜索方面之前没有相关的工作。</li>
+<li>论文中的控制器是一个<code>auto regressive</code>的结构，即当前时刻的预测结果与之前的预测结果有关。</li>
+</ul>
+<h2 id="methods"><a href="#methods" class="headerlink" title="methods"></a>methods</h2><h3 id="卷积结构"><a href="#卷积结构" class="headerlink" title="卷积结构"></a>卷积结构</h3><ul>
+<li>首先介绍使用NAS生成卷积网络结构，下面是使用RNN去预测CNN结构参数的框图</li>
+</ul>
+<p><img src="/img/post/20181007-NAS-RNN预测CNN.png" alt="NAS-RNN预测CNN"></p>
+<p>对于特定的网络层，依次预测filter height and width、stride height and width、 filter number，每个预测都作为下一个预测的输入，当网络层个数到达设置的阈值时，停止生成网络结构。使用增强学习的方法更新参数，具体的公式可以参见原始论文（我对增强学习不是很了解，在此就不给出具体的公式了）。</p>
+<h3 id="skip-connection"><a href="#skip-connection" class="headerlink" title="skip connection"></a>skip connection</h3><ul>
+<li>之前的搜索空间中不包括<code>skip connection</code>结构，在这里介绍了一种可以引入<code>skip connection</code>的方法。如下面的公式</li>
+</ul>
+<p>$$P\left( {Layer \; j \; is \; an \; input \; to \; layer \; i} \right){\rm{ }} = {\rm{ }}sigmoid({v^T}tanh({W_{prev}} <em> {h_j} + {W_{curr}} </em> {h_i}))$$</p>
+<p>使用这种方法，计算特定层是否被引入到当前层的计算的概率。这与传统的残差结构不同，同时可能有多个之前的feature map进行concatenation之后作为当前的输入。</p>
+<h3 id="RNN结构预测"><a href="#RNN结构预测" class="headerlink" title="RNN结构预测"></a>RNN结构预测</h3><ul>
+<li>这里没有细看，不作解读。</li>
+</ul>
+<h2 id="result"><a href="#result" class="headerlink" title="result"></a>result</h2><ul>
+<li>贴一张NAS生成的结构在cifar上的性能。</li>
+</ul>
+<p><img src="/img/post/20181007-NAS-cifar结果.png" alt="NAS-cifar结果"></p>
+<h1 id="NasNet"><a href="#NasNet" class="headerlink" title="NasNet"></a>NasNet</h1><ul>
+<li>地址：<a href="http://cn.arxiv.org/pdf/1707.07012v4" target="_blank" rel="noopener">Learning Transferable Architectures for Scalable Image Recognition</a></li>
+</ul>
+<h2 id="abstract-1"><a href="#abstract-1" class="headerlink" title="abstract"></a>abstract</h2><ul>
+<li>模型结构至关重要，论文提出了一种直接在感兴趣的数据集上进行模型结构设计的方法，使用<code>architectural building block</code>，再利用这些blocks去生成最终的模型。</li>
+<li>论文主要的贡献就是设计了一种新的搜索空间：<code>NASNet search space</code>，其迁移性也很好。</li>
+<li>介绍了一种新的正则化方法：<code>ScheduledDropPath</code>，这提升了NasNet的泛化能力。</li>
+<li>设计的模型在imagenet上的性能超过了最好的人工设计的模型，在coco数据集上也超过了state of art的性能。</li>
+</ul>
+<h2 id="introduction-1"><a href="#introduction-1" class="headerlink" title="introduction"></a>introduction</h2><ul>
+<li>如果直接使用NAS在大的数据集上搜索最好的网络结构，则计算量太大，论文中首先在<code>proxy dataset</code>上搜索好的模型结构，在将其迁移到imagenet上。</li>
+<li>论文中通过设计搜索空间来实现这种良好的迁移性能，从而使得模型结构的复杂度与网络深度以及输入图像大小无关。即：搜索空间中的CN结构都是由convolution layer(cell)组成，他们的结构相同，权重不同。<code>这在大大提升搜索速度的同时也可以提升模型的泛化能力</code>。</li>
+</ul>
+<h2 id="method"><a href="#method" class="headerlink" title="method"></a>method</h2><ul>
+<li>在cifar和imagenet上的网路结构如下图</li>
+</ul>
+<p><img src="/img/post/20181007-NasNet-结构.png" alt="NasNet-结构"></p>
+<p>主要包括<code>normal cell</code>与<code>reduction cell</code>2种cell。<code>normal cell</code>前后的feature map size相同，经过<code>reduction cell</code>后，feature map的宽高会减半，从而增大感受野。</p>
+<ul>
+<li>一个blcok的生成步骤为：选择之前两个输出层，选择两个操作对其进行转化，再选择一种方法将两个输出结合成一个输出，得到当前block的输出。结构框图如下所示</li>
+</ul>
+<p><img src="/img/post/20181007-NasNet-block.png" alt="NasNet-block"></p>
+<ul>
+<li>作者将基于RL的搜素与随机搜索进行对比，发现效果差别并不是很大，可以推断出、<ul>
+<li>这种NasNet得到的结构本身就是很好的</li>
+<li>随机搜索这个baseline本身就很高。</li>
+</ul>
+</li>
+</ul>
+<h2 id="results"><a href="#results" class="headerlink" title="results"></a>results</h2><h3 id="on-cifar-10"><a href="#on-cifar-10" class="headerlink" title="on cifar 10"></a>on cifar 10</h3><ul>
+<li>论文中每个cell包含5个block，搜索之后得到的最好的结构如下</li>
+</ul>
+<p><img src="/img/post/20181007-NasNet-最优cell.png" alt="NasNet-block"></p>
+<p>在cifar10上的表现如下</p>
+<p><img src="/img/post/20181007-NasNet-cifar10.png" alt="NasNet-cifar10表现"></p>
+<h3 id="on-coco"><a href="#on-coco" class="headerlink" title="on coco"></a>on coco</h3><ul>
+<li>在coco数据集上展开了detection的实验，验证Naset生成的模型的泛化能力，将其作为fasterRCNN的backbone，得到的结果秒杀其他人工设计的一众方法。</li>
+</ul>
+<h3 id="search-method"><a href="#search-method" class="headerlink" title="search method"></a>search method</h3><ul>
+<li>将RL based search与random search进行对比，验证了RL based search的优越性。</li>
+</ul>
+<h2 id="conclusion"><a href="#conclusion" class="headerlink" title="conclusion"></a>conclusion</h2><ul>
+<li>论文最主要的共享就是设计搜索空空间，将搜索空间与模型复杂度进行解耦，从而保证模型搜索与设计过程的快速性与泛化能力，同时方便模型结构的迁移。</li>
+</ul>
+<h1 id="MnasNet"><a href="#MnasNet" class="headerlink" title="MnasNet"></a>MnasNet</h1><ul>
+<li>论文地址：<a href="https://arxiv.org/abs/1807.11626" target="_blank" rel="noopener">MnasNet: Platform-Aware Neural Architecture Search for Mobile</a></li>
+</ul>
+<h2 id="abstract-2"><a href="#abstract-2" class="headerlink" title="abstract"></a>abstract</h2><ul>
+<li>在给移动设备设计网络结构时，需要在保证精度的前提下，提升其速度，在之前的NAS、NasNet等工作中都没有考虑到inference latency这一情况，本文中同时考虑到准确度和latecny两个目标，即在搜索的过程中的目标函数是多目标的。</li>
+<li>之前的latency都是使用一些间接的指标，如flops等，本文直接时间inference time作为推断延迟的时间，这比之前的间接指标要更加准确一些。、</li>
+<li>在分类任务和检测任务上面都超过了mobilenet系列的效果。</li>
+</ul>
+<h2 id="contribution"><a href="#contribution" class="headerlink" title="contribution"></a>contribution</h2><ul>
+<li>介绍了一种基于RL的多目标优化搜索方法，用于找到同时满足高准确度和低延迟的模型结构。</li>
+<li>提出了一种新型的分层搜索空间，用于平衡灵活性与搜索空间的尺寸。</li>
+<li>搜索得到的模型性能超过了mobilenet。</li>
+</ul>
+<h2 id="problem-formulation"><a href="#problem-formulation" class="headerlink" title="problem formulation"></a>problem formulation</h2><ul>
+<li>主要的公式如下</li>
+</ul>
+<p>$$\mathop maximize_{(m)} {\kern 10pt} ACC(m) \times {[\frac{LAT(m)}{T}]^w}$$</p>
+<p>其中</p>
+<p>$$w = \left{ \begin{array}{l}<br>\alpha ,{\kern 5pt} if{\kern 5pt} LAT(m) \le T\<br>\beta ,{\kern 5pt} otherwise<br>\end{array} \right.$$</p>
+<p>从而可以将多目标函数变为单目标函数，设计不同的$\alpha$与$\beta$就可以设计有不同侧重点的模型结构。</p>
+<h2 id="Mobile-Neural-Architecture-Search"><a href="#Mobile-Neural-Architecture-Search" class="headerlink" title="Mobile Neural Architecture Search"></a>Mobile Neural Architecture Search</h2><h3 id="Search-Algorithm"><a href="#Search-Algorithm" class="headerlink" title="Search Algorithm"></a>Search Algorithm</h3><ul>
+<li>基于梯度下降的RL算法用于搜索最优模型结构。</li>
+</ul>
+<h3 id="Factorized-Hierarchical-Search-Space"><a href="#Factorized-Hierarchical-Search-Space" class="headerlink" title="Factorized Hierarchical Search Space"></a>Factorized Hierarchical Search Space</h3><ul>
+<li>结构示意图如下</li>
+</ul>
+<p><img src="/img/post/20181007-mnasnet-分层搜索结构.png" alt="NasNet-mnasnet-分层搜索结构"></p>
+<p>每个block中含有若干个网络层，同一个blcok中的网络层的结构相同，搜索空间就是所有这些网络层的结构。</p>
+<ul>
+<li>假设模型被分为B个blocks，每个子空间有S个解，每个block有N个layer，则论文中这种分层搜索结构的搜索空间大小为$S ^ B$，而平铺结构的搜索空间大小为$S ^ {N \cdot B}$，这种分层结构比平铺结构的搜索空间大小要小得多。</li>
+</ul>
+<h2 id="results-1"><a href="#results-1" class="headerlink" title="results"></a>results</h2><ul>
+<li>分类性能表现如下</li>
+</ul>
+<p><img src="/img/post/20181007-mnasnet-分类性能.png" alt="NasNet-mnasnet-分类性能"></p>
+<p>检测性能如下</p>
+<p><img src="/img/post/20181007-mnasnet-检测性能.png" alt="NasNet-mnasnet-检测性能"></p>
+<h3 id="architecture-discussion"><a href="#architecture-discussion" class="headerlink" title="architecture discussion"></a>architecture discussion</h3><ul>
+<li>引入网络latency指标时，搜索方法可以自动搜索计算量较小的方法。</li>
+<li>对于网络结构差异较大的模型，它在精度和实效性的平衡性方面做得更好。</li>
+</ul>
+<h2 id="conclusion-1"><a href="#conclusion-1" class="headerlink" title="conclusion"></a>conclusion</h2><ul>
+<li>提出了MNasNet，将模型精度与时效性作为目标，可以使得生成的模型在移动设备上使用，综合性能超过了mobilenet。</li>
+<li>使用分层搜索结构，可以在精度与时效性方面有更好的平衡。</li>
+</ul>
+
+      
+    </div>
+    
+    
+    
+
+    
+
+    
+
+    
+
+    <footer class="post-footer">
+      
+        <div class="post-tags">
+          
+            <a href="/tags/论文/" rel="tag"># 论文</a>
+          
+            <a href="/tags/Network-Architecture-Search/" rel="tag"># Network Architecture Search</a>
+          
+        </div>
+      
+
+      
+      
+      
+
+      
+        <div class="post-nav">
+          <div class="post-nav-next post-nav-item">
+            
+              <a href="/2018/09/25/2018-09-25-instance segmentation之maskRCNN/" rel="next" title="instance segmentation之maskRCNN">
+                <i class="fa fa-chevron-left"></i> instance segmentation之maskRCNN
+              </a>
+            
+          </div>
+
+          <span class="post-nav-divider"></span>
+
+          <div class="post-nav-prev post-nav-item">
+            
+              <a href="/2018/10/10/2018-10-10-模型压缩之deep compression/" rel="prev" title="模型压缩之deep compression">
+                模型压缩之deep compression <i class="fa fa-chevron-right"></i>
+              </a>
+            
+          </div>
+        </div>
+      
+
+      
+      
+    </footer>
+  </div>
+  
+  
+  
+  </article>
+
+
+
+    <div class="post-spread">
+      
+    </div>
+  </div>
+
+
+          </div>
+          
+
+
+          
+
+  
+
+
+
+        </div>
+        
+          
+  
+  <div class="sidebar-toggle">
+    <div class="sidebar-toggle-line-wrap">
+      <span class="sidebar-toggle-line sidebar-toggle-line-first"></span>
+      <span class="sidebar-toggle-line sidebar-toggle-line-middle"></span>
+      <span class="sidebar-toggle-line sidebar-toggle-line-last"></span>
+    </div>
+  </div>
+
+  <aside id="sidebar" class="sidebar">
+    
+    <div class="sidebar-inner">
+
+      
+
+      
+        <ul class="sidebar-nav motion-element">
+          <li class="sidebar-nav-toc sidebar-nav-active" data-target="post-toc-wrap">
+            文章目录
+          </li>
+          <li class="sidebar-nav-overview" data-target="site-overview-wrap">
+            站点概览
+          </li>
+        </ul>
+      
+
+      <section class="site-overview-wrap sidebar-panel">
+        <div class="site-overview">
+          <div class="site-author motion-element" itemprop="author" itemscope="" itemtype="http://schema.org/Person">
+            
+              <img class="site-author-image" itemprop="image" src="/avatar/home-self.jpg" alt="donkey">
+            
+              <p class="site-author-name" itemprop="name">donkey</p>
+              <p class="site-description motion-element" itemprop="description">want to be an engineer</p>
+          </div>
+
+          <nav class="site-state motion-element">
+
+            
+              <div class="site-state-item site-state-posts">
+              
+                <a href="/archives/">
+              
+                  <span class="site-state-item-count">36</span>
+                  <span class="site-state-item-name">日志</span>
+                </a>
+              </div>
+            
+
+            
+
+            
+              
+              
+              <div class="site-state-item site-state-tags">
+                <a href="/tags/index.html">
+                  <span class="site-state-item-count">19</span>
+                  <span class="site-state-item-name">标签</span>
+                </a>
+              </div>
+            
+
+          </nav>
+
+          
+
+          
+            <div class="links-of-author motion-element">
+                
+                  <span class="links-of-author-item">
+                    <a href="https://github.com/littletomatodonkey" target="_blank" title="GitHub">
+                      
+                        <i class="fa fa-fw fa-github"></i>GitHub</a>
+                  </span>
+                
+                  <span class="links-of-author-item">
+                    <a href="https://blog.csdn.net/u012526003" target="_blank" title="CSDN">
+                      
+                        <i class="fa fa-fw fa-crosshairs"></i>CSDN</a>
+                  </span>
+                
+            </div>
+          
+
+          
+          
+
+          
+          
+
+          
+
+        </div>
+      </section>
+
+      
+      <!--noindex-->
+        <section class="post-toc-wrap motion-element sidebar-panel sidebar-panel-active">
+          <div class="post-toc">
+
+            
+              
+            
+
+            
+              <div class="post-toc-content"><ol class="nav"><li class="nav-item nav-level-1"><a class="nav-link" href="#NAS"><span class="nav-number">1.</span> <span class="nav-text">NAS</span></a><ol class="nav-child"><li class="nav-item nav-level-2"><a class="nav-link" href="#abstract"><span class="nav-number">1.1.</span> <span class="nav-text">abstract</span></a></li><li class="nav-item nav-level-2"><a class="nav-link" href="#introduction"><span class="nav-number">1.2.</span> <span class="nav-text">introduction</span></a></li><li class="nav-item nav-level-2"><a class="nav-link" href="#methods"><span class="nav-number">1.3.</span> <span class="nav-text">methods</span></a><ol class="nav-child"><li class="nav-item nav-level-3"><a class="nav-link" href="#卷积结构"><span class="nav-number">1.3.1.</span> <span class="nav-text">卷积结构</span></a></li><li class="nav-item nav-level-3"><a class="nav-link" href="#skip-connection"><span class="nav-number">1.3.2.</span> <span class="nav-text">skip connection</span></a></li><li class="nav-item nav-level-3"><a class="nav-link" href="#RNN结构预测"><span class="nav-number">1.3.3.</span> <span class="nav-text">RNN结构预测</span></a></li></ol></li><li class="nav-item nav-level-2"><a class="nav-link" href="#result"><span class="nav-number">1.4.</span> <span class="nav-text">result</span></a></li></ol></li><li class="nav-item nav-level-1"><a class="nav-link" href="#NasNet"><span class="nav-number">2.</span> <span class="nav-text">NasNet</span></a><ol class="nav-child"><li class="nav-item nav-level-2"><a class="nav-link" href="#abstract-1"><span class="nav-number">2.1.</span> <span class="nav-text">abstract</span></a></li><li class="nav-item nav-level-2"><a class="nav-link" href="#introduction-1"><span class="nav-number">2.2.</span> <span class="nav-text">introduction</span></a></li><li class="nav-item nav-level-2"><a class="nav-link" href="#method"><span class="nav-number">2.3.</span> <span class="nav-text">method</span></a></li><li class="nav-item nav-level-2"><a class="nav-link" href="#results"><span class="nav-number">2.4.</span> <span class="nav-text">results</span></a><ol class="nav-child"><li class="nav-item nav-level-3"><a class="nav-link" href="#on-cifar-10"><span class="nav-number">2.4.1.</span> <span class="nav-text">on cifar 10</span></a></li><li class="nav-item nav-level-3"><a class="nav-link" href="#on-coco"><span class="nav-number">2.4.2.</span> <span class="nav-text">on coco</span></a></li><li class="nav-item nav-level-3"><a class="nav-link" href="#search-method"><span class="nav-number">2.4.3.</span> <span class="nav-text">search method</span></a></li></ol></li><li class="nav-item nav-level-2"><a class="nav-link" href="#conclusion"><span class="nav-number">2.5.</span> <span class="nav-text">conclusion</span></a></li></ol></li><li class="nav-item nav-level-1"><a class="nav-link" href="#MnasNet"><span class="nav-number">3.</span> <span class="nav-text">MnasNet</span></a><ol class="nav-child"><li class="nav-item nav-level-2"><a class="nav-link" href="#abstract-2"><span class="nav-number">3.1.</span> <span class="nav-text">abstract</span></a></li><li class="nav-item nav-level-2"><a class="nav-link" href="#contribution"><span class="nav-number">3.2.</span> <span class="nav-text">contribution</span></a></li><li class="nav-item nav-level-2"><a class="nav-link" href="#problem-formulation"><span class="nav-number">3.3.</span> <span class="nav-text">problem formulation</span></a></li><li class="nav-item nav-level-2"><a class="nav-link" href="#Mobile-Neural-Architecture-Search"><span class="nav-number">3.4.</span> <span class="nav-text">Mobile Neural Architecture Search</span></a><ol class="nav-child"><li class="nav-item nav-level-3"><a class="nav-link" href="#Search-Algorithm"><span class="nav-number">3.4.1.</span> <span class="nav-text">Search Algorithm</span></a></li><li class="nav-item nav-level-3"><a class="nav-link" href="#Factorized-Hierarchical-Search-Space"><span class="nav-number">3.4.2.</span> <span class="nav-text">Factorized Hierarchical Search Space</span></a></li></ol></li><li class="nav-item nav-level-2"><a class="nav-link" href="#results-1"><span class="nav-number">3.5.</span> <span class="nav-text">results</span></a><ol class="nav-child"><li class="nav-item nav-level-3"><a class="nav-link" href="#architecture-discussion"><span class="nav-number">3.5.1.</span> <span class="nav-text">architecture discussion</span></a></li></ol></li><li class="nav-item nav-level-2"><a class="nav-link" href="#conclusion-1"><span class="nav-number">3.6.</span> <span class="nav-text">conclusion</span></a></li></ol></li></ol></div>
+            
+
+          </div>
+        </section>
+      <!--/noindex-->
+      
+
+      
+
+    </div>
+  </aside>
+
+
+        
+      </div>
+    </main>
+
+    <footer id="footer" class="footer">
+      <div class="footer-inner">
+        <div class="copyright">&copy; <span itemprop="copyrightYear">2018</span>
+  <span class="with-love">
+    <i class="fa fa-user"></i>
+  </span>
+  <span class="author" itemprop="copyrightHolder">donkey</span>
+
+  
+</div>
+
+
+  <div class="powered-by">由 <a class="theme-link" target="_blank" href="https://hexo.io">Hexo</a> 强力驱动</div>
+
+
+
+  <span class="post-meta-divider">|</span>
+
+
+
+  <div class="theme-info">主题 &mdash; <a class="theme-link" target="_blank" href="https://github.com/iissnan/hexo-theme-next">NexT.Muse</a> v5.1.4</div>
+
+
+
+
+        
+
+
+
+
+
+
+
+        
+      </div>
+    </footer>
+
+    
+      <div class="back-to-top">
+        <i class="fa fa-arrow-up"></i>
+        
+      </div>
+    
+
+    
+
+  </div>
+
+  
+
+<script type="text/javascript">
+  if (Object.prototype.toString.call(window.Promise) !== '[object Function]') {
+    window.Promise = null;
+  }
+</script>
+
+
+
+
+
+
+
+
+
+  
+
+
+
+
+
+
+
+
+
+
+
+
+  
+  
+    <script type="text/javascript" src="/lib/jquery/index.js?v=2.1.3"></script>
+  
+
+  
+  
+    <script type="text/javascript" src="/lib/fastclick/lib/fastclick.min.js?v=1.0.6"></script>
+  
+
+  
+  
+    <script type="text/javascript" src="/lib/jquery_lazyload/jquery.lazyload.js?v=1.9.7"></script>
+  
+
+  
+  
+    <script type="text/javascript" src="/lib/velocity/velocity.min.js?v=1.2.1"></script>
+  
+
+  
+  
+    <script type="text/javascript" src="/lib/velocity/velocity.ui.min.js?v=1.2.1"></script>
+  
+
+  
+  
+    <script type="text/javascript" src="/lib/fancybox/source/jquery.fancybox.pack.js?v=2.1.5"></script>
+  
+
+
+  
+
+
+  <script type="text/javascript" src="/js/src/utils.js?v=5.1.4"></script>
+
+  <script type="text/javascript" src="/js/src/motion.js?v=5.1.4"></script>
+
+
+
+  
+  
+
+  
+  <script type="text/javascript" src="/js/src/scrollspy.js?v=5.1.4"></script>
+<script type="text/javascript" src="/js/src/post-details.js?v=5.1.4"></script>
+
+
+
+  
+
+
+  <script type="text/javascript" src="/js/src/bootstrap.js?v=5.1.4"></script>
+
+
+
+  
+
+
+  
+
+
+
+
+	
+
+
+
+
+
+  
+
+
+
+
+
+  
+
+
+
+
+
+
+
+
+
+
+
+
+  
+
+
+
+
+
+  
+
+  
+
+  
+
+  
+  
+
+  
+  
+    <script type="text/x-mathjax-config">
+      MathJax.Hub.Config({
+        tex2jax: {
+          inlineMath: [ ['$','$'], ["\\(","\\)"]  ],
+          processEscapes: true,
+          skipTags: ['script', 'noscript', 'style', 'textarea', 'pre', 'code']
+        }
+      });
+    </script>
+
+    <script type="text/x-mathjax-config">
+      MathJax.Hub.Queue(function() {
+        var all = MathJax.Hub.getAllJax(), i;
+        for (i=0; i < all.length; i += 1) {
+          all[i].SourceElement().parentNode.className += ' has-jax';
+        }
+      });
+    </script>
+    <script type="text/javascript" src="//cdn.bootcss.com/mathjax/2.7.1/latest.js?config=TeX-AMS-MML_HTMLorMML"></script>
+  
+
+
+  
+
+  
+
+</body>
+</html>

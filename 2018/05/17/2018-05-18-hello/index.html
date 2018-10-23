@@ -1,0 +1,774 @@
+<!DOCTYPE html>
+
+
+
+  
+
+
+<html class="theme-next muse use-motion" lang="zh-Hans">
+<head><meta name="generator" content="Hexo 3.8.0">
+  <meta charset="UTF-8">
+<meta http-equiv="X-UA-Compatible" content="IE=edge">
+<meta name="viewport" content="width=device-width, initial-scale=1, maximum-scale=1">
+<meta name="theme-color" content="#222">
+
+
+
+
+
+
+
+
+
+<meta http-equiv="Cache-Control" content="no-transform">
+<meta http-equiv="Cache-Control" content="no-siteapp">
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+  
+  
+  <link href="/lib/fancybox/source/jquery.fancybox.css?v=2.1.5" rel="stylesheet" type="text/css">
+
+
+
+
+
+
+
+<link href="/lib/font-awesome/css/font-awesome.min.css?v=4.6.2" rel="stylesheet" type="text/css">
+
+<link href="/css/main.css?v=5.1.4" rel="stylesheet" type="text/css">
+
+
+  <link rel="apple-touch-icon" sizes="180x180" href="/images/apple-touch-icon-next.png?v=5.1.4">
+
+
+  <link rel="icon" type="image/png" sizes="32x32" href="/images/favicon-32x32-next.png?v=5.1.4">
+
+
+  <link rel="icon" type="image/png" sizes="16x16" href="/images/favicon-16x16-next.png?v=5.1.4">
+
+
+  <link rel="mask-icon" href="/images/logo.svg?v=5.1.4" color="#222">
+
+
+
+
+
+  <meta name="keywords" content="随笔,开发环境,">
+
+
+
+
+
+
+
+
+
+
+<meta name="description" content="说明 基于jekyll与基于hexo进行搭建有比较明显的不同，具体可以参见这一篇文章：https://liguanghe.github.io/2017/11/06/blogRebuilt/ 最开始基于jekyll进行搭建，但是自己需要配置的东西比较多，因此在之后也使用了hexo进行博客的搭建。  基于hexo的blog搭建 因为hexo搭建过程中，需要在本地生成网页，再将生成的页面上传到网站上，上">
+<meta name="keywords" content="随笔,开发环境">
+<meta property="og:type" content="article">
+<meta property="og:title" content="My first blog">
+<meta property="og:url" content="git@github.com:littletomatodonkey/littletomatodonkey.github.io.git/2018/05/17/2018-05-18-hello/index.html">
+<meta property="og:site_name" content="donkey&#39;s blog">
+<meta property="og:description" content="说明 基于jekyll与基于hexo进行搭建有比较明显的不同，具体可以参见这一篇文章：https://liguanghe.github.io/2017/11/06/blogRebuilt/ 最开始基于jekyll进行搭建，但是自己需要配置的东西比较多，因此在之后也使用了hexo进行博客的搭建。  基于hexo的blog搭建 因为hexo搭建过程中，需要在本地生成网页，再将生成的页面上传到网站上，上">
+<meta property="og:locale" content="zh-Hans">
+<meta property="og:updated_time" content="2018-10-23T13:52:56.139Z">
+<meta name="twitter:card" content="summary">
+<meta name="twitter:title" content="My first blog">
+<meta name="twitter:description" content="说明 基于jekyll与基于hexo进行搭建有比较明显的不同，具体可以参见这一篇文章：https://liguanghe.github.io/2017/11/06/blogRebuilt/ 最开始基于jekyll进行搭建，但是自己需要配置的东西比较多，因此在之后也使用了hexo进行博客的搭建。  基于hexo的blog搭建 因为hexo搭建过程中，需要在本地生成网页，再将生成的页面上传到网站上，上">
+
+
+
+<script type="text/javascript" id="hexo.configurations">
+  var NexT = window.NexT || {};
+  var CONFIG = {
+    root: '/',
+    scheme: 'Muse',
+    version: '5.1.4',
+    sidebar: {"position":"left","display":"post","offset":12,"b2t":false,"scrollpercent":false,"onmobile":false},
+    fancybox: true,
+    tabs: true,
+    motion: {"enable":true,"async":false,"transition":{"post_block":"fadeIn","post_header":"slideDownIn","post_body":"slideDownIn","coll_header":"slideLeftIn","sidebar":"slideUpIn"}},
+    duoshuo: {
+      userId: '0',
+      author: '博主'
+    },
+    algolia: {
+      applicationID: '',
+      apiKey: '',
+      indexName: '',
+      hits: {"per_page":10},
+      labels: {"input_placeholder":"Search for Posts","hits_empty":"We didn't find any results for the search: ${query}","hits_stats":"${hits} results found in ${time} ms"}
+    }
+  };
+</script>
+
+
+
+  <link rel="canonical" href="git@github.com:littletomatodonkey/littletomatodonkey.github.io.git/2018/05/17/2018-05-18-hello/">
+
+
+
+
+
+  <title>My first blog | donkey's blog</title>
+  
+
+
+
+
+
+
+
+
+</head>
+
+<body itemscope="" itemtype="http://schema.org/WebPage" lang="zh-Hans">
+
+  
+  
+    
+  
+
+  <div class="container sidebar-position-left page-post-detail">
+    <div class="headband"></div>
+
+    <header id="header" class="header" itemscope="" itemtype="http://schema.org/WPHeader">
+      <div class="header-inner"><div class="site-brand-wrapper">
+  <div class="site-meta ">
+    
+
+    <div class="custom-logo-site-title">
+      <a href="/" class="brand" rel="start">
+        <span class="logo-line-before"><i></i></span>
+        <span class="site-title">donkey's blog</span>
+        <span class="logo-line-after"><i></i></span>
+      </a>
+    </div>
+      
+        <p class="site-subtitle">to be BIG</p>
+      
+  </div>
+
+  <div class="site-nav-toggle">
+    <button>
+      <span class="btn-bar"></span>
+      <span class="btn-bar"></span>
+      <span class="btn-bar"></span>
+    </button>
+  </div>
+</div>
+
+<nav class="site-nav">
+  
+
+  
+    <ul id="menu" class="menu">
+      
+        
+        <li class="menu-item menu-item-home">
+          <a href="/" rel="section">
+            
+              <i class="menu-item-icon fa fa-fw fa-home"></i> <br>
+            
+            首页
+          </a>
+        </li>
+      
+        
+        <li class="menu-item menu-item-about">
+          <a href="/about/" rel="section">
+            
+              <i class="menu-item-icon fa fa-fw fa-user"></i> <br>
+            
+            关于
+          </a>
+        </li>
+      
+        
+        <li class="menu-item menu-item-tags">
+          <a href="/tags/" rel="section">
+            
+              <i class="menu-item-icon fa fa-fw fa-tags"></i> <br>
+            
+            标签
+          </a>
+        </li>
+      
+        
+        <li class="menu-item menu-item-archives">
+          <a href="/archives/" rel="section">
+            
+              <i class="menu-item-icon fa fa-fw fa-archive"></i> <br>
+            
+            归档
+          </a>
+        </li>
+      
+
+      
+    </ul>
+  
+
+  
+</nav>
+
+
+
+ </div>
+    </header>
+
+    <main id="main" class="main">
+      <div class="main-inner">
+        <div class="content-wrap">
+          <div id="content" class="content">
+            
+
+  <div id="posts" class="posts-expand">
+    
+
+  
+
+  
+  
+  
+
+  <article class="post post-type-normal" itemscope="" itemtype="http://schema.org/Article">
+  
+  
+  
+  <div class="post-block">
+    <link itemprop="mainEntityOfPage" href="git@github.com:littletomatodonkey/littletomatodonkey.github.io.git/2018/05/17/2018-05-18-hello/">
+
+    <span hidden itemprop="author" itemscope="" itemtype="http://schema.org/Person">
+      <meta itemprop="name" content="donkey">
+      <meta itemprop="description" content="">
+      <meta itemprop="image" content="/avatar/home-self.jpg">
+    </span>
+
+    <span hidden itemprop="publisher" itemscope="" itemtype="http://schema.org/Organization">
+      <meta itemprop="name" content="donkey's blog">
+    </span>
+
+    
+      <header class="post-header">
+
+        
+        
+          <h1 class="post-title" itemprop="name headline">My first blog</h1>
+        
+
+        <div class="post-meta">
+          <span class="post-time">
+            
+              <span class="post-meta-item-icon">
+                <i class="fa fa-calendar-o"></i>
+              </span>
+              
+                <span class="post-meta-item-text">发表于</span>
+              
+              <time title="创建于" itemprop="dateCreated datePublished" datetime="2018-05-17T12:00:00+08:00">
+                2018-05-17
+              </time>
+            
+
+            
+
+            
+          </span>
+
+          
+
+          
+            
+          
+
+          
+          
+
+          
+
+          
+
+          
+
+        </div>
+      </header>
+    
+
+    
+    
+    
+    <div class="post-body" itemprop="articleBody">
+
+      
+      
+
+      
+        <h1 id="说明"><a href="#说明" class="headerlink" title="说明"></a>说明</h1><ul>
+<li>基于jekyll与基于hexo进行搭建有比较明显的不同，具体可以参见这一篇文章：<a href="https://liguanghe.github.io/2017/11/06/blogRebuilt/" target="_blank" rel="noopener">https://liguanghe.github.io/2017/11/06/blogRebuilt/</a></li>
+<li>最开始基于jekyll进行搭建，但是自己需要配置的东西比较多，因此在之后也使用了hexo进行博客的搭建。</li>
+</ul>
+<h1 id="基于hexo的blog搭建"><a href="#基于hexo的blog搭建" class="headerlink" title="基于hexo的blog搭建"></a>基于hexo的blog搭建</h1><ul>
+<li>因为hexo搭建过程中，需要在本地生成网页，再将生成的页面上传到网站上，上传可以通过hexo进行，这与git经常冲突，因此在这里需要特别注意。</li>
+<li>首先安装hexo于git，这个可以直接参考hexo官网的教程，在上传的过程中，可以使用<code>hexo d -g</code>进行文档的上传，因此其实自己写的md文档是不会上传的，在一定程度上也保证了自己文档不会被别人滥用。</li>
+<li>如果上传之后，blog没有发生变化，则可以将<code>.deploy_git</code>文件夹删除掉之后再重新进行部署。</li>
+</ul>
+<h1 id="基于jekyll的blog搭建"><a href="#基于jekyll的blog搭建" class="headerlink" title="基于jekyll的blog搭建"></a>基于jekyll的blog搭建</h1><ul>
+<li>参考的博客模板:<a href="https://huangxuan.me/huxblog-boilerplate/" target="_blank" rel="noopener">https://huangxuan.me/huxblog-boilerplate/</a></li>
+</ul>
+<h2 id="本地安装与测试"><a href="#本地安装与测试" class="headerlink" title="本地安装与测试"></a>本地安装与测试</h2><h3 id="步骤"><a href="#步骤" class="headerlink" title="步骤"></a>步骤</h3><ul>
+<li>按照教程:<a href="https://pages.github.com/" target="_blank" rel="noopener">https://pages.github.com/</a>走就可以</li>
+<li>安装ruby:<a href="https://rubyinstaller.org/downloads/" target="_blank" rel="noopener">https://rubyinstaller.org/downloads/</a>，安装官网推荐的那个，下载完成后直接安装即可。注意安装的时候，记得勾选将目录添加到系统目录中(默认是勾选的状态)。</li>
+<li>使用<code>gem install</code>去安装Jekyll，当然使用默认的源的话，速度可能会很慢，在这里可以使用淘宝的源，参考链接见:<a href="https://blog.csdn.net/mengxuanxiangu/article/details/45726795" target="_blank" rel="noopener">https://blog.csdn.net/mengxuanxiangu/article/details/45726795</a></li>
+</ul>
+<h3 id="测试"><a href="#测试" class="headerlink" title="测试"></a>测试</h3><ul>
+<li><code>jekyll -v</code>可以测试jekyll是否安装成功。</li>
+<li>可以从网上下载模板，进入下载的文件夹，使用<code>jekyll serve</code>启动服务，如果不行，提示<code>cannot load such file bundler</code>，则需要按照<a href="https://stackoverflow.com/questions/19061774/cannot-load-such-file-bundler-setup-loaderror" target="_blank" rel="noopener">https://stackoverflow.com/questions/19061774/cannot-load-such-file-bundler-setup-loaderror</a>中的说明，使用<code>gem install bundler</code>安装包。</li>
+<li>启动之后，可以在浏览器中打开<code>http://localhost:4000/</code>以查看网页内容，这里默认的配置端口是400，可以通过修改<code>_config.yml</code>来选择不同的端口。</li>
+<li>上面的方法是针对本地的，可以查看的话则表明环境搭建成功。</li>
+</ul>
+<h3 id="其他可能遇到的一些问题"><a href="#其他可能遇到的一些问题" class="headerlink" title="其他可能遇到的一些问题"></a>其他可能遇到的一些问题</h3><ul>
+<li><code>Could not find gem &#39;jekyll-sitemap&#39;</code>。参考链接:<a href="https://github.com/jekyll/jekyll/issues/4972" target="_blank" rel="noopener">https://github.com/jekyll/jekyll/issues/4972</a></li>
+<li><code>could not find a valid gem &#39;pygments.rb</code>。参考链接:<a href="https://blog.csdn.net/moonclearner/article/details/52238033" target="_blank" rel="noopener">https://blog.csdn.net/moonclearner/article/details/52238033</a></li>
+<li>服务启动失败。可以考虑换一个port，方法参考链接:<a href="https://blog.csdn.net/u013939884/article/details/53288322" target="_blank" rel="noopener">https://blog.csdn.net/u013939884/article/details/53288322</a></li>
+<li><code>the gems configuration has been renamed to plugins</code>。这个是因为jekyll更新的问题。解决办法:<a href="https://github.com/elixir-lang/elixir-lang.github.com/issues/1035" target="_blank" rel="noopener">https://github.com/elixir-lang/elixir-lang.github.com/issues/1035</a></li>
+<li><code>Liquid Warning: Liquid syntax error :unexpected character when I jekyll serve</code>：一般是版本不对造成的问题，我建议是找问题，将代码改到最新的版本，一般核心逻辑不会变，主要是一些表达式之类的问题。参考链接:<a href="https://stackoverflow.com/questions/39688902/liquid-warning-liquid-syntax-error-unexpected-character-when-i-jekyll-serve" target="_blank" rel="noopener">https://stackoverflow.com/questions/39688902/liquid-warning-liquid-syntax-error-unexpected-character-when-i-jekyll-serve</a></li>
+<li>大部分都是提示没有找到库之类的问题，看错误信息，直接使用<code>gem install</code>安装即可。</li>
+<li>去掉生成的文档中的标题：将<code>_config.yaml</code>中的<code>anchorjs</code>修改为<code>false</code>即可。<a href="https://github.com/Huxpro/huxpro.github.io/issues/136" target="_blank" rel="noopener">https://github.com/Huxpro/huxpro.github.io/issues/136</a></li>
+</ul>
+<h2 id="附加功能"><a href="#附加功能" class="headerlink" title="附加功能"></a>附加功能</h2><ul>
+<li>使写出来的md文档支持latex:<a href="https://www.zhihu.com/question/62114522" target="_blank" rel="noopener">https://www.zhihu.com/question/62114522</a></li>
+<li>原来的模板中有分享到微信、博客等按钮，但是超链接是无效的(<code>href=&quot;javascript:void(0);&quot;</code>)，因此我在<code>post.html</code>中将相应的代码注释掉了。</li>
+<li>修改博客主页的背景图片：修改博客的md文档中的<code>header-img</code>即可实现。</li>
+<li>博客生成目录：使用的<code>kramdown</code>作为markdown解析，支持生成目录<a href="http://szhshp.org/tech/2015/11/18/jekyllmarkdowntoc.html" target="_blank" rel="noopener">http://szhshp.org/tech/2015/11/18/jekyllmarkdowntoc.html</a>。同时我使用的模板也支持catalog，只需要在文档的开始处添加<code>catalog: true</code>即可。</li>
+</ul>
+<h2 id="上传到github"><a href="#上传到github" class="headerlink" title="上传到github"></a>上传到github</h2><ul>
+<li>根普通的上传方式相同，将需要上传的文件复制到repo的目录下，就可以push了。注意不能将_site文件夹中的目录上传(在<code>.gitignore</code>中写一下即可)。</li>
+<li>上传之后，生成网站也需要一些时间，因此之后的访问更新有一些延迟是正常的。</li>
+</ul>
+
+      
+    </div>
+    
+    
+    
+
+    
+
+    
+
+    
+
+    <footer class="post-footer">
+      
+        <div class="post-tags">
+          
+            <a href="/tags/随笔/" rel="tag"># 随笔</a>
+          
+            <a href="/tags/开发环境/" rel="tag"># 开发环境</a>
+          
+        </div>
+      
+
+      
+      
+      
+
+      
+        <div class="post-nav">
+          <div class="post-nav-next post-nav-item">
+            
+          </div>
+
+          <span class="post-nav-divider"></span>
+
+          <div class="post-nav-prev post-nav-item">
+            
+              <a href="/2018/05/20/2018-05-20-2018 计蒜之道 初赛 第二场/" rel="prev" title="2018 计蒜之道 初赛 第二场">
+                2018 计蒜之道 初赛 第二场 <i class="fa fa-chevron-right"></i>
+              </a>
+            
+          </div>
+        </div>
+      
+
+      
+      
+    </footer>
+  </div>
+  
+  
+  
+  </article>
+
+
+
+    <div class="post-spread">
+      
+    </div>
+  </div>
+
+
+          </div>
+          
+
+
+          
+
+  
+
+
+
+        </div>
+        
+          
+  
+  <div class="sidebar-toggle">
+    <div class="sidebar-toggle-line-wrap">
+      <span class="sidebar-toggle-line sidebar-toggle-line-first"></span>
+      <span class="sidebar-toggle-line sidebar-toggle-line-middle"></span>
+      <span class="sidebar-toggle-line sidebar-toggle-line-last"></span>
+    </div>
+  </div>
+
+  <aside id="sidebar" class="sidebar">
+    
+    <div class="sidebar-inner">
+
+      
+
+      
+        <ul class="sidebar-nav motion-element">
+          <li class="sidebar-nav-toc sidebar-nav-active" data-target="post-toc-wrap">
+            文章目录
+          </li>
+          <li class="sidebar-nav-overview" data-target="site-overview-wrap">
+            站点概览
+          </li>
+        </ul>
+      
+
+      <section class="site-overview-wrap sidebar-panel">
+        <div class="site-overview">
+          <div class="site-author motion-element" itemprop="author" itemscope="" itemtype="http://schema.org/Person">
+            
+              <img class="site-author-image" itemprop="image" src="/avatar/home-self.jpg" alt="donkey">
+            
+              <p class="site-author-name" itemprop="name">donkey</p>
+              <p class="site-description motion-element" itemprop="description">want to be an engineer</p>
+          </div>
+
+          <nav class="site-state motion-element">
+
+            
+              <div class="site-state-item site-state-posts">
+              
+                <a href="/archives/">
+              
+                  <span class="site-state-item-count">36</span>
+                  <span class="site-state-item-name">日志</span>
+                </a>
+              </div>
+            
+
+            
+
+            
+              
+              
+              <div class="site-state-item site-state-tags">
+                <a href="/tags/index.html">
+                  <span class="site-state-item-count">19</span>
+                  <span class="site-state-item-name">标签</span>
+                </a>
+              </div>
+            
+
+          </nav>
+
+          
+
+          
+            <div class="links-of-author motion-element">
+                
+                  <span class="links-of-author-item">
+                    <a href="https://github.com/littletomatodonkey" target="_blank" title="GitHub">
+                      
+                        <i class="fa fa-fw fa-github"></i>GitHub</a>
+                  </span>
+                
+                  <span class="links-of-author-item">
+                    <a href="https://blog.csdn.net/u012526003" target="_blank" title="CSDN">
+                      
+                        <i class="fa fa-fw fa-crosshairs"></i>CSDN</a>
+                  </span>
+                
+            </div>
+          
+
+          
+          
+
+          
+          
+
+          
+
+        </div>
+      </section>
+
+      
+      <!--noindex-->
+        <section class="post-toc-wrap motion-element sidebar-panel sidebar-panel-active">
+          <div class="post-toc">
+
+            
+              
+            
+
+            
+              <div class="post-toc-content"><ol class="nav"><li class="nav-item nav-level-1"><a class="nav-link" href="#说明"><span class="nav-number">1.</span> <span class="nav-text">说明</span></a></li><li class="nav-item nav-level-1"><a class="nav-link" href="#基于hexo的blog搭建"><span class="nav-number">2.</span> <span class="nav-text">基于hexo的blog搭建</span></a></li><li class="nav-item nav-level-1"><a class="nav-link" href="#基于jekyll的blog搭建"><span class="nav-number">3.</span> <span class="nav-text">基于jekyll的blog搭建</span></a><ol class="nav-child"><li class="nav-item nav-level-2"><a class="nav-link" href="#本地安装与测试"><span class="nav-number">3.1.</span> <span class="nav-text">本地安装与测试</span></a><ol class="nav-child"><li class="nav-item nav-level-3"><a class="nav-link" href="#步骤"><span class="nav-number">3.1.1.</span> <span class="nav-text">步骤</span></a></li><li class="nav-item nav-level-3"><a class="nav-link" href="#测试"><span class="nav-number">3.1.2.</span> <span class="nav-text">测试</span></a></li><li class="nav-item nav-level-3"><a class="nav-link" href="#其他可能遇到的一些问题"><span class="nav-number">3.1.3.</span> <span class="nav-text">其他可能遇到的一些问题</span></a></li></ol></li><li class="nav-item nav-level-2"><a class="nav-link" href="#附加功能"><span class="nav-number">3.2.</span> <span class="nav-text">附加功能</span></a></li><li class="nav-item nav-level-2"><a class="nav-link" href="#上传到github"><span class="nav-number">3.3.</span> <span class="nav-text">上传到github</span></a></li></ol></li></ol></div>
+            
+
+          </div>
+        </section>
+      <!--/noindex-->
+      
+
+      
+
+    </div>
+  </aside>
+
+
+        
+      </div>
+    </main>
+
+    <footer id="footer" class="footer">
+      <div class="footer-inner">
+        <div class="copyright">&copy; <span itemprop="copyrightYear">2018</span>
+  <span class="with-love">
+    <i class="fa fa-user"></i>
+  </span>
+  <span class="author" itemprop="copyrightHolder">donkey</span>
+
+  
+</div>
+
+
+  <div class="powered-by">由 <a class="theme-link" target="_blank" href="https://hexo.io">Hexo</a> 强力驱动</div>
+
+
+
+  <span class="post-meta-divider">|</span>
+
+
+
+  <div class="theme-info">主题 &mdash; <a class="theme-link" target="_blank" href="https://github.com/iissnan/hexo-theme-next">NexT.Muse</a> v5.1.4</div>
+
+
+
+
+        
+
+
+
+
+
+
+
+        
+      </div>
+    </footer>
+
+    
+      <div class="back-to-top">
+        <i class="fa fa-arrow-up"></i>
+        
+      </div>
+    
+
+    
+
+  </div>
+
+  
+
+<script type="text/javascript">
+  if (Object.prototype.toString.call(window.Promise) !== '[object Function]') {
+    window.Promise = null;
+  }
+</script>
+
+
+
+
+
+
+
+
+
+  
+
+
+
+
+
+
+
+
+
+
+
+
+  
+  
+    <script type="text/javascript" src="/lib/jquery/index.js?v=2.1.3"></script>
+  
+
+  
+  
+    <script type="text/javascript" src="/lib/fastclick/lib/fastclick.min.js?v=1.0.6"></script>
+  
+
+  
+  
+    <script type="text/javascript" src="/lib/jquery_lazyload/jquery.lazyload.js?v=1.9.7"></script>
+  
+
+  
+  
+    <script type="text/javascript" src="/lib/velocity/velocity.min.js?v=1.2.1"></script>
+  
+
+  
+  
+    <script type="text/javascript" src="/lib/velocity/velocity.ui.min.js?v=1.2.1"></script>
+  
+
+  
+  
+    <script type="text/javascript" src="/lib/fancybox/source/jquery.fancybox.pack.js?v=2.1.5"></script>
+  
+
+
+  
+
+
+  <script type="text/javascript" src="/js/src/utils.js?v=5.1.4"></script>
+
+  <script type="text/javascript" src="/js/src/motion.js?v=5.1.4"></script>
+
+
+
+  
+  
+
+  
+  <script type="text/javascript" src="/js/src/scrollspy.js?v=5.1.4"></script>
+<script type="text/javascript" src="/js/src/post-details.js?v=5.1.4"></script>
+
+
+
+  
+
+
+  <script type="text/javascript" src="/js/src/bootstrap.js?v=5.1.4"></script>
+
+
+
+  
+
+
+  
+
+
+
+
+	
+
+
+
+
+
+  
+
+
+
+
+
+  
+
+
+
+
+
+
+
+
+
+
+
+
+  
+
+
+
+
+
+  
+
+  
+
+  
+
+  
+  
+
+  
+  
+    <script type="text/x-mathjax-config">
+      MathJax.Hub.Config({
+        tex2jax: {
+          inlineMath: [ ['$','$'], ["\\(","\\)"]  ],
+          processEscapes: true,
+          skipTags: ['script', 'noscript', 'style', 'textarea', 'pre', 'code']
+        }
+      });
+    </script>
+
+    <script type="text/x-mathjax-config">
+      MathJax.Hub.Queue(function() {
+        var all = MathJax.Hub.getAllJax(), i;
+        for (i=0; i < all.length; i += 1) {
+          all[i].SourceElement().parentNode.className += ' has-jax';
+        }
+      });
+    </script>
+    <script type="text/javascript" src="//cdn.bootcss.com/mathjax/2.7.1/latest.js?config=TeX-AMS-MML_HTMLorMML"></script>
+  
+
+
+  
+
+  
+
+</body>
+</html>

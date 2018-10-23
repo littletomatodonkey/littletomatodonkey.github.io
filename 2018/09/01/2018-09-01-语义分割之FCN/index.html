@@ -1,0 +1,772 @@
+<!DOCTYPE html>
+
+
+
+  
+
+
+<html class="theme-next muse use-motion" lang="zh-Hans">
+<head><meta name="generator" content="Hexo 3.8.0">
+  <meta charset="UTF-8">
+<meta http-equiv="X-UA-Compatible" content="IE=edge">
+<meta name="viewport" content="width=device-width, initial-scale=1, maximum-scale=1">
+<meta name="theme-color" content="#222">
+
+
+
+
+
+
+
+
+
+<meta http-equiv="Cache-Control" content="no-transform">
+<meta http-equiv="Cache-Control" content="no-siteapp">
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+  
+  
+  <link href="/lib/fancybox/source/jquery.fancybox.css?v=2.1.5" rel="stylesheet" type="text/css">
+
+
+
+
+
+
+
+<link href="/lib/font-awesome/css/font-awesome.min.css?v=4.6.2" rel="stylesheet" type="text/css">
+
+<link href="/css/main.css?v=5.1.4" rel="stylesheet" type="text/css">
+
+
+  <link rel="apple-touch-icon" sizes="180x180" href="/images/apple-touch-icon-next.png?v=5.1.4">
+
+
+  <link rel="icon" type="image/png" sizes="32x32" href="/images/favicon-32x32-next.png?v=5.1.4">
+
+
+  <link rel="icon" type="image/png" sizes="16x16" href="/images/favicon-16x16-next.png?v=5.1.4">
+
+
+  <link rel="mask-icon" href="/images/logo.svg?v=5.1.4" color="#222">
+
+
+
+
+
+  <meta name="keywords" content="论文,语义分割,">
+
+
+
+
+
+
+
+
+
+
+<meta name="description" content="FCN 论文地址：https://arxiv.org/pdf/1411.4038.pdfAbstract 介绍了用于语义分割任务的全卷积的方法（其实这个在之前就出现过） 基于全卷积网络的CNN在语义分割任务中超过了state-of-art的效果（average IU比之前最好的结果高了20%），并且一张图像的inference time很短(0.2s左右) FCN是在之前一些用于分类的网络（Ale">
+<meta name="keywords" content="论文,语义分割">
+<meta property="og:type" content="article">
+<meta property="og:title" content="语义分割之FCN">
+<meta property="og:url" content="git@github.com:littletomatodonkey/littletomatodonkey.github.io.git/2018/09/01/2018-09-01-语义分割之FCN/index.html">
+<meta property="og:site_name" content="donkey&#39;s blog">
+<meta property="og:description" content="FCN 论文地址：https://arxiv.org/pdf/1411.4038.pdfAbstract 介绍了用于语义分割任务的全卷积的方法（其实这个在之前就出现过） 基于全卷积网络的CNN在语义分割任务中超过了state-of-art的效果（average IU比之前最好的结果高了20%），并且一张图像的inference time很短(0.2s左右) FCN是在之前一些用于分类的网络（Ale">
+<meta property="og:locale" content="zh-Hans">
+<meta property="og:image" content="/img/post/20180901-FCN-VS-classification.png">
+<meta property="og:image" content="/img/post/20180901-FCN-VS-FCN32-16-8s.png">
+<meta property="og:updated_time" content="2018-09-02T09:36:15.257Z">
+<meta name="twitter:card" content="summary">
+<meta name="twitter:title" content="语义分割之FCN">
+<meta name="twitter:description" content="FCN 论文地址：https://arxiv.org/pdf/1411.4038.pdfAbstract 介绍了用于语义分割任务的全卷积的方法（其实这个在之前就出现过） 基于全卷积网络的CNN在语义分割任务中超过了state-of-art的效果（average IU比之前最好的结果高了20%），并且一张图像的inference time很短(0.2s左右) FCN是在之前一些用于分类的网络（Ale">
+<meta name="twitter:image" content="/img/post/20180901-FCN-VS-classification.png">
+
+
+
+<script type="text/javascript" id="hexo.configurations">
+  var NexT = window.NexT || {};
+  var CONFIG = {
+    root: '/',
+    scheme: 'Muse',
+    version: '5.1.4',
+    sidebar: {"position":"left","display":"post","offset":12,"b2t":false,"scrollpercent":false,"onmobile":false},
+    fancybox: true,
+    tabs: true,
+    motion: {"enable":true,"async":false,"transition":{"post_block":"fadeIn","post_header":"slideDownIn","post_body":"slideDownIn","coll_header":"slideLeftIn","sidebar":"slideUpIn"}},
+    duoshuo: {
+      userId: '0',
+      author: '博主'
+    },
+    algolia: {
+      applicationID: '',
+      apiKey: '',
+      indexName: '',
+      hits: {"per_page":10},
+      labels: {"input_placeholder":"Search for Posts","hits_empty":"We didn't find any results for the search: ${query}","hits_stats":"${hits} results found in ${time} ms"}
+    }
+  };
+</script>
+
+
+
+  <link rel="canonical" href="git@github.com:littletomatodonkey/littletomatodonkey.github.io.git/2018/09/01/2018-09-01-语义分割之FCN/">
+
+
+
+
+
+  <title>语义分割之FCN | donkey's blog</title>
+  
+
+
+
+
+
+
+
+
+</head>
+
+<body itemscope="" itemtype="http://schema.org/WebPage" lang="zh-Hans">
+
+  
+  
+    
+  
+
+  <div class="container sidebar-position-left page-post-detail">
+    <div class="headband"></div>
+
+    <header id="header" class="header" itemscope="" itemtype="http://schema.org/WPHeader">
+      <div class="header-inner"><div class="site-brand-wrapper">
+  <div class="site-meta ">
+    
+
+    <div class="custom-logo-site-title">
+      <a href="/" class="brand" rel="start">
+        <span class="logo-line-before"><i></i></span>
+        <span class="site-title">donkey's blog</span>
+        <span class="logo-line-after"><i></i></span>
+      </a>
+    </div>
+      
+        <p class="site-subtitle">to be BIG</p>
+      
+  </div>
+
+  <div class="site-nav-toggle">
+    <button>
+      <span class="btn-bar"></span>
+      <span class="btn-bar"></span>
+      <span class="btn-bar"></span>
+    </button>
+  </div>
+</div>
+
+<nav class="site-nav">
+  
+
+  
+    <ul id="menu" class="menu">
+      
+        
+        <li class="menu-item menu-item-home">
+          <a href="/" rel="section">
+            
+              <i class="menu-item-icon fa fa-fw fa-home"></i> <br>
+            
+            首页
+          </a>
+        </li>
+      
+        
+        <li class="menu-item menu-item-about">
+          <a href="/about/" rel="section">
+            
+              <i class="menu-item-icon fa fa-fw fa-user"></i> <br>
+            
+            关于
+          </a>
+        </li>
+      
+        
+        <li class="menu-item menu-item-tags">
+          <a href="/tags/" rel="section">
+            
+              <i class="menu-item-icon fa fa-fw fa-tags"></i> <br>
+            
+            标签
+          </a>
+        </li>
+      
+        
+        <li class="menu-item menu-item-archives">
+          <a href="/archives/" rel="section">
+            
+              <i class="menu-item-icon fa fa-fw fa-archive"></i> <br>
+            
+            归档
+          </a>
+        </li>
+      
+
+      
+    </ul>
+  
+
+  
+</nav>
+
+
+
+ </div>
+    </header>
+
+    <main id="main" class="main">
+      <div class="main-inner">
+        <div class="content-wrap">
+          <div id="content" class="content">
+            
+
+  <div id="posts" class="posts-expand">
+    
+
+  
+
+  
+  
+  
+
+  <article class="post post-type-normal" itemscope="" itemtype="http://schema.org/Article">
+  
+  
+  
+  <div class="post-block">
+    <link itemprop="mainEntityOfPage" href="git@github.com:littletomatodonkey/littletomatodonkey.github.io.git/2018/09/01/2018-09-01-语义分割之FCN/">
+
+    <span hidden itemprop="author" itemscope="" itemtype="http://schema.org/Person">
+      <meta itemprop="name" content="donkey">
+      <meta itemprop="description" content="">
+      <meta itemprop="image" content="/avatar/home-self.jpg">
+    </span>
+
+    <span hidden itemprop="publisher" itemscope="" itemtype="http://schema.org/Organization">
+      <meta itemprop="name" content="donkey's blog">
+    </span>
+
+    
+      <header class="post-header">
+
+        
+        
+          <h1 class="post-title" itemprop="name headline">语义分割之FCN</h1>
+        
+
+        <div class="post-meta">
+          <span class="post-time">
+            
+              <span class="post-meta-item-icon">
+                <i class="fa fa-calendar-o"></i>
+              </span>
+              
+                <span class="post-meta-item-text">发表于</span>
+              
+              <time title="创建于" itemprop="dateCreated datePublished" datetime="2018-09-01T12:00:00+08:00">
+                2018-09-01
+              </time>
+            
+
+            
+
+            
+          </span>
+
+          
+
+          
+            
+          
+
+          
+          
+
+          
+
+          
+
+          
+
+        </div>
+      </header>
+    
+
+    
+    
+    
+    <div class="post-body" itemprop="articleBody">
+
+      
+      
+
+      
+        <h2 id="FCN"><a href="#FCN" class="headerlink" title="FCN"></a>FCN</h2><ul>
+<li>论文地址：<a href="https://arxiv.org/pdf/1411.4038.pdf" target="_blank" rel="noopener">https://arxiv.org/pdf/1411.4038.pdf</a><h3 id="Abstract"><a href="#Abstract" class="headerlink" title="Abstract"></a>Abstract</h3></li>
+<li>介绍了用于语义分割任务的全卷积的方法（其实这个在之前就出现过）</li>
+<li>基于全卷积网络的CNN在语义分割任务中超过了state-of-art的效果（average IU比之前最好的结果高了20%），并且一张图像的inference time很短(0.2s左右)</li>
+<li>FCN是在之前一些用于分类的网络（Alex Net，VGG，Google Net）的基础上做finetune。</li>
+</ul>
+<h3 id="Fully-convolutional-networks"><a href="#Fully-convolutional-networks" class="headerlink" title="Fully convolutional networks"></a>Fully convolutional networks</h3><ul>
+<li>之前的分类任务是在CNN后面加上全连接层（fully connected layer），最后得到的是一个向量，可以表示为属于某个类别的概率；将fc layer替换为CNN之后，可以得到一个heatmap，这个heatmap可以反映某个特定像素所属的类别以及概率等。网络结构区别如下</li>
+</ul>
+<p><img src="/img/post/20180901-FCN-VS-classification.png" alt="FCN与分类任务网络结构对比"></p>
+<ul>
+<li>降采样会损失feature map的位置信息，但是会使得网络有更大的感受野。之前的想法是要想使得网络可以捕捉到更加精细的特征，需要减少网络中的降采样；但是本文中的工作表明，引入上采样以及<code>skip layer</code>的结果可以避免降采样带来的信息损失。</li>
+<li>上采样结构：deconvolution。上采样系数为f，表示以stride为1/f进行卷积。之前的卷积是多对一的关系，即一个kernel及其对应的感受野会得到一个输出，而现在是feature map上的一个点会影响输出feature map上大小为kernel大小的点，具体的可视化效果可以见链接：<a href="https://github.com/vdumoulin/conv_arithmetic" target="_blank" rel="noopener">https://github.com/vdumoulin/conv_arithmetic</a></li>
+</ul>
+<h3 id="segmentation-architecture"><a href="#segmentation-architecture" class="headerlink" title="segmentation architecture"></a>segmentation architecture</h3><ul>
+<li>作者基于ILSVRC分类器，使用上采样和pixel-wise loss进行augmentation，得到了<code>dense prediction</code>。之后又引入<code>skip layer</code>，将粗粒度的语义信息和细粒度的表观信息进行结合，对prediction进行refine。</li>
+</ul>
+<h4 id="From-classifier-to-dense-FCN"><a href="#From-classifier-to-dense-FCN" class="headerlink" title="From classifier to dense FCN"></a>From classifier to dense FCN</h4><ul>
+<li>作者基于之前的分类模型，仅仅将最后的fc layer换成一个deconvolution layer以及1X1X21（20类+背景）的kernel做卷积，得到的结果就跟state of art类似（使用VGG net）。</li>
+</ul>
+<h4 id="Combining-what-and-where"><a href="#Combining-what-and-where" class="headerlink" title="Combining what and where"></a>Combining what and where</h4><ul>
+<li>浅层的feature map可以包含更多的位置信息以及appearance information，深层的feature map可以包含更加丰富的语义信息。</li>
+<li>FCN包含5个pooling layer，feature map尺寸降低了32倍，之后再使用32倍上采样，使得输出的feature map与原图大小相同，从而实现像素级别的分类。这个模型是<code>FC-32s</code>。</li>
+<li>将<code>pooling layer 4</code>与2倍上采样的<code>pooling layer 5</code>相加，再进行16倍上采样，得到<code>FCN-16s</code>。</li>
+<li>将<code>pooling layer 4</code>与2倍上采样的<code>pooling layer 5</code>相加，再进行2倍上采样，与pooling layer 3相加，上采样8倍，得到<code>FCN-8s</code>。</li>
+<li>具体的几个模型见下图</li>
+</ul>
+<p><img src="/img/post/20180901-FCN-VS-FCN32-16-8s.png" alt="FCN-32-1608s"></p>
+<h3 id="experiment-results-and-conclusion"><a href="#experiment-results-and-conclusion" class="headerlink" title="experiment, results and conclusion"></a>experiment, results and conclusion</h3><ul>
+<li>作者为了提升模型准确度，在其他方面也做了一些尝试：class balancing，dense prediction，augmentation，more training data等，有些对模型准确度有提升，有些没有太大的帮助。</li>
+<li>作者做了很多实验，验证了FCN超过了当前state-of-art的方法。</li>
+<li>作者提出的FCN也为之后的语义分割等任务提供了一个新的思路，即直接使用CNN也可以做分类等任务，这也避免了模型的图像输入必须要求特定大小的问题。</li>
+</ul>
+
+      
+    </div>
+    
+    
+    
+
+    
+
+    
+
+    
+
+    <footer class="post-footer">
+      
+        <div class="post-tags">
+          
+            <a href="/tags/论文/" rel="tag"># 论文</a>
+          
+            <a href="/tags/语义分割/" rel="tag"># 语义分割</a>
+          
+        </div>
+      
+
+      
+      
+      
+
+      
+        <div class="post-nav">
+          <div class="post-nav-next post-nav-item">
+            
+              <a href="/2018/09/01/2018-09-01-语义分割之SegNet/" rel="next" title="语义分割之SegNet">
+                <i class="fa fa-chevron-left"></i> 语义分割之SegNet
+              </a>
+            
+          </div>
+
+          <span class="post-nav-divider"></span>
+
+          <div class="post-nav-prev post-nav-item">
+            
+              <a href="/2018/09/12/2018-09-12-语义分割之BiSeNet/" rel="prev" title="语义分割之BiSeNet">
+                语义分割之BiSeNet <i class="fa fa-chevron-right"></i>
+              </a>
+            
+          </div>
+        </div>
+      
+
+      
+      
+    </footer>
+  </div>
+  
+  
+  
+  </article>
+
+
+
+    <div class="post-spread">
+      
+    </div>
+  </div>
+
+
+          </div>
+          
+
+
+          
+
+  
+
+
+
+        </div>
+        
+          
+  
+  <div class="sidebar-toggle">
+    <div class="sidebar-toggle-line-wrap">
+      <span class="sidebar-toggle-line sidebar-toggle-line-first"></span>
+      <span class="sidebar-toggle-line sidebar-toggle-line-middle"></span>
+      <span class="sidebar-toggle-line sidebar-toggle-line-last"></span>
+    </div>
+  </div>
+
+  <aside id="sidebar" class="sidebar">
+    
+    <div class="sidebar-inner">
+
+      
+
+      
+        <ul class="sidebar-nav motion-element">
+          <li class="sidebar-nav-toc sidebar-nav-active" data-target="post-toc-wrap">
+            文章目录
+          </li>
+          <li class="sidebar-nav-overview" data-target="site-overview-wrap">
+            站点概览
+          </li>
+        </ul>
+      
+
+      <section class="site-overview-wrap sidebar-panel">
+        <div class="site-overview">
+          <div class="site-author motion-element" itemprop="author" itemscope="" itemtype="http://schema.org/Person">
+            
+              <img class="site-author-image" itemprop="image" src="/avatar/home-self.jpg" alt="donkey">
+            
+              <p class="site-author-name" itemprop="name">donkey</p>
+              <p class="site-description motion-element" itemprop="description">want to be an engineer</p>
+          </div>
+
+          <nav class="site-state motion-element">
+
+            
+              <div class="site-state-item site-state-posts">
+              
+                <a href="/archives/">
+              
+                  <span class="site-state-item-count">36</span>
+                  <span class="site-state-item-name">日志</span>
+                </a>
+              </div>
+            
+
+            
+
+            
+              
+              
+              <div class="site-state-item site-state-tags">
+                <a href="/tags/index.html">
+                  <span class="site-state-item-count">19</span>
+                  <span class="site-state-item-name">标签</span>
+                </a>
+              </div>
+            
+
+          </nav>
+
+          
+
+          
+            <div class="links-of-author motion-element">
+                
+                  <span class="links-of-author-item">
+                    <a href="https://github.com/littletomatodonkey" target="_blank" title="GitHub">
+                      
+                        <i class="fa fa-fw fa-github"></i>GitHub</a>
+                  </span>
+                
+                  <span class="links-of-author-item">
+                    <a href="https://blog.csdn.net/u012526003" target="_blank" title="CSDN">
+                      
+                        <i class="fa fa-fw fa-crosshairs"></i>CSDN</a>
+                  </span>
+                
+            </div>
+          
+
+          
+          
+
+          
+          
+
+          
+
+        </div>
+      </section>
+
+      
+      <!--noindex-->
+        <section class="post-toc-wrap motion-element sidebar-panel sidebar-panel-active">
+          <div class="post-toc">
+
+            
+              
+            
+
+            
+              <div class="post-toc-content"><ol class="nav"><li class="nav-item nav-level-2"><a class="nav-link" href="#FCN"><span class="nav-number">1.</span> <span class="nav-text">FCN</span></a><ol class="nav-child"><li class="nav-item nav-level-3"><a class="nav-link" href="#Abstract"><span class="nav-number">1.1.</span> <span class="nav-text">Abstract</span></a></li><li class="nav-item nav-level-3"><a class="nav-link" href="#Fully-convolutional-networks"><span class="nav-number">1.2.</span> <span class="nav-text">Fully convolutional networks</span></a></li><li class="nav-item nav-level-3"><a class="nav-link" href="#segmentation-architecture"><span class="nav-number">1.3.</span> <span class="nav-text">segmentation architecture</span></a><ol class="nav-child"><li class="nav-item nav-level-4"><a class="nav-link" href="#From-classifier-to-dense-FCN"><span class="nav-number">1.3.1.</span> <span class="nav-text">From classifier to dense FCN</span></a></li><li class="nav-item nav-level-4"><a class="nav-link" href="#Combining-what-and-where"><span class="nav-number">1.3.2.</span> <span class="nav-text">Combining what and where</span></a></li></ol></li><li class="nav-item nav-level-3"><a class="nav-link" href="#experiment-results-and-conclusion"><span class="nav-number">1.4.</span> <span class="nav-text">experiment, results and conclusion</span></a></li></ol></li></ol></div>
+            
+
+          </div>
+        </section>
+      <!--/noindex-->
+      
+
+      
+
+    </div>
+  </aside>
+
+
+        
+      </div>
+    </main>
+
+    <footer id="footer" class="footer">
+      <div class="footer-inner">
+        <div class="copyright">&copy; <span itemprop="copyrightYear">2018</span>
+  <span class="with-love">
+    <i class="fa fa-user"></i>
+  </span>
+  <span class="author" itemprop="copyrightHolder">donkey</span>
+
+  
+</div>
+
+
+  <div class="powered-by">由 <a class="theme-link" target="_blank" href="https://hexo.io">Hexo</a> 强力驱动</div>
+
+
+
+  <span class="post-meta-divider">|</span>
+
+
+
+  <div class="theme-info">主题 &mdash; <a class="theme-link" target="_blank" href="https://github.com/iissnan/hexo-theme-next">NexT.Muse</a> v5.1.4</div>
+
+
+
+
+        
+
+
+
+
+
+
+
+        
+      </div>
+    </footer>
+
+    
+      <div class="back-to-top">
+        <i class="fa fa-arrow-up"></i>
+        
+      </div>
+    
+
+    
+
+  </div>
+
+  
+
+<script type="text/javascript">
+  if (Object.prototype.toString.call(window.Promise) !== '[object Function]') {
+    window.Promise = null;
+  }
+</script>
+
+
+
+
+
+
+
+
+
+  
+
+
+
+
+
+
+
+
+
+
+
+
+  
+  
+    <script type="text/javascript" src="/lib/jquery/index.js?v=2.1.3"></script>
+  
+
+  
+  
+    <script type="text/javascript" src="/lib/fastclick/lib/fastclick.min.js?v=1.0.6"></script>
+  
+
+  
+  
+    <script type="text/javascript" src="/lib/jquery_lazyload/jquery.lazyload.js?v=1.9.7"></script>
+  
+
+  
+  
+    <script type="text/javascript" src="/lib/velocity/velocity.min.js?v=1.2.1"></script>
+  
+
+  
+  
+    <script type="text/javascript" src="/lib/velocity/velocity.ui.min.js?v=1.2.1"></script>
+  
+
+  
+  
+    <script type="text/javascript" src="/lib/fancybox/source/jquery.fancybox.pack.js?v=2.1.5"></script>
+  
+
+
+  
+
+
+  <script type="text/javascript" src="/js/src/utils.js?v=5.1.4"></script>
+
+  <script type="text/javascript" src="/js/src/motion.js?v=5.1.4"></script>
+
+
+
+  
+  
+
+  
+  <script type="text/javascript" src="/js/src/scrollspy.js?v=5.1.4"></script>
+<script type="text/javascript" src="/js/src/post-details.js?v=5.1.4"></script>
+
+
+
+  
+
+
+  <script type="text/javascript" src="/js/src/bootstrap.js?v=5.1.4"></script>
+
+
+
+  
+
+
+  
+
+
+
+
+	
+
+
+
+
+
+  
+
+
+
+
+
+  
+
+
+
+
+
+
+
+
+
+
+
+
+  
+
+
+
+
+
+  
+
+  
+
+  
+
+  
+  
+
+  
+  
+    <script type="text/x-mathjax-config">
+      MathJax.Hub.Config({
+        tex2jax: {
+          inlineMath: [ ['$','$'], ["\\(","\\)"]  ],
+          processEscapes: true,
+          skipTags: ['script', 'noscript', 'style', 'textarea', 'pre', 'code']
+        }
+      });
+    </script>
+
+    <script type="text/x-mathjax-config">
+      MathJax.Hub.Queue(function() {
+        var all = MathJax.Hub.getAllJax(), i;
+        for (i=0; i < all.length; i += 1) {
+          all[i].SourceElement().parentNode.className += ' has-jax';
+        }
+      });
+    </script>
+    <script type="text/javascript" src="//cdn.bootcss.com/mathjax/2.7.1/latest.js?config=TeX-AMS-MML_HTMLorMML"></script>
+  
+
+
+  
+
+  
+
+</body>
+</html>

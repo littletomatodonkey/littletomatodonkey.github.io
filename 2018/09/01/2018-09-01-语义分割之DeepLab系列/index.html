@@ -1,0 +1,933 @@
+<!DOCTYPE html>
+
+
+
+  
+
+
+<html class="theme-next muse use-motion" lang="zh-Hans">
+<head><meta name="generator" content="Hexo 3.8.0">
+  <meta charset="UTF-8">
+<meta http-equiv="X-UA-Compatible" content="IE=edge">
+<meta name="viewport" content="width=device-width, initial-scale=1, maximum-scale=1">
+<meta name="theme-color" content="#222">
+
+
+
+
+
+
+
+
+
+<meta http-equiv="Cache-Control" content="no-transform">
+<meta http-equiv="Cache-Control" content="no-siteapp">
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+  
+  
+  <link href="/lib/fancybox/source/jquery.fancybox.css?v=2.1.5" rel="stylesheet" type="text/css">
+
+
+
+
+
+
+
+<link href="/lib/font-awesome/css/font-awesome.min.css?v=4.6.2" rel="stylesheet" type="text/css">
+
+<link href="/css/main.css?v=5.1.4" rel="stylesheet" type="text/css">
+
+
+  <link rel="apple-touch-icon" sizes="180x180" href="/images/apple-touch-icon-next.png?v=5.1.4">
+
+
+  <link rel="icon" type="image/png" sizes="32x32" href="/images/favicon-32x32-next.png?v=5.1.4">
+
+
+  <link rel="icon" type="image/png" sizes="16x16" href="/images/favicon-16x16-next.png?v=5.1.4">
+
+
+  <link rel="mask-icon" href="/images/logo.svg?v=5.1.4" color="#222">
+
+
+
+
+
+  <meta name="keywords" content="论文,语义分割,">
+
+
+
+
+
+
+
+
+
+
+<meta name="description" content="DeepLab V1 论文地址：https://arxiv.org/pdf/1412.7062v3.pdfAbstract 论文结合了CNN与CRF(条件随机场，属于概率图模型)，CNN在high level属性上的预测效果很好，CRF可以带来更高的定位精度。 提出了hole algorithm（孔洞卷积）。 在pascal VOC 2012的测试集IOU上达到了71.6%，排名第一。  meth">
+<meta name="keywords" content="论文,语义分割">
+<meta property="og:type" content="article">
+<meta property="og:title" content="语义分割之DeepLab系列">
+<meta property="og:url" content="git@github.com:littletomatodonkey/littletomatodonkey.github.io.git/2018/09/01/2018-09-01-语义分割之DeepLab系列/index.html">
+<meta property="og:site_name" content="donkey&#39;s blog">
+<meta property="og:description" content="DeepLab V1 论文地址：https://arxiv.org/pdf/1412.7062v3.pdfAbstract 论文结合了CNN与CRF(条件随机场，属于概率图模型)，CNN在high level属性上的预测效果很好，CRF可以带来更高的定位精度。 提出了hole algorithm（孔洞卷积）。 在pascal VOC 2012的测试集IOU上达到了71.6%，排名第一。  meth">
+<meta property="og:locale" content="zh-Hans">
+<meta property="og:image" content="/img/post/20180901-deeplab-HA.png">
+<meta property="og:image" content="/img/post/20180901-deeplab-pipeline.png">
+<meta property="og:image" content="/img/post/20180901-deeplab-IOU结果.png">
+<meta property="og:image" content="/img/post/20180901-deeplab-astrous%20algorithm.png">
+<meta property="og:image" content="/img/post/20180901-deeplab-ASPP.png">
+<meta property="og:image" content="/img/post/20180901-deeplabV2-mIOU.png">
+<meta property="og:image" content="/img/post/20180901-deeplabV2-mIOU-test.png">
+<meta property="og:image" content="/img/post/20180901-deeplabV3-多尺度信息捕捉方法.png">
+<meta property="og:image" content="/img/post/20180901-deeplabV3-astrous%20convolution.png">
+<meta property="og:image" content="/img/post/20180901-deeplabV3-parallel%20ASPP.png">
+<meta property="og:image" content="/img/post/20180901-deeplabV3P-encoder-decoder-ASPP.png">
+<meta property="og:image" content="/img/post/20180901-deeplabV3P-encoder-decoder-示意图.png">
+<meta property="og:image" content="/img/post/20180901-deeplabV3P-depthwise%20astrous.png">
+<meta property="og:image" content="/img/post/20180901-deeplabV3P-modified%20xception.png">
+<meta property="og:image" content="/img/post/20180901-deeplabV3P-voc2012-mIOU.png">
+<meta property="og:image" content="/img/post/20180901-deeplabV3P-cityscape-mIOU.png">
+<meta property="og:updated_time" content="2018-10-23T08:42:52.837Z">
+<meta name="twitter:card" content="summary">
+<meta name="twitter:title" content="语义分割之DeepLab系列">
+<meta name="twitter:description" content="DeepLab V1 论文地址：https://arxiv.org/pdf/1412.7062v3.pdfAbstract 论文结合了CNN与CRF(条件随机场，属于概率图模型)，CNN在high level属性上的预测效果很好，CRF可以带来更高的定位精度。 提出了hole algorithm（孔洞卷积）。 在pascal VOC 2012的测试集IOU上达到了71.6%，排名第一。  meth">
+<meta name="twitter:image" content="/img/post/20180901-deeplab-HA.png">
+
+
+
+<script type="text/javascript" id="hexo.configurations">
+  var NexT = window.NexT || {};
+  var CONFIG = {
+    root: '/',
+    scheme: 'Muse',
+    version: '5.1.4',
+    sidebar: {"position":"left","display":"post","offset":12,"b2t":false,"scrollpercent":false,"onmobile":false},
+    fancybox: true,
+    tabs: true,
+    motion: {"enable":true,"async":false,"transition":{"post_block":"fadeIn","post_header":"slideDownIn","post_body":"slideDownIn","coll_header":"slideLeftIn","sidebar":"slideUpIn"}},
+    duoshuo: {
+      userId: '0',
+      author: '博主'
+    },
+    algolia: {
+      applicationID: '',
+      apiKey: '',
+      indexName: '',
+      hits: {"per_page":10},
+      labels: {"input_placeholder":"Search for Posts","hits_empty":"We didn't find any results for the search: ${query}","hits_stats":"${hits} results found in ${time} ms"}
+    }
+  };
+</script>
+
+
+
+  <link rel="canonical" href="git@github.com:littletomatodonkey/littletomatodonkey.github.io.git/2018/09/01/2018-09-01-语义分割之DeepLab系列/">
+
+
+
+
+
+  <title>语义分割之DeepLab系列 | donkey's blog</title>
+  
+
+
+
+
+
+
+
+
+</head>
+
+<body itemscope="" itemtype="http://schema.org/WebPage" lang="zh-Hans">
+
+  
+  
+    
+  
+
+  <div class="container sidebar-position-left page-post-detail">
+    <div class="headband"></div>
+
+    <header id="header" class="header" itemscope="" itemtype="http://schema.org/WPHeader">
+      <div class="header-inner"><div class="site-brand-wrapper">
+  <div class="site-meta ">
+    
+
+    <div class="custom-logo-site-title">
+      <a href="/" class="brand" rel="start">
+        <span class="logo-line-before"><i></i></span>
+        <span class="site-title">donkey's blog</span>
+        <span class="logo-line-after"><i></i></span>
+      </a>
+    </div>
+      
+        <p class="site-subtitle">to be BIG</p>
+      
+  </div>
+
+  <div class="site-nav-toggle">
+    <button>
+      <span class="btn-bar"></span>
+      <span class="btn-bar"></span>
+      <span class="btn-bar"></span>
+    </button>
+  </div>
+</div>
+
+<nav class="site-nav">
+  
+
+  
+    <ul id="menu" class="menu">
+      
+        
+        <li class="menu-item menu-item-home">
+          <a href="/" rel="section">
+            
+              <i class="menu-item-icon fa fa-fw fa-home"></i> <br>
+            
+            首页
+          </a>
+        </li>
+      
+        
+        <li class="menu-item menu-item-about">
+          <a href="/about/" rel="section">
+            
+              <i class="menu-item-icon fa fa-fw fa-user"></i> <br>
+            
+            关于
+          </a>
+        </li>
+      
+        
+        <li class="menu-item menu-item-tags">
+          <a href="/tags/" rel="section">
+            
+              <i class="menu-item-icon fa fa-fw fa-tags"></i> <br>
+            
+            标签
+          </a>
+        </li>
+      
+        
+        <li class="menu-item menu-item-archives">
+          <a href="/archives/" rel="section">
+            
+              <i class="menu-item-icon fa fa-fw fa-archive"></i> <br>
+            
+            归档
+          </a>
+        </li>
+      
+
+      
+    </ul>
+  
+
+  
+</nav>
+
+
+
+ </div>
+    </header>
+
+    <main id="main" class="main">
+      <div class="main-inner">
+        <div class="content-wrap">
+          <div id="content" class="content">
+            
+
+  <div id="posts" class="posts-expand">
+    
+
+  
+
+  
+  
+  
+
+  <article class="post post-type-normal" itemscope="" itemtype="http://schema.org/Article">
+  
+  
+  
+  <div class="post-block">
+    <link itemprop="mainEntityOfPage" href="git@github.com:littletomatodonkey/littletomatodonkey.github.io.git/2018/09/01/2018-09-01-语义分割之DeepLab系列/">
+
+    <span hidden itemprop="author" itemscope="" itemtype="http://schema.org/Person">
+      <meta itemprop="name" content="donkey">
+      <meta itemprop="description" content="">
+      <meta itemprop="image" content="/avatar/home-self.jpg">
+    </span>
+
+    <span hidden itemprop="publisher" itemscope="" itemtype="http://schema.org/Organization">
+      <meta itemprop="name" content="donkey's blog">
+    </span>
+
+    
+      <header class="post-header">
+
+        
+        
+          <h1 class="post-title" itemprop="name headline">语义分割之DeepLab系列</h1>
+        
+
+        <div class="post-meta">
+          <span class="post-time">
+            
+              <span class="post-meta-item-icon">
+                <i class="fa fa-calendar-o"></i>
+              </span>
+              
+                <span class="post-meta-item-text">发表于</span>
+              
+              <time title="创建于" itemprop="dateCreated datePublished" datetime="2018-09-01T12:00:00+08:00">
+                2018-09-01
+              </time>
+            
+
+            
+
+            
+          </span>
+
+          
+
+          
+            
+          
+
+          
+          
+
+          
+
+          
+
+          
+
+        </div>
+      </header>
+    
+
+    
+    
+    
+    <div class="post-body" itemprop="articleBody">
+
+      
+      
+
+      
+        <h2 id="DeepLab-V1"><a href="#DeepLab-V1" class="headerlink" title="DeepLab V1"></a>DeepLab V1</h2><ul>
+<li>论文地址：<a href="https://arxiv.org/pdf/1412.7062v3.pdf" target="_blank" rel="noopener">https://arxiv.org/pdf/1412.7062v3.pdf</a><h3 id="Abstract"><a href="#Abstract" class="headerlink" title="Abstract"></a>Abstract</h3></li>
+<li>论文结合了CNN与CRF(条件随机场，属于概率图模型)，CNN在high level属性上的预测效果很好，CRF可以带来更高的定位精度。</li>
+<li>提出了<code>hole algorithm</code>（孔洞卷积）。</li>
+<li>在pascal VOC 2012的测试集IOU上达到了71.6%，排名第一。</li>
+</ul>
+<h3 id="methods"><a href="#methods" class="headerlink" title="methods"></a>methods</h3><h4 id="hole-algorithm"><a href="#hole-algorithm" class="headerlink" title="hole algorithm"></a>hole algorithm</h4><ul>
+<li>以一维为例，<code>hole algorithm</code>示例如下</li>
+</ul>
+<p><img src="/img/post/20180901-deeplab-HA.png" alt="hole algorithm"></p>
+<p>这种方法使得kernel较小的情况下，通过调整<code>input stride</code>，也可以获得较大的感受野。</p>
+<ul>
+<li>在训练时，借鉴了VGG16，将最后的1000 FC layer换成了21 FC layer，使用VGG的预训练模型的参数，因为最后输出是下采样8倍，因此将groundtruth也下采样8倍，再设置loss为cross entropy loss，进行finetune。在测试的过程中，因为high level feature map变化十分平滑，因此直接使用双线性插值将feature map上采样到和原图相同的大小，这个步骤不需要训练，几乎没有计算损耗。FCN等全卷积网络因为没有采用<code>孔洞卷积</code>，因此要想达到相同的感受野，需要下采样32倍，而要想恢复到原图大小，需要对上采样的参数进行学习（否则精度无法达到）。因此deeplab的CNN部分仅需要10h的训练时间，而其他的FCN可能需要几天时间。</li>
+</ul>
+<h4 id="模型respective-field修改以及CNN计算时间优化"><a href="#模型respective-field修改以及CNN计算时间优化" class="headerlink" title="模型respective field修改以及CNN计算时间优化"></a>模型respective field修改以及CNN计算时间优化</h4><ul>
+<li>因为之前的fc layer中，计算量相对较小（VGG的第一个fc layer为1X1X4096），而改成fully convolutional layer之后，大小变成了7X7X4096，这大大增加了计算量和存储空间，因此将其size进行缩减，变为4X4或者3X3，减少参数量。</li>
+<li>在之后的工作中，也提到了将feature channel数量减小来减少模型的尺寸。</li>
+</ul>
+<h4 id="detailed-boundary-recovery：FC-CRF"><a href="#detailed-boundary-recovery：FC-CRF" class="headerlink" title="detailed boundary recovery：FC CRF"></a>detailed boundary recovery：FC CRF</h4><ul>
+<li>之前的工作中有一个结论：更深的CNN可以得到更加准确的分类结果，但是定位精度会更低。解决这个问题有2种主要的方法：<ul>
+<li>将low level和high level的feature map进行融合，FCN就是这样做的。</li>
+<li>引入<code>super-pixel representation</code>，用low level segmentation method来进行定位任务。</li>
+</ul>
+</li>
+<li>论文中使用全连接的条件随机场方法来对定位做finetune，这比当前的方法都要更好。</li>
+<li>CRF之前就被用于平滑包含大量噪声的结果的工作中。</li>
+<li>整个模型的pipeline如下：</li>
+</ul>
+<p><img src="/img/post/20180901-deeplab-pipeline.png" alt="deeplab pipeline"></p>
+<h4 id="multi-scale-prediction"><a href="#multi-scale-prediction" class="headerlink" title="multi-scale prediction"></a>multi-scale prediction</h4><ul>
+<li>使用多尺度预测，提供更加准确的分割结果：将输入图像通过2层的感知机，与前四层的pooling layer输出进行concatenate，再输入到softmax激活函数中，相当于softmax的输入channel是640。<h3 id="evaluation"><a href="#evaluation" class="headerlink" title="evaluation"></a>evaluation</h3></li>
+<li>评测结果如下图，可以看出是直接秒杀当时其他state-of-art的方法。</li>
+</ul>
+<p><img src="/img/post/20180901-deeplab-IOU结果.png" alt="deeplab IOU result"></p>
+<h3 id="conclusion"><a href="#conclusion" class="headerlink" title="conclusion"></a>conclusion</h3><ul>
+<li>论文最主要的点就是结合了CNN与CRF，在保证高分类精度的前提下，也保证了很高的定位精度。</li>
+<li>引入孔洞卷积，在不要降采样或者增大kernel的情况下就可以增大feature map的感受野。</li>
+<li>使用多尺度的方法进一步提升分割准确度。</li>
+</ul>
+<h2 id="DeepLab-V2"><a href="#DeepLab-V2" class="headerlink" title="DeepLab V2"></a>DeepLab V2</h2><ul>
+<li>论文地址：<a href="https://arxiv.org/pdf/1606.00915.pdf" target="_blank" rel="noopener">https://arxiv.org/pdf/1606.00915.pdf</a></li>
+</ul>
+<h3 id="abstract"><a href="#abstract" class="headerlink" title="abstract"></a>abstract</h3><ul>
+<li>使用<code>atrous convolution</code>，即孔洞卷积，用于dense prediction，这个比其他的上采样方法效果要更好。</li>
+<li>提出了atrous spatial pyramid pooling(ASPP)，用于在多个尺度上对物体进行分割。</li>
+<li>CNN的帧率达到了8fps（CRF的帧率为2fps）。</li>
+<li>使用CRF改进了分割边界的预测情况，提升了定位精度，这在Pascal voc 2012的测试集上达到了79.7%的mIOU（V1为71%），再次刷新分割的记录。</li>
+</ul>
+<h3 id="methods-1"><a href="#methods-1" class="headerlink" title="methods"></a>methods</h3><h4 id="atrous-algorithm"><a href="#atrous-algorithm" class="headerlink" title="atrous algorithm"></a>atrous algorithm</h4><ul>
+<li><code>atrous algorithm</code>在一维上的可视化如下<br><img src="/img/post/20180901-deeplab-astrous algorithm.png" alt="deeplab atrous algorithm"></li>
+</ul>
+<p>在扩大感受野的情况下，也没有引入多余的CNN参数。</p>
+<ul>
+<li><code>atrous algorithm</code>使得网络可以任意增大其感受野，而无需担心feature map尺寸无法恢复的问题。</li>
+</ul>
+<h4 id="ASPP"><a href="#ASPP" class="headerlink" title="ASPP"></a>ASPP</h4><ul>
+<li>ASPP示意图如下，使用不同尺度的atrous kernel做融合，实现多尺度信息融合，对特定像素点做分类。</li>
+</ul>
+<p><img src="/img/post/20180901-deeplab-ASPP.png" alt="deeplab ASPP"></p>
+<h4 id="CRF"><a href="#CRF" class="headerlink" title="CRF"></a>CRF</h4><ul>
+<li>这个点在deeplab V1中就使用了。</li>
+</ul>
+<h3 id="evaluation-1"><a href="#evaluation-1" class="headerlink" title="evaluation"></a>evaluation</h3><ul>
+<li>在V2中，有特定的学习率策略，作者发现<code>poly learning rate policy</code>相对于使用固定步长降低学习率的方法来说更有效一些。公式如下</li>
+</ul>
+<p>$$lr = {(1 - \frac {iter}{\max _iter})^{power}}$$</p>
+<ul>
+<li>在验证集上的mIOU如下<br><img src="/img/post/20180901-deeplabV2-mIOU.png" alt="deeplab V2 mIOU val"></li>
+</ul>
+<p>可以看出，ResNet的backbone大大提升了分割的mIOU。再贴一张在测试集上的表现<br><img src="/img/post/20180901-deeplabV2-mIOU-test.png" alt="deeplab V2 mIOU val"></p>
+<p>结果也是比state-of-art方法都要好。</p>
+<ul>
+<li>作者也在其他数据集上做了实验，验证了模型的泛化能力。</li>
+</ul>
+<h2 id="DeepLab-V3"><a href="#DeepLab-V3" class="headerlink" title="DeepLab V3"></a>DeepLab V3</h2><ul>
+<li>论文地址：<a href="https://arxiv.org/pdf/1706.05587.pdf" target="_blank" rel="noopener">https://arxiv.org/pdf/1706.05587.pdf</a></li>
+</ul>
+<h3 id="abstract-1"><a href="#abstract-1" class="headerlink" title="abstract"></a>abstract</h3><ul>
+<li>基于前面的工作，继续探讨<code>atrous convolution</code>，采用多个<code>atrous rates</code>，设计了一个将atrous convolution进行级联或者并行的模块，来实现多尺度的context信息。</li>
+<li>改进了之前提出的ASPP模块，再次提升了模型性能。</li>
+<li>公布了封装细节，分享了一些设计和训练经验。</li>
+<li>V3没有使用DenseCRF进行后处理，同样达到了state-of-art的水平。</li>
+</ul>
+<h3 id="related-work"><a href="#related-work" class="headerlink" title="related work"></a>related work</h3><ul>
+<li>常用的用于捕捉多尺度信息的方法如下图</li>
+</ul>
+<p><img src="/img/post/20180901-deeplabV3-多尺度信息捕捉方法.png" alt="deeplab V3 multi context capture"></p>
+<p>本文中主要是结合atrous与SPP，同时提出的这个模块可以用于任何网络模型框架中。</p>
+<h3 id="method"><a href="#method" class="headerlink" title="method"></a>method</h3><ul>
+<li>review了之前使用的<code>atrous convolution</code>。</li>
+<li>使用multi-grid的方法，修改了resnet的block4~block7，使得他们的<code>output_stride</code>都是16，这样就可以保证空间位置信息不会损失太严重，而且论文中也发现如果一直进行striding，会降低语义分割结果的准确度。加入<code>atrous convolution</code>的cascade模块如下，主要是使用了不同rate的<code>atrous convolution</code>进行操作，增大filter的感受野。</li>
+</ul>
+<p><img src="/img/post/20180901-deeplabV3-astrous convolution.png" alt="deeplab V3 atrous convolution"></p>
+<ul>
+<li>随着rate的增大，有效的权重逐渐减小，大部分的kernel最后都变成了1X1的kernel，因此在这里引入image level features，即在模型最后一层feature map上使用全局平均池化，同时引入BN，最后在双线性插值上采样的特定的尺度大小。最后再将ASPP结果和上采样结果做concatenate，经过1X1的CNN，得到最后的输出。整体流程图如下：</li>
+</ul>
+<p><img src="/img/post/20180901-deeplabV3-parallel ASPP.png" alt="deeplab V3 atrous convolution"></p>
+<h3 id="experiment-and-evaluation"><a href="#experiment-and-evaluation" class="headerlink" title="experiment and evaluation"></a>experiment and evaluation</h3><h4 id="training-protocol"><a href="#training-protocol" class="headerlink" title="training protocol"></a>training protocol</h4><ul>
+<li>learning rate和V2中的一样。</li>
+<li>cropsize：对图像进行裁剪，这是为了使得<code>atrous convolution</code>在rate非常大时，其卷积数据仍然是有效的；如果不进行crop，在rate很大时，就需要用0做padding。</li>
+<li>batch  normalization：BN需要较大的batch size才能体现出较好的效果，因此设置<code>batch size = 16</code></li>
+<li>upsampling logits：之前在训练时，是将groundtruth进行降采样，再计算loss，作者发现这样的话，会移除groundtruth的fine annotations，而且这一步骤是无法恢复的。因此在V3中，将CNN最后的输出做上采样再结合groundtruth计算loss。</li>
+<li>data augmentation：在训练时，对输入图像做随机scaling与left-right flipping。</li>
+</ul>
+<h4 id="evaluation-2"><a href="#evaluation-2" class="headerlink" title="evaluation"></a>evaluation</h4><ul>
+<li>V3在pascal VOC 2012 testset上的mIOU达到了86.9%，超过了所有其他的state-of-art的方法。</li>
+</ul>
+<h3 id="conclusion-1"><a href="#conclusion-1" class="headerlink" title="conclusion"></a>conclusion</h3><ul>
+<li>主要就是将atrous convolution用于提取dense feature map，捕获long range context。</li>
+<li>提出了cascade module，易于扩展。</li>
+</ul>
+<h2 id="deeplab-V3-plus"><a href="#deeplab-V3-plus" class="headerlink" title="deeplab V3 plus"></a>deeplab V3 plus</h2><ul>
+<li>论文地址：<a href="https://arxiv.org/pdf/1802.02611.pdf" target="_blank" rel="noopener">https://arxiv.org/pdf/1802.02611.pdf</a></li>
+</ul>
+<h3 id="abstract-2"><a href="#abstract-2" class="headerlink" title="abstract"></a>abstract</h3><ul>
+<li>语义分割常常使用<code>encoder-decoder</code>的结构，encoder中使用SPP，提取多尺度特征，decoder中通过逐渐恢复feature map的尺寸，获取图像的边界信息。</li>
+<li>论文中将Deeplab v3作为encoder，使用了一个简单有效的decoder，用于语义分割。</li>
+<li>将xception用于特征提取，在ASPP和decoder模块中使用<code>depth-wise convolution</code>，使得模型速度更快，准确度更高。</li>
+<li>未加后处理的情况下，在pascal voc2012和cityscape上的mIOU达到了89%和82%。</li>
+</ul>
+<h3 id="contribution"><a href="#contribution" class="headerlink" title="contribution"></a>contribution</h3><ul>
+<li>提出了一个新的encoder-decoder结构，deeplab V3作为encoder，一个简单的模块作为decoder，如下图。</li>
+</ul>
+<p><img src="/img/post/20180901-deeplabV3P-encoder-decoder-ASPP.png" alt="20180901-deeplabV3P-encoder-decoder-ASPP.png"></p>
+<ul>
+<li>可以通过空洞卷积，任意修改在encoder中提取特征的分辨率(多尺度的信息)，从而实现在效率和精度上的tradeoff，这在之前的encoder-decoder结构中是无法做到的。</li>
+<li>将xception用于分割任务中，将<code>depthwise convolution</code>用于ASPP与decoder结构中。</li>
+<li>代码已经开源：<a href="https://github.com/tensorflow/models/tree/master/research/deeplab" target="_blank" rel="noopener"> https://github.com/tensorflow/models/tree/master/research/deeplab</a></li>
+</ul>
+<h3 id="methods-2"><a href="#methods-2" class="headerlink" title="methods"></a>methods</h3><ul>
+<li>基于encoder-decoder的模块如下</li>
+</ul>
+<p><img src="/img/post/20180901-deeplabV3P-encoder-decoder-示意图.png" alt="20180901-deeplabV3P-encoder-decoder-ASPP.png"></p>
+<ul>
+<li>可以实现多尺度信息的获取。</li>
+</ul>
+<h4 id="Encoder-Decoder-with-Atrous-Convolution"><a href="#Encoder-Decoder-with-Atrous-Convolution" class="headerlink" title="Encoder-Decoder with Atrous Convolution"></a>Encoder-Decoder with Atrous Convolution</h4><ul>
+<li>示意图如下<br><img src="/img/post/20180901-deeplabV3P-depthwise astrous.png" alt="atrous depthwise convolution"></li>
+</ul>
+<p>将传统的卷积转换为depthwise convolution以及当前的pointwise convolution，可以极大地加快模型的速度。</p>
+<ul>
+<li>decoder的<code>output stride</code>调节容易，在分类任务中，可以调节为32，在分割任务中，可以调节为16或者8（需要更加准确的位置信息）。</li>
+<li>之前的deeplab系列中，使用了双线性插值作为上采样的方法，将feature map恢复到原始图像大小，但是这个会损失图像的边界信息，因此论文中使用一个简单的decoder进行上采样的操作。在将low-level与high-level进行concatenation之前，首先将low-level feature map使用1X1 conv进行降维，减少计算量。</li>
+</ul>
+<h4 id="Modified-Aligned-Xception"><a href="#Modified-Aligned-Xception" class="headerlink" title="Modified Aligned Xception"></a>Modified Aligned Xception</h4><ul>
+<li>基于之前的xception结构做了一些修改<ul>
+<li>所有的max pooling被修改为depthwise convolution with striding，这可以使得我们在任意分辨率上使用atrous separable convolution提取特征。</li>
+<li>在每个3X3 depthwise convolution后面加上BN与RELU，这是参考了mobilenet结构。</li>
+</ul>
+</li>
+<li>修改后的xception模块如下所示。</li>
+</ul>
+<p><img src="/img/post/20180901-deeplabV3P-modified xception.png" alt="atrous depthwise convolution"></p>
+<h3 id="experiments"><a href="#experiments" class="headerlink" title="experiments"></a>experiments</h3><h4 id="Decoder-Design-Choices"><a href="#Decoder-Design-Choices" class="headerlink" title="Decoder Design Choices"></a>Decoder Design Choices</h4><ul>
+<li>修改了之前的双线性插值上采样方案，与Unet结构类似，设计了decoder结构，但是low level feature map首先经过1X1 convolution，降低channel的数量，之后再做concatenation。</li>
+<li>考虑到GPU memory，没有考虑<code>output stride &lt; 4</code>的情况。</li>
+</ul>
+<h4 id="ResNet-101-as-Network-Backbone"><a href="#ResNet-101-as-Network-Backbone" class="headerlink" title="ResNet-101 as Network Backbone"></a>ResNet-101 as Network Backbone</h4><ul>
+<li>主要是测试了channel数量和<code>output stride</code>对计算量以及精度的影响。最后没有采用<code>output stride=32</code>的情况。</li>
+</ul>
+<h4 id="Xception-as-Network-Backbone"><a href="#Xception-as-Network-Backbone" class="headerlink" title="Xception as Network Backbone"></a>Xception as Network Backbone</h4><ul>
+<li>baseline：没有加decoder的情况，直接使用双线性插值上采样。</li>
+<li>Adding decoder：<code>output stride=16</code>的时候，加入decoder使得mIOU提升了0.8%左右。</li>
+<li>Using depthwise separable convolution：使用这个，计算量减小了33%~41%，mIOU没有明显改变。</li>
+<li>Pretraining on COCO：获得了2%的</li>
+<li>提升。</li>
+<li>Pretraining on JFT：获得了0.8%~1%的提升。</li>
+<li>模型对遮挡严重，相似度太高以及少见的类别的分割准确度不高。</li>
+</ul>
+<h4 id="results"><a href="#results" class="headerlink" title="results"></a>results</h4><ul>
+<li>在pascal voc2012以及cityscape上的表现如下</li>
+</ul>
+<p><img src="/img/post/20180901-deeplabV3P-voc2012-mIOU.png" alt="voc2012-mIOU"></p>
+<p><img src="/img/post/20180901-deeplabV3P-cityscape-mIOU.png" alt="cityscape-mIOU"></p>
+<h3 id="conclusion-2"><a href="#conclusion-2" class="headerlink" title="conclusion"></a>conclusion</h3><ul>
+<li>基于deeplab v3提出了<code>encoder-decoder</code>结构，decoder结构十分简单。</li>
+<li>使用空洞卷积，可以在任意分辨率上提取特征(不降低feature map的size)。</li>
+<li>使用改进的xception模块和atrous separable convolution提升速度和精度。</li>
+<li>实验结果证明模型是很好的(state of art)。</li>
+</ul>
+
+      
+    </div>
+    
+    
+    
+
+    
+
+    
+
+    
+
+    <footer class="post-footer">
+      
+        <div class="post-tags">
+          
+            <a href="/tags/论文/" rel="tag"># 论文</a>
+          
+            <a href="/tags/语义分割/" rel="tag"># 语义分割</a>
+          
+        </div>
+      
+
+      
+      
+      
+
+      
+        <div class="post-nav">
+          <div class="post-nav-next post-nav-item">
+            
+              <a href="/2018/08/29/2018-08-29-RCNN流派的检测方法总结/" rel="next" title="RCNN流派的检测方法总结">
+                <i class="fa fa-chevron-left"></i> RCNN流派的检测方法总结
+              </a>
+            
+          </div>
+
+          <span class="post-nav-divider"></span>
+
+          <div class="post-nav-prev post-nav-item">
+            
+              <a href="/2018/09/01/2018-09-01-语义分割之SegNet/" rel="prev" title="语义分割之SegNet">
+                语义分割之SegNet <i class="fa fa-chevron-right"></i>
+              </a>
+            
+          </div>
+        </div>
+      
+
+      
+      
+    </footer>
+  </div>
+  
+  
+  
+  </article>
+
+
+
+    <div class="post-spread">
+      
+    </div>
+  </div>
+
+
+          </div>
+          
+
+
+          
+
+  
+
+
+
+        </div>
+        
+          
+  
+  <div class="sidebar-toggle">
+    <div class="sidebar-toggle-line-wrap">
+      <span class="sidebar-toggle-line sidebar-toggle-line-first"></span>
+      <span class="sidebar-toggle-line sidebar-toggle-line-middle"></span>
+      <span class="sidebar-toggle-line sidebar-toggle-line-last"></span>
+    </div>
+  </div>
+
+  <aside id="sidebar" class="sidebar">
+    
+    <div class="sidebar-inner">
+
+      
+
+      
+        <ul class="sidebar-nav motion-element">
+          <li class="sidebar-nav-toc sidebar-nav-active" data-target="post-toc-wrap">
+            文章目录
+          </li>
+          <li class="sidebar-nav-overview" data-target="site-overview-wrap">
+            站点概览
+          </li>
+        </ul>
+      
+
+      <section class="site-overview-wrap sidebar-panel">
+        <div class="site-overview">
+          <div class="site-author motion-element" itemprop="author" itemscope="" itemtype="http://schema.org/Person">
+            
+              <img class="site-author-image" itemprop="image" src="/avatar/home-self.jpg" alt="donkey">
+            
+              <p class="site-author-name" itemprop="name">donkey</p>
+              <p class="site-description motion-element" itemprop="description">want to be an engineer</p>
+          </div>
+
+          <nav class="site-state motion-element">
+
+            
+              <div class="site-state-item site-state-posts">
+              
+                <a href="/archives/">
+              
+                  <span class="site-state-item-count">36</span>
+                  <span class="site-state-item-name">日志</span>
+                </a>
+              </div>
+            
+
+            
+
+            
+              
+              
+              <div class="site-state-item site-state-tags">
+                <a href="/tags/index.html">
+                  <span class="site-state-item-count">19</span>
+                  <span class="site-state-item-name">标签</span>
+                </a>
+              </div>
+            
+
+          </nav>
+
+          
+
+          
+            <div class="links-of-author motion-element">
+                
+                  <span class="links-of-author-item">
+                    <a href="https://github.com/littletomatodonkey" target="_blank" title="GitHub">
+                      
+                        <i class="fa fa-fw fa-github"></i>GitHub</a>
+                  </span>
+                
+                  <span class="links-of-author-item">
+                    <a href="https://blog.csdn.net/u012526003" target="_blank" title="CSDN">
+                      
+                        <i class="fa fa-fw fa-crosshairs"></i>CSDN</a>
+                  </span>
+                
+            </div>
+          
+
+          
+          
+
+          
+          
+
+          
+
+        </div>
+      </section>
+
+      
+      <!--noindex-->
+        <section class="post-toc-wrap motion-element sidebar-panel sidebar-panel-active">
+          <div class="post-toc">
+
+            
+              
+            
+
+            
+              <div class="post-toc-content"><ol class="nav"><li class="nav-item nav-level-2"><a class="nav-link" href="#DeepLab-V1"><span class="nav-number">1.</span> <span class="nav-text">DeepLab V1</span></a><ol class="nav-child"><li class="nav-item nav-level-3"><a class="nav-link" href="#Abstract"><span class="nav-number">1.1.</span> <span class="nav-text">Abstract</span></a></li><li class="nav-item nav-level-3"><a class="nav-link" href="#methods"><span class="nav-number">1.2.</span> <span class="nav-text">methods</span></a><ol class="nav-child"><li class="nav-item nav-level-4"><a class="nav-link" href="#hole-algorithm"><span class="nav-number">1.2.1.</span> <span class="nav-text">hole algorithm</span></a></li><li class="nav-item nav-level-4"><a class="nav-link" href="#模型respective-field修改以及CNN计算时间优化"><span class="nav-number">1.2.2.</span> <span class="nav-text">模型respective field修改以及CNN计算时间优化</span></a></li><li class="nav-item nav-level-4"><a class="nav-link" href="#detailed-boundary-recovery：FC-CRF"><span class="nav-number">1.2.3.</span> <span class="nav-text">detailed boundary recovery：FC CRF</span></a></li><li class="nav-item nav-level-4"><a class="nav-link" href="#multi-scale-prediction"><span class="nav-number">1.2.4.</span> <span class="nav-text">multi-scale prediction</span></a></li></ol></li><li class="nav-item nav-level-3"><a class="nav-link" href="#evaluation"><span class="nav-number">1.3.</span> <span class="nav-text">evaluation</span></a></li><li class="nav-item nav-level-3"><a class="nav-link" href="#conclusion"><span class="nav-number">1.4.</span> <span class="nav-text">conclusion</span></a></li></ol></li><li class="nav-item nav-level-2"><a class="nav-link" href="#DeepLab-V2"><span class="nav-number">2.</span> <span class="nav-text">DeepLab V2</span></a><ol class="nav-child"><li class="nav-item nav-level-3"><a class="nav-link" href="#abstract"><span class="nav-number">2.1.</span> <span class="nav-text">abstract</span></a></li><li class="nav-item nav-level-3"><a class="nav-link" href="#methods-1"><span class="nav-number">2.2.</span> <span class="nav-text">methods</span></a><ol class="nav-child"><li class="nav-item nav-level-4"><a class="nav-link" href="#atrous-algorithm"><span class="nav-number">2.2.1.</span> <span class="nav-text">atrous algorithm</span></a></li><li class="nav-item nav-level-4"><a class="nav-link" href="#ASPP"><span class="nav-number">2.2.2.</span> <span class="nav-text">ASPP</span></a></li><li class="nav-item nav-level-4"><a class="nav-link" href="#CRF"><span class="nav-number">2.2.3.</span> <span class="nav-text">CRF</span></a></li></ol></li><li class="nav-item nav-level-3"><a class="nav-link" href="#evaluation-1"><span class="nav-number">2.3.</span> <span class="nav-text">evaluation</span></a></li></ol></li><li class="nav-item nav-level-2"><a class="nav-link" href="#DeepLab-V3"><span class="nav-number">3.</span> <span class="nav-text">DeepLab V3</span></a><ol class="nav-child"><li class="nav-item nav-level-3"><a class="nav-link" href="#abstract-1"><span class="nav-number">3.1.</span> <span class="nav-text">abstract</span></a></li><li class="nav-item nav-level-3"><a class="nav-link" href="#related-work"><span class="nav-number">3.2.</span> <span class="nav-text">related work</span></a></li><li class="nav-item nav-level-3"><a class="nav-link" href="#method"><span class="nav-number">3.3.</span> <span class="nav-text">method</span></a></li><li class="nav-item nav-level-3"><a class="nav-link" href="#experiment-and-evaluation"><span class="nav-number">3.4.</span> <span class="nav-text">experiment and evaluation</span></a><ol class="nav-child"><li class="nav-item nav-level-4"><a class="nav-link" href="#training-protocol"><span class="nav-number">3.4.1.</span> <span class="nav-text">training protocol</span></a></li><li class="nav-item nav-level-4"><a class="nav-link" href="#evaluation-2"><span class="nav-number">3.4.2.</span> <span class="nav-text">evaluation</span></a></li></ol></li><li class="nav-item nav-level-3"><a class="nav-link" href="#conclusion-1"><span class="nav-number">3.5.</span> <span class="nav-text">conclusion</span></a></li></ol></li><li class="nav-item nav-level-2"><a class="nav-link" href="#deeplab-V3-plus"><span class="nav-number">4.</span> <span class="nav-text">deeplab V3 plus</span></a><ol class="nav-child"><li class="nav-item nav-level-3"><a class="nav-link" href="#abstract-2"><span class="nav-number">4.1.</span> <span class="nav-text">abstract</span></a></li><li class="nav-item nav-level-3"><a class="nav-link" href="#contribution"><span class="nav-number">4.2.</span> <span class="nav-text">contribution</span></a></li><li class="nav-item nav-level-3"><a class="nav-link" href="#methods-2"><span class="nav-number">4.3.</span> <span class="nav-text">methods</span></a><ol class="nav-child"><li class="nav-item nav-level-4"><a class="nav-link" href="#Encoder-Decoder-with-Atrous-Convolution"><span class="nav-number">4.3.1.</span> <span class="nav-text">Encoder-Decoder with Atrous Convolution</span></a></li><li class="nav-item nav-level-4"><a class="nav-link" href="#Modified-Aligned-Xception"><span class="nav-number">4.3.2.</span> <span class="nav-text">Modified Aligned Xception</span></a></li></ol></li><li class="nav-item nav-level-3"><a class="nav-link" href="#experiments"><span class="nav-number">4.4.</span> <span class="nav-text">experiments</span></a><ol class="nav-child"><li class="nav-item nav-level-4"><a class="nav-link" href="#Decoder-Design-Choices"><span class="nav-number">4.4.1.</span> <span class="nav-text">Decoder Design Choices</span></a></li><li class="nav-item nav-level-4"><a class="nav-link" href="#ResNet-101-as-Network-Backbone"><span class="nav-number">4.4.2.</span> <span class="nav-text">ResNet-101 as Network Backbone</span></a></li><li class="nav-item nav-level-4"><a class="nav-link" href="#Xception-as-Network-Backbone"><span class="nav-number">4.4.3.</span> <span class="nav-text">Xception as Network Backbone</span></a></li><li class="nav-item nav-level-4"><a class="nav-link" href="#results"><span class="nav-number">4.4.4.</span> <span class="nav-text">results</span></a></li></ol></li><li class="nav-item nav-level-3"><a class="nav-link" href="#conclusion-2"><span class="nav-number">4.5.</span> <span class="nav-text">conclusion</span></a></li></ol></li></ol></div>
+            
+
+          </div>
+        </section>
+      <!--/noindex-->
+      
+
+      
+
+    </div>
+  </aside>
+
+
+        
+      </div>
+    </main>
+
+    <footer id="footer" class="footer">
+      <div class="footer-inner">
+        <div class="copyright">&copy; <span itemprop="copyrightYear">2018</span>
+  <span class="with-love">
+    <i class="fa fa-user"></i>
+  </span>
+  <span class="author" itemprop="copyrightHolder">donkey</span>
+
+  
+</div>
+
+
+  <div class="powered-by">由 <a class="theme-link" target="_blank" href="https://hexo.io">Hexo</a> 强力驱动</div>
+
+
+
+  <span class="post-meta-divider">|</span>
+
+
+
+  <div class="theme-info">主题 &mdash; <a class="theme-link" target="_blank" href="https://github.com/iissnan/hexo-theme-next">NexT.Muse</a> v5.1.4</div>
+
+
+
+
+        
+
+
+
+
+
+
+
+        
+      </div>
+    </footer>
+
+    
+      <div class="back-to-top">
+        <i class="fa fa-arrow-up"></i>
+        
+      </div>
+    
+
+    
+
+  </div>
+
+  
+
+<script type="text/javascript">
+  if (Object.prototype.toString.call(window.Promise) !== '[object Function]') {
+    window.Promise = null;
+  }
+</script>
+
+
+
+
+
+
+
+
+
+  
+
+
+
+
+
+
+
+
+
+
+
+
+  
+  
+    <script type="text/javascript" src="/lib/jquery/index.js?v=2.1.3"></script>
+  
+
+  
+  
+    <script type="text/javascript" src="/lib/fastclick/lib/fastclick.min.js?v=1.0.6"></script>
+  
+
+  
+  
+    <script type="text/javascript" src="/lib/jquery_lazyload/jquery.lazyload.js?v=1.9.7"></script>
+  
+
+  
+  
+    <script type="text/javascript" src="/lib/velocity/velocity.min.js?v=1.2.1"></script>
+  
+
+  
+  
+    <script type="text/javascript" src="/lib/velocity/velocity.ui.min.js?v=1.2.1"></script>
+  
+
+  
+  
+    <script type="text/javascript" src="/lib/fancybox/source/jquery.fancybox.pack.js?v=2.1.5"></script>
+  
+
+
+  
+
+
+  <script type="text/javascript" src="/js/src/utils.js?v=5.1.4"></script>
+
+  <script type="text/javascript" src="/js/src/motion.js?v=5.1.4"></script>
+
+
+
+  
+  
+
+  
+  <script type="text/javascript" src="/js/src/scrollspy.js?v=5.1.4"></script>
+<script type="text/javascript" src="/js/src/post-details.js?v=5.1.4"></script>
+
+
+
+  
+
+
+  <script type="text/javascript" src="/js/src/bootstrap.js?v=5.1.4"></script>
+
+
+
+  
+
+
+  
+
+
+
+
+	
+
+
+
+
+
+  
+
+
+
+
+
+  
+
+
+
+
+
+
+
+
+
+
+
+
+  
+
+
+
+
+
+  
+
+  
+
+  
+
+  
+  
+
+  
+  
+    <script type="text/x-mathjax-config">
+      MathJax.Hub.Config({
+        tex2jax: {
+          inlineMath: [ ['$','$'], ["\\(","\\)"]  ],
+          processEscapes: true,
+          skipTags: ['script', 'noscript', 'style', 'textarea', 'pre', 'code']
+        }
+      });
+    </script>
+
+    <script type="text/x-mathjax-config">
+      MathJax.Hub.Queue(function() {
+        var all = MathJax.Hub.getAllJax(), i;
+        for (i=0; i < all.length; i += 1) {
+          all[i].SourceElement().parentNode.className += ' has-jax';
+        }
+      });
+    </script>
+    <script type="text/javascript" src="//cdn.bootcss.com/mathjax/2.7.1/latest.js?config=TeX-AMS-MML_HTMLorMML"></script>
+  
+
+
+  
+
+  
+
+</body>
+</html>

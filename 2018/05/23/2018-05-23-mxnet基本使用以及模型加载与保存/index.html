@@ -1,0 +1,1009 @@
+<!DOCTYPE html>
+
+
+
+  
+
+
+<html class="theme-next muse use-motion" lang="zh-Hans">
+<head><meta name="generator" content="Hexo 3.8.0">
+  <meta charset="UTF-8">
+<meta http-equiv="X-UA-Compatible" content="IE=edge">
+<meta name="viewport" content="width=device-width, initial-scale=1, maximum-scale=1">
+<meta name="theme-color" content="#222">
+
+
+
+
+
+
+
+
+
+<meta http-equiv="Cache-Control" content="no-transform">
+<meta http-equiv="Cache-Control" content="no-siteapp">
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+  
+  
+  <link href="/lib/fancybox/source/jquery.fancybox.css?v=2.1.5" rel="stylesheet" type="text/css">
+
+
+
+
+
+
+
+<link href="/lib/font-awesome/css/font-awesome.min.css?v=4.6.2" rel="stylesheet" type="text/css">
+
+<link href="/css/main.css?v=5.1.4" rel="stylesheet" type="text/css">
+
+
+  <link rel="apple-touch-icon" sizes="180x180" href="/images/apple-touch-icon-next.png?v=5.1.4">
+
+
+  <link rel="icon" type="image/png" sizes="32x32" href="/images/favicon-32x32-next.png?v=5.1.4">
+
+
+  <link rel="icon" type="image/png" sizes="16x16" href="/images/favicon-16x16-next.png?v=5.1.4">
+
+
+  <link rel="mask-icon" href="/images/logo.svg?v=5.1.4" color="#222">
+
+
+
+
+
+  <meta name="keywords" content="mxnet,">
+
+
+
+
+
+
+
+
+
+
+<meta name="description" content="mxnet变量和模型的加载及保存安装 主要使用py使用mxnet，在这里给出安装链接：https://mxnet.apache.org/install/index.html mxnet十分轻便，它的依赖项也很少，甚至连opencv也可以不用，在这里给出ubuntu16.04下mxnet的源码安装方式（CPU版本）：http://www.cnblogs.com/ibyte/p/6141832.htm">
+<meta name="keywords" content="mxnet">
+<meta property="og:type" content="article">
+<meta property="og:title" content="mxnet基本使用以及模型加载与保存">
+<meta property="og:url" content="git@github.com:littletomatodonkey/littletomatodonkey.github.io.git/2018/05/23/2018-05-23-mxnet基本使用以及模型加载与保存/index.html">
+<meta property="og:site_name" content="donkey&#39;s blog">
+<meta property="og:description" content="mxnet变量和模型的加载及保存安装 主要使用py使用mxnet，在这里给出安装链接：https://mxnet.apache.org/install/index.html mxnet十分轻便，它的依赖项也很少，甚至连opencv也可以不用，在这里给出ubuntu16.04下mxnet的源码安装方式（CPU版本）：http://www.cnblogs.com/ibyte/p/6141832.htm">
+<meta property="og:locale" content="zh-Hans">
+<meta property="og:image" content="/img/post/20180524-001.png">
+<meta property="og:updated_time" content="2018-05-24T03:13:28.006Z">
+<meta name="twitter:card" content="summary">
+<meta name="twitter:title" content="mxnet基本使用以及模型加载与保存">
+<meta name="twitter:description" content="mxnet变量和模型的加载及保存安装 主要使用py使用mxnet，在这里给出安装链接：https://mxnet.apache.org/install/index.html mxnet十分轻便，它的依赖项也很少，甚至连opencv也可以不用，在这里给出ubuntu16.04下mxnet的源码安装方式（CPU版本）：http://www.cnblogs.com/ibyte/p/6141832.htm">
+<meta name="twitter:image" content="/img/post/20180524-001.png">
+
+
+
+<script type="text/javascript" id="hexo.configurations">
+  var NexT = window.NexT || {};
+  var CONFIG = {
+    root: '/',
+    scheme: 'Muse',
+    version: '5.1.4',
+    sidebar: {"position":"left","display":"post","offset":12,"b2t":false,"scrollpercent":false,"onmobile":false},
+    fancybox: true,
+    tabs: true,
+    motion: {"enable":true,"async":false,"transition":{"post_block":"fadeIn","post_header":"slideDownIn","post_body":"slideDownIn","coll_header":"slideLeftIn","sidebar":"slideUpIn"}},
+    duoshuo: {
+      userId: '0',
+      author: '博主'
+    },
+    algolia: {
+      applicationID: '',
+      apiKey: '',
+      indexName: '',
+      hits: {"per_page":10},
+      labels: {"input_placeholder":"Search for Posts","hits_empty":"We didn't find any results for the search: ${query}","hits_stats":"${hits} results found in ${time} ms"}
+    }
+  };
+</script>
+
+
+
+  <link rel="canonical" href="git@github.com:littletomatodonkey/littletomatodonkey.github.io.git/2018/05/23/2018-05-23-mxnet基本使用以及模型加载与保存/">
+
+
+
+
+
+  <title>mxnet基本使用以及模型加载与保存 | donkey's blog</title>
+  
+
+
+
+
+
+
+
+
+</head>
+
+<body itemscope="" itemtype="http://schema.org/WebPage" lang="zh-Hans">
+
+  
+  
+    
+  
+
+  <div class="container sidebar-position-left page-post-detail">
+    <div class="headband"></div>
+
+    <header id="header" class="header" itemscope="" itemtype="http://schema.org/WPHeader">
+      <div class="header-inner"><div class="site-brand-wrapper">
+  <div class="site-meta ">
+    
+
+    <div class="custom-logo-site-title">
+      <a href="/" class="brand" rel="start">
+        <span class="logo-line-before"><i></i></span>
+        <span class="site-title">donkey's blog</span>
+        <span class="logo-line-after"><i></i></span>
+      </a>
+    </div>
+      
+        <p class="site-subtitle">to be BIG</p>
+      
+  </div>
+
+  <div class="site-nav-toggle">
+    <button>
+      <span class="btn-bar"></span>
+      <span class="btn-bar"></span>
+      <span class="btn-bar"></span>
+    </button>
+  </div>
+</div>
+
+<nav class="site-nav">
+  
+
+  
+    <ul id="menu" class="menu">
+      
+        
+        <li class="menu-item menu-item-home">
+          <a href="/" rel="section">
+            
+              <i class="menu-item-icon fa fa-fw fa-home"></i> <br>
+            
+            首页
+          </a>
+        </li>
+      
+        
+        <li class="menu-item menu-item-about">
+          <a href="/about/" rel="section">
+            
+              <i class="menu-item-icon fa fa-fw fa-user"></i> <br>
+            
+            关于
+          </a>
+        </li>
+      
+        
+        <li class="menu-item menu-item-tags">
+          <a href="/tags/" rel="section">
+            
+              <i class="menu-item-icon fa fa-fw fa-tags"></i> <br>
+            
+            标签
+          </a>
+        </li>
+      
+        
+        <li class="menu-item menu-item-archives">
+          <a href="/archives/" rel="section">
+            
+              <i class="menu-item-icon fa fa-fw fa-archive"></i> <br>
+            
+            归档
+          </a>
+        </li>
+      
+
+      
+    </ul>
+  
+
+  
+</nav>
+
+
+
+ </div>
+    </header>
+
+    <main id="main" class="main">
+      <div class="main-inner">
+        <div class="content-wrap">
+          <div id="content" class="content">
+            
+
+  <div id="posts" class="posts-expand">
+    
+
+  
+
+  
+  
+  
+
+  <article class="post post-type-normal" itemscope="" itemtype="http://schema.org/Article">
+  
+  
+  
+  <div class="post-block">
+    <link itemprop="mainEntityOfPage" href="git@github.com:littletomatodonkey/littletomatodonkey.github.io.git/2018/05/23/2018-05-23-mxnet基本使用以及模型加载与保存/">
+
+    <span hidden itemprop="author" itemscope="" itemtype="http://schema.org/Person">
+      <meta itemprop="name" content="donkey">
+      <meta itemprop="description" content="">
+      <meta itemprop="image" content="/avatar/home-self.jpg">
+    </span>
+
+    <span hidden itemprop="publisher" itemscope="" itemtype="http://schema.org/Organization">
+      <meta itemprop="name" content="donkey's blog">
+    </span>
+
+    
+      <header class="post-header">
+
+        
+        
+          <h1 class="post-title" itemprop="name headline">mxnet基本使用以及模型加载与保存</h1>
+        
+
+        <div class="post-meta">
+          <span class="post-time">
+            
+              <span class="post-meta-item-icon">
+                <i class="fa fa-calendar-o"></i>
+              </span>
+              
+                <span class="post-meta-item-text">发表于</span>
+              
+              <time title="创建于" itemprop="dateCreated datePublished" datetime="2018-05-23T10:00:00+08:00">
+                2018-05-23
+              </time>
+            
+
+            
+
+            
+          </span>
+
+          
+
+          
+            
+          
+
+          
+          
+
+          
+
+          
+
+          
+
+        </div>
+      </header>
+    
+
+    
+    
+    
+    <div class="post-body" itemprop="articleBody">
+
+      
+      
+
+      
+        <h1 id="mxnet变量和模型的加载及保存"><a href="#mxnet变量和模型的加载及保存" class="headerlink" title="mxnet变量和模型的加载及保存"></a>mxnet变量和模型的加载及保存</h1><h2 id="安装"><a href="#安装" class="headerlink" title="安装"></a>安装</h2><ul>
+<li>主要使用py使用mxnet，在这里给出安装链接：<a href="https://mxnet.apache.org/install/index.html" target="_blank" rel="noopener">https://mxnet.apache.org/install/index.html</a></li>
+<li>mxnet十分轻便，它的依赖项也很少，甚至连opencv也可以不用，在这里给出ubuntu16.04下mxnet的源码安装方式（CPU版本）：<a href="http://www.cnblogs.com/ibyte/p/6141832.html" target="_blank" rel="noopener">http://www.cnblogs.com/ibyte/p/6141832.html</a></li>
+<li>我之前在装win10+ubuntu16双系统的时候，一直提示安装失败，在这里需要注意：如果选择uefi启动，则ubuntu分区时需要建立efi分区；如果选择legacy启动，分区时需要建立/boot分区，其他的按照网上的教程走一般都没问题。uefi和legacy的区别的参考链接：<a href="http://www.360doc.cn/mip/686868692.html" target="_blank" rel="noopener">http://www.360doc.cn/mip/686868692.html</a></li>
+</ul>
+<h2 id="变量"><a href="#变量" class="headerlink" title="变量"></a>变量</h2><ul>
+<li>变量表达式</li>
+</ul>
+<figure class="highlight python"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br></pre></td><td class="code"><pre><span class="line"><span class="keyword">import</span> mxnet <span class="keyword">as</span> mx</span><br><span class="line">a = mx.sym.Variable(<span class="string">"A"</span>)</span><br><span class="line">b = mx.sym.Variable(<span class="string">"B"</span>)</span><br><span class="line">c = (a+b) / <span class="number">10</span></span><br><span class="line">d = c+<span class="number">1</span></span><br><span class="line">print( d )</span><br><span class="line">print( d.list_arguments() )</span><br></pre></td></tr></table></figure>
+<pre><code>&lt;Symbol _plusscalar0&gt;
+[&apos;A&apos;, &apos;B&apos;]
+</code></pre><ul>
+<li>赋值</li>
+</ul>
+<figure class="highlight python"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br></pre></td><td class="code"><pre><span class="line"><span class="keyword">import</span> numpy <span class="keyword">as</span> np</span><br><span class="line">input_args = &#123;&#125;</span><br><span class="line">input_args[<span class="string">"A"</span>] = mx.nd.ones( (<span class="number">10</span>,), ctx=mx.cpu() )</span><br><span class="line">input_args[<span class="string">"B"</span>] = mx.nd.ones( (<span class="number">10</span>,), ctx=mx.cpu() )</span><br><span class="line">executor = d.bind( mx.cpu(),</span><br><span class="line">                     args=input_args,</span><br><span class="line">                     grad_req=<span class="string">"null"</span>)</span><br><span class="line">print( executor.arg_dict )</span><br><span class="line">input_args[<span class="string">"A"</span>][:] = np.random.rand(<span class="number">10</span>,)</span><br><span class="line">print( executor.arg_dict )</span><br></pre></td></tr></table></figure>
+<pre><code>{&apos;A&apos;: 
+[ 1.  1.  1.  1.  1.  1.  1.  1.  1.  1.]
+&lt;NDArray 10 @cpu(0)&gt;, &apos;B&apos;: 
+[ 1.  1.  1.  1.  1.  1.  1.  1.  1.  1.]
+&lt;NDArray 10 @cpu(0)&gt;}
+{&apos;A&apos;: 
+[ 0.54413623  0.18858841  0.40857175  0.32337192  0.78876358  0.92130709
+  0.89868963  0.33286947  0.20659173  0.58630645]
+&lt;NDArray 10 @cpu(0)&gt;, &apos;B&apos;: 
+[ 1.  1.  1.  1.  1.  1.  1.  1.  1.  1.]
+&lt;NDArray 10 @cpu(0)&gt;}
+</code></pre><ul>
+<li>梯度计算</li>
+</ul>
+<figure class="highlight python"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br><span class="line">11</span><br><span class="line">12</span><br><span class="line">13</span><br><span class="line">14</span><br><span class="line">15</span><br><span class="line">16</span><br><span class="line">17</span><br><span class="line">18</span><br><span class="line">19</span><br><span class="line">20</span><br><span class="line">21</span><br><span class="line">22</span><br><span class="line">23</span><br><span class="line">24</span><br></pre></td><td class="code"><pre><span class="line">input_arguments = &#123;&#125;</span><br><span class="line">input_arguments[<span class="string">'A'</span>] = mx.nd.ones((<span class="number">10</span>, ), ctx=mx.cpu())</span><br><span class="line">input_arguments[<span class="string">'B'</span>] = mx.nd.ones((<span class="number">10</span>, ), ctx=mx.cpu())</span><br><span class="line"><span class="comment"># allocate space for gradients</span></span><br><span class="line">grad_arguments = &#123;&#125;</span><br><span class="line">grad_arguments[<span class="string">'A'</span>] = mx.nd.ones((<span class="number">10</span>, ), ctx=mx.cpu())</span><br><span class="line">grad_arguments[<span class="string">'B'</span>] = mx.nd.ones((<span class="number">10</span>, ), ctx=mx.cpu())</span><br><span class="line"></span><br><span class="line">executor = d.bind(ctx=mx.cpu(),</span><br><span class="line">                  args=input_arguments, <span class="comment"># this can be a list or a dictionary mapping names of inputs to NDArray</span></span><br><span class="line">                  args_grad=grad_arguments, <span class="comment"># this can be a list or a dictionary mapping names of inputs to NDArray</span></span><br><span class="line">                  grad_req=<span class="string">'write'</span>) <span class="comment"># instead of null, tell the executor to write gradients. This replaces the contents of grad_arguments with the gradients computed.</span></span><br><span class="line"></span><br><span class="line">input_arguments[<span class="string">'A'</span>][:] = np.random.rand(<span class="number">10</span>,)</span><br><span class="line">input_arguments[<span class="string">'B'</span>][:] = np.random.rand(<span class="number">10</span>,)</span><br><span class="line"></span><br><span class="line">executor.forward()</span><br><span class="line"><span class="comment"># in this particular example, the output symbol is not a scalar or loss symbol.</span></span><br><span class="line"><span class="comment"># Thus taking its gradient is not possible.</span></span><br><span class="line"><span class="comment"># What is commonly done instead is to feed in the gradient from a future computation.</span></span><br><span class="line"><span class="comment"># this is essentially how backpropagation works.</span></span><br><span class="line">out_grad = mx.nd.ones((<span class="number">10</span>,), ctx=mx.cpu())</span><br><span class="line">executor.backward([out_grad]) <span class="comment"># because the graph only has one output, only one output grad is needed.</span></span><br><span class="line">print( out_grad )</span><br></pre></td></tr></table></figure>
+<ul>
+<li>可以实现ndarray与numpy的转化</li>
+</ul>
+<figure class="highlight python"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br></pre></td><td class="code"><pre><span class="line">a = mx.ndarray.ones((<span class="number">1</span>,<span class="number">6</span>))</span><br><span class="line">print( type(a) )</span><br><span class="line">print(a)</span><br><span class="line">b = a.asnumpy()</span><br><span class="line">print(b)</span><br><span class="line">print( type(b) )</span><br></pre></td></tr></table></figure>
+<pre><code>&lt;class &apos;mxnet.ndarray.ndarray.NDArray&apos;&gt;
+
+[[ 1.  1.  1.  1.  1.  1.]]
+&lt;NDArray 1x6 @cpu(0)&gt;
+[[ 1.  1.  1.  1.  1.  1.]]
+&lt;class &apos;numpy.ndarray&apos;&gt;
+</code></pre><h2 id="mnist简单测试"><a href="#mnist简单测试" class="headerlink" title="mnist简单测试"></a>mnist简单测试</h2><blockquote>
+<p>参考链接：<a href="http://mxnet.incubator.apache.org/tutorials/python/mnist.html" target="_blank" rel="noopener">http://mxnet.incubator.apache.org/tutorials/python/mnist.html</a></p>
+</blockquote>
+<h3 id="MLP进行简单的测试"><a href="#MLP进行简单的测试" class="headerlink" title="MLP进行简单的测试"></a>MLP进行简单的测试</h3><p>在这里使用简单的多层感知机进行手写数字的识别。</p>
+<ul>
+<li>初始化</li>
+</ul>
+<figure class="highlight python"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br></pre></td><td class="code"><pre><span class="line"><span class="keyword">import</span> mxnet <span class="keyword">as</span> mx</span><br><span class="line">mnist = mx.test_utils.get_mnist()</span><br><span class="line"><span class="comment"># Fix the seed</span></span><br><span class="line">mx.random.seed(<span class="number">42</span>)</span><br><span class="line"><span class="comment"># Set the compute context, GPU is available otherwise CPU</span></span><br><span class="line">ctx = mx.cpu() <span class="comment">#  if mx.test_utils.list_gpus() else mx.cpu()</span></span><br></pre></td></tr></table></figure>
+<pre><code>INFO:root:train-labels-idx1-ubyte.gz exists, skipping download
+INFO:root:train-images-idx3-ubyte.gz exists, skipping download
+INFO:root:t10k-labels-idx1-ubyte.gz exists, skipping download
+INFO:root:t10k-images-idx3-ubyte.gz exists, skipping download
+</code></pre><ul>
+<li>设置网络，在这里读取的数据，每张图像就是1X28X28，因此在mlp中需要将数据进行flatten的操作。</li>
+</ul>
+<figure class="highlight python"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br><span class="line">11</span><br><span class="line">12</span><br><span class="line">13</span><br><span class="line">14</span><br><span class="line">15</span><br><span class="line">16</span><br><span class="line">17</span><br><span class="line">18</span><br><span class="line">19</span><br><span class="line">20</span><br></pre></td><td class="code"><pre><span class="line">batch_size = <span class="number">100</span></span><br><span class="line">train_iter = mx.io.NDArrayIter(mnist[<span class="string">'train_data'</span>], mnist[<span class="string">'train_label'</span>], batch_size, shuffle=<span class="keyword">True</span>)</span><br><span class="line">val_iter = mx.io.NDArrayIter(mnist[<span class="string">'test_data'</span>], mnist[<span class="string">'test_label'</span>], batch_size)</span><br><span class="line"></span><br><span class="line">data = mx.sym.var(<span class="string">'data'</span>)</span><br><span class="line"><span class="comment"># Flatten the data from 4-D shape into 2-D (batch_size, num_channel*width*height)</span></span><br><span class="line">data = mx.sym.flatten(data=data)</span><br><span class="line"></span><br><span class="line"><span class="comment"># The first fully-connected layer and the corresponding activation function</span></span><br><span class="line">fc1  = mx.sym.FullyConnected(data=data, num_hidden=<span class="number">128</span>)</span><br><span class="line">act1 = mx.sym.Activation(data=fc1, act_type=<span class="string">"relu"</span>)</span><br><span class="line"></span><br><span class="line"><span class="comment"># The second fully-connected layer and the corresponding activation function</span></span><br><span class="line">fc2  = mx.sym.FullyConnected(data=act1, num_hidden = <span class="number">64</span>)</span><br><span class="line">act2 = mx.sym.Activation(data=fc2, act_type=<span class="string">"relu"</span>)</span><br><span class="line"></span><br><span class="line"><span class="comment"># MNIST has 10 classes</span></span><br><span class="line">fc3  = mx.sym.FullyConnected(data=act2, num_hidden=<span class="number">10</span>)</span><br><span class="line"><span class="comment"># Softmax with cross entropy loss</span></span><br><span class="line">mlp  = mx.sym.SoftmaxOutput(data=fc3, name=<span class="string">'softmax'</span>)</span><br></pre></td></tr></table></figure>
+<figure class="highlight python"><table><tr><td class="gutter"><pre><span class="line">1</span><br></pre></td><td class="code"><pre><span class="line">print( train_iter.data[<span class="number">0</span>][<span class="number">1</span>][<span class="number">0</span>].shape )</span><br></pre></td></tr></table></figure>
+<pre><code>(1, 28, 28)
+</code></pre><ul>
+<li>开始训练</li>
+</ul>
+<figure class="highlight python"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br><span class="line">11</span><br></pre></td><td class="code"><pre><span class="line"><span class="keyword">import</span> logging</span><br><span class="line">logging.getLogger().setLevel(logging.DEBUG)  <span class="comment"># logging to stdout</span></span><br><span class="line"><span class="comment"># create a trainable module on compute context</span></span><br><span class="line">mlp_model = mx.mod.Module(symbol=mlp, context=ctx)</span><br><span class="line">mlp_model.fit(train_iter,  <span class="comment"># train data</span></span><br><span class="line">              eval_data=val_iter,  <span class="comment"># validation data</span></span><br><span class="line">              optimizer=<span class="string">'sgd'</span>,  <span class="comment"># use SGD to train</span></span><br><span class="line">              optimizer_params=&#123;<span class="string">'learning_rate'</span>:<span class="number">0.1</span>&#125;,  <span class="comment"># use fixed learning rate</span></span><br><span class="line">              eval_metric=<span class="string">'acc'</span>,  <span class="comment"># report accuracy during training</span></span><br><span class="line">              batch_end_callback = mx.callback.Speedometer(batch_size, <span class="number">500</span>), <span class="comment"># output progress for each 100 data batches</span></span><br><span class="line">              num_epoch=<span class="number">10</span>)  <span class="comment"># train for at most 10 dataset passes</span></span><br></pre></td></tr></table></figure>
+<pre><code>INFO:root:Epoch[0] Batch [500]    Speed: 6075.72 samples/sec    accuracy=0.123373
+INFO:root:Epoch[0] Train-accuracy=0.245051
+INFO:root:Epoch[0] Time cost=9.731
+INFO:root:Epoch[0] Validation-accuracy=0.302000
+INFO:root:Epoch[1] Batch [500]    Speed: 4684.01 samples/sec    accuracy=0.719022
+INFO:root:Epoch[1] Train-accuracy=0.847980
+INFO:root:Epoch[1] Time cost=13.896
+INFO:root:Epoch[1] Validation-accuracy=0.863900
+INFO:root:Epoch[2] Batch [500]    Speed: 5944.26 samples/sec    accuracy=0.885130
+INFO:root:Epoch[2] Train-accuracy=0.914545
+INFO:root:Epoch[2] Time cost=10.645
+INFO:root:Epoch[2] Validation-accuracy=0.921700
+INFO:root:Epoch[3] Batch [500]    Speed: 6619.51 samples/sec    accuracy=0.928563
+INFO:root:Epoch[3] Train-accuracy=0.938283
+INFO:root:Epoch[3] Time cost=8.706
+INFO:root:Epoch[3] Validation-accuracy=0.942400
+INFO:root:Epoch[4] Batch [500]    Speed: 7503.70 samples/sec    accuracy=0.946168
+INFO:root:Epoch[4] Train-accuracy=0.952929
+INFO:root:Epoch[4] Time cost=9.081
+INFO:root:Epoch[4] Validation-accuracy=0.951900
+INFO:root:Epoch[5] Batch [500]    Speed: 4634.94 samples/sec    accuracy=0.956407
+INFO:root:Epoch[5] Train-accuracy=0.960505
+INFO:root:Epoch[5] Time cost=12.318
+INFO:root:Epoch[5] Validation-accuracy=0.958800
+INFO:root:Epoch[6] Batch [500]    Speed: 5837.38 samples/sec    accuracy=0.963353
+INFO:root:Epoch[6] Train-accuracy=0.967172
+INFO:root:Epoch[6] Time cost=10.757
+INFO:root:Epoch[6] Validation-accuracy=0.963700
+INFO:root:Epoch[7] Batch [500]    Speed: 5172.47 samples/sec    accuracy=0.969301
+INFO:root:Epoch[7] Train-accuracy=0.971717
+INFO:root:Epoch[7] Time cost=10.688
+INFO:root:Epoch[7] Validation-accuracy=0.968500
+INFO:root:Epoch[8] Batch [500]    Speed: 7146.53 samples/sec    accuracy=0.973174
+INFO:root:Epoch[8] Train-accuracy=0.974949
+INFO:root:Epoch[8] Time cost=8.348
+INFO:root:Epoch[8] Validation-accuracy=0.970200
+INFO:root:Epoch[9] Batch [500]    Speed: 7471.18 samples/sec    accuracy=0.976926
+INFO:root:Epoch[9] Train-accuracy=0.978081
+INFO:root:Epoch[9] Time cost=8.914
+INFO:root:Epoch[9] Validation-accuracy=0.971600
+</code></pre><ul>
+<li>测试</li>
+</ul>
+<figure class="highlight python"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br></pre></td><td class="code"><pre><span class="line">test_iter = mx.io.NDArrayIter(mnist[<span class="string">'test_data'</span>], <span class="keyword">None</span>, batch_size)</span><br><span class="line">prob = mlp_model.predict(test_iter)</span><br><span class="line"><span class="keyword">assert</span> prob.shape == (<span class="number">10000</span>, <span class="number">10</span>)</span><br><span class="line"></span><br><span class="line">test_iter = mx.io.NDArrayIter(mnist[<span class="string">'test_data'</span>], mnist[<span class="string">'test_label'</span>], batch_size)</span><br><span class="line"><span class="comment"># predict accuracy of mlp</span></span><br><span class="line">acc = mx.metric.Accuracy()</span><br><span class="line">mlp_model.score(test_iter, acc)</span><br><span class="line">print(acc)</span><br><span class="line"><span class="keyword">assert</span> acc.get()[<span class="number">1</span>] &gt; <span class="number">0.96</span>, <span class="string">"Achieved accuracy (%f) is lower than expected (0.96)"</span> % acc.get()[<span class="number">1</span>]</span><br></pre></td></tr></table></figure>
+<pre><code>EvalMetric: {&apos;accuracy&apos;: 0.97160000000000002}
+</code></pre><h3 id="CNN-LeNet"><a href="#CNN-LeNet" class="headerlink" title="CNN(LeNet)"></a>CNN(LeNet)</h3><ul>
+<li>网络搭建，因为数据是4D的，因此在CNN中直接使用即可。</li>
+</ul>
+<figure class="highlight python"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br><span class="line">11</span><br><span class="line">12</span><br><span class="line">13</span><br><span class="line">14</span><br><span class="line">15</span><br><span class="line">16</span><br><span class="line">17</span><br></pre></td><td class="code"><pre><span class="line">data = mx.sym.var(<span class="string">'data'</span>)</span><br><span class="line"><span class="comment"># first conv layer</span></span><br><span class="line">conv1 = mx.sym.Convolution(data=data, kernel=(<span class="number">5</span>,<span class="number">5</span>), num_filter=<span class="number">20</span>)</span><br><span class="line">tanh1 = mx.sym.Activation(data=conv1, act_type=<span class="string">"tanh"</span>)</span><br><span class="line">pool1 = mx.sym.Pooling(data=tanh1, pool_type=<span class="string">"max"</span>, kernel=(<span class="number">2</span>,<span class="number">2</span>), stride=(<span class="number">2</span>,<span class="number">2</span>))</span><br><span class="line"><span class="comment"># second conv layer</span></span><br><span class="line">conv2 = mx.sym.Convolution(data=pool1, kernel=(<span class="number">5</span>,<span class="number">5</span>), num_filter=<span class="number">50</span>)</span><br><span class="line">tanh2 = mx.sym.Activation(data=conv2, act_type=<span class="string">"tanh"</span>)</span><br><span class="line">pool2 = mx.sym.Pooling(data=tanh2, pool_type=<span class="string">"max"</span>, kernel=(<span class="number">2</span>,<span class="number">2</span>), stride=(<span class="number">2</span>,<span class="number">2</span>))</span><br><span class="line"><span class="comment"># first fullc layer</span></span><br><span class="line">flatten = mx.sym.flatten(data=pool2)</span><br><span class="line">fc1 = mx.symbol.FullyConnected(data=flatten, num_hidden=<span class="number">500</span>)</span><br><span class="line">tanh3 = mx.sym.Activation(data=fc1, act_type=<span class="string">"tanh"</span>)</span><br><span class="line"><span class="comment"># second fullc</span></span><br><span class="line">fc2 = mx.sym.FullyConnected(data=tanh3, num_hidden=<span class="number">10</span>)</span><br><span class="line"><span class="comment"># softmax loss</span></span><br><span class="line">lenet = mx.sym.SoftmaxOutput(data=fc2, name=<span class="string">'softmax'</span>)</span><br></pre></td></tr></table></figure>
+<ul>
+<li>进行训练，如果没有gpu的话，可能会很慢</li>
+<li>注意：在fit的时候，因为会提供train_iter，因此不需要进行bind的操作</li>
+</ul>
+<figure class="highlight python"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br></pre></td><td class="code"><pre><span class="line">lenet_model = mx.mod.Module(symbol=lenet, context=ctx)</span><br><span class="line"><span class="comment"># train with the same</span></span><br><span class="line">lenet_model.fit(train_iter,</span><br><span class="line">                eval_data=val_iter,</span><br><span class="line">                optimizer=<span class="string">'sgd'</span>,</span><br><span class="line">                optimizer_params=&#123;<span class="string">'learning_rate'</span>:<span class="number">0.1</span>&#125;,</span><br><span class="line">                eval_metric=<span class="string">'acc'</span>,</span><br><span class="line">                batch_end_callback = mx.callback.Speedometer(batch_size, <span class="number">100</span>),</span><br><span class="line">                num_epoch=<span class="number">1</span>)</span><br></pre></td></tr></table></figure>
+<pre><code>INFO:root:Epoch[0] Batch [100]    Speed: 358.58 samples/sec    accuracy=0.107822
+INFO:root:Epoch[0] Batch [200]    Speed: 459.82 samples/sec    accuracy=0.105900
+INFO:root:Epoch[0] Batch [300]    Speed: 503.92 samples/sec    accuracy=0.113800
+INFO:root:Epoch[0] Batch [400]    Speed: 466.81 samples/sec    accuracy=0.117500
+INFO:root:Epoch[0] Batch [500]    Speed: 482.57 samples/sec    accuracy=0.114000
+INFO:root:Epoch[0] Train-accuracy=0.110808
+INFO:root:Epoch[0] Time cost=133.224
+INFO:root:Epoch[0] Validation-accuracy=0.113500
+</code></pre><figure class="highlight python"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br></pre></td><td class="code"><pre><span class="line">test_iter = mx.io.NDArrayIter(mnist[<span class="string">'test_data'</span>], <span class="keyword">None</span>, batch_size)</span><br><span class="line">prob = lenet_model.predict(test_iter)</span><br><span class="line">test_iter = mx.io.NDArrayIter(mnist[<span class="string">'test_data'</span>], mnist[<span class="string">'test_label'</span>], batch_size)</span><br><span class="line"><span class="comment"># predict accuracy for lenet</span></span><br><span class="line">acc = mx.metric.Accuracy()</span><br><span class="line">lenet_model.score(test_iter, acc)</span><br><span class="line">print(acc)</span><br><span class="line"><span class="keyword">assert</span> acc.get()[<span class="number">1</span>] &gt; <span class="number">0.98</span>, <span class="string">"Achieved accuracy (%f) is lower than expected (0.98)"</span> % acc.get()[<span class="number">1</span>]</span><br></pre></td></tr></table></figure>
+<pre><code>EvalMetric: {&apos;accuracy&apos;: 0.97160000000000002}
+</code></pre><ul>
+<li><p>可以看出CNN的精度相比MLP更高。</p>
+</li>
+<li><p>查看网络的一些信息，同时保存训练好的结果</p>
+</li>
+</ul>
+<figure class="highlight python"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br></pre></td><td class="code"><pre><span class="line">keys = lenet_model.get_params()[<span class="number">0</span>].keys()</span><br><span class="line">print( keys )</span><br><span class="line">lenet_model.save_checkpoint(<span class="string">'./lenet/test'</span>,<span class="number">5</span>) <span class="comment"># 保存模型</span></span><br></pre></td></tr></table></figure>
+<pre><code>INFO:root:Saved checkpoint to &quot;./lenet/test-0005.params&quot;
+
+
+dict_keys([&apos;convolution7_bias&apos;, &apos;convolution6_bias&apos;, &apos;convolution6_weight&apos;, &apos;fullyconnected19_weight&apos;, &apos;convolution7_weight&apos;, &apos;fullyconnected19_bias&apos;, &apos;fullyconnected18_weight&apos;, &apos;fullyconnected18_bias&apos;])
+</code></pre><ul>
+<li>加载网络模型，并且进行训练</li>
+<li>注意：这里需要的是<ul>
+<li>定义好的网络结构<code>(lenet)</code></li>
+<li>定义好的网络模型<code>(lenet_model)</code></li>
+<li>之前保存过程中的<code>model_prefix(&#39;./lenet/test&#39;)</code>和<code>num_epoch(5)</code>，这个与保存过程中使用的参数必须相同才可以。</li>
+<li>必须使用bind确定输入数据和输出数据的形状和格式，可以使用验证数据的data进行确定，也可以直接使用输入和输出的name和shape</li>
+</ul>
+</li>
+</ul>
+<figure class="highlight python"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br><span class="line">11</span><br><span class="line">12</span><br><span class="line">13</span><br><span class="line">14</span><br><span class="line">15</span><br><span class="line">16</span><br><span class="line">17</span><br><span class="line">18</span><br><span class="line">19</span><br><span class="line">20</span><br><span class="line">21</span><br><span class="line">22</span><br><span class="line">23</span><br><span class="line">24</span><br><span class="line">25</span><br><span class="line">26</span><br><span class="line">27</span><br><span class="line">28</span><br><span class="line">29</span><br><span class="line">30</span><br><span class="line">31</span><br><span class="line">32</span><br><span class="line">33</span><br><span class="line">34</span><br><span class="line">35</span><br></pre></td><td class="code"><pre><span class="line">data = mx.sym.Variable(<span class="string">'data'</span>)</span><br><span class="line"><span class="comment"># first conv layer</span></span><br><span class="line">conv1 = mx.sym.Convolution(data=data, kernel=(<span class="number">5</span>,<span class="number">5</span>), num_filter=<span class="number">20</span>)</span><br><span class="line">tanh1 = mx.sym.Activation(data=conv1, act_type=<span class="string">"tanh"</span>)</span><br><span class="line">pool1 = mx.sym.Pooling(data=tanh1, pool_type=<span class="string">"max"</span>, kernel=(<span class="number">2</span>,<span class="number">2</span>), stride=(<span class="number">2</span>,<span class="number">2</span>))</span><br><span class="line"><span class="comment"># second conv layer</span></span><br><span class="line">conv2 = mx.sym.Convolution(data=pool1, kernel=(<span class="number">5</span>,<span class="number">5</span>), num_filter=<span class="number">50</span>)</span><br><span class="line">tanh2 = mx.sym.Activation(data=conv2, act_type=<span class="string">"tanh"</span>)</span><br><span class="line">pool2 = mx.sym.Pooling(data=tanh2, pool_type=<span class="string">"max"</span>, kernel=(<span class="number">2</span>,<span class="number">2</span>), stride=(<span class="number">2</span>,<span class="number">2</span>))</span><br><span class="line"><span class="comment"># first fullc layer</span></span><br><span class="line">flatten = mx.sym.flatten(data=pool2)</span><br><span class="line">fc1 = mx.symbol.FullyConnected(data=flatten, num_hidden=<span class="number">500</span>)</span><br><span class="line">tanh3 = mx.sym.Activation(data=fc1, act_type=<span class="string">"tanh"</span>)</span><br><span class="line"><span class="comment"># second fullc</span></span><br><span class="line">fc2 = mx.sym.FullyConnected(data=tanh3, num_hidden=<span class="number">10</span>)</span><br><span class="line"><span class="comment"># softmax loss</span></span><br><span class="line">lenet = mx.sym.SoftmaxOutput(data=fc2, name=<span class="string">'softmax'</span>)</span><br><span class="line"></span><br><span class="line">sym, arg_params, aux_params = mx.model.load_checkpoint(<span class="string">'./lenet/test'</span>,<span class="number">5</span>)</span><br><span class="line"></span><br><span class="line">mod = mx.mod.Module(symbol=sym)</span><br><span class="line"></span><br><span class="line">test_iter = mx.io.NDArrayIter(mnist[<span class="string">'test_data'</span>][<span class="number">0</span>:<span class="number">100</span>], mnist[<span class="string">'test_label'</span>], batch_size=<span class="number">20</span>)</span><br><span class="line"><span class="comment"># you need to use bind func</span></span><br><span class="line"><span class="comment"># 使用bind函数指明输入输出</span></span><br><span class="line">mod.bind(data_shapes=[(<span class="string">'data'</span>, (<span class="number">20</span>, <span class="number">1</span>,<span class="number">28</span>,<span class="number">28</span>))], label_shapes=[ (<span class="string">"softmax_label"</span>, (<span class="number">20</span>,)) ])</span><br><span class="line"></span><br><span class="line"><span class="comment"># # init parameters</span></span><br><span class="line"><span class="comment"># mod.init_params()</span></span><br><span class="line"><span class="comment"># # assign the loaded parameters to the module</span></span><br><span class="line">mod.set_params(arg_params, aux_params)</span><br><span class="line"></span><br><span class="line">y = mod.predict( test_iter )</span><br><span class="line">score = mod.score(test_iter, [<span class="string">'acc'</span>])</span><br><span class="line">print(<span class="string">"Accuracy score is %f"</span> % (score[<span class="number">0</span>][<span class="number">1</span>]))</span><br></pre></td></tr></table></figure>
+<pre><code>Accuracy score is 0.140000
+</code></pre><h2 id="UCI-letters-recognition-using-MLP"><a href="#UCI-letters-recognition-using-MLP" class="headerlink" title="UCI-letters recognition using MLP"></a>UCI-letters recognition using MLP</h2><blockquote>
+<p>reference : <a href="https://mxnet.incubator.apache.org/tutorials/basic/module.html#save-and-load" target="_blank" rel="noopener">https://mxnet.incubator.apache.org/tutorials/basic/module.html#save-and-load</a></p>
+</blockquote>
+<ul>
+<li>import data</li>
+</ul>
+<figure class="highlight python"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br><span class="line">11</span><br><span class="line">12</span><br><span class="line">13</span><br><span class="line">14</span><br></pre></td><td class="code"><pre><span class="line"><span class="keyword">import</span> logging</span><br><span class="line">logging.getLogger().setLevel(logging.INFO)</span><br><span class="line"><span class="keyword">import</span> mxnet <span class="keyword">as</span> mx</span><br><span class="line"><span class="keyword">import</span> numpy <span class="keyword">as</span> np</span><br><span class="line"></span><br><span class="line">mx.random.seed(<span class="number">1234</span>)</span><br><span class="line">fname = mx.test_utils.download(<span class="string">'https://s3.us-east-2.amazonaws.com/mxnet-public/letter_recognition/letter-recognition.data'</span>)</span><br><span class="line">data = np.genfromtxt(fname, delimiter=<span class="string">','</span>)[:,<span class="number">1</span>:]</span><br><span class="line">label = np.array([ord(l.split(<span class="string">','</span>)[<span class="number">0</span>])-ord(<span class="string">'A'</span>) <span class="keyword">for</span> l <span class="keyword">in</span> open(fname, <span class="string">'r'</span>)])</span><br><span class="line"></span><br><span class="line">batch_size = <span class="number">32</span></span><br><span class="line">ntrain = int(data.shape[<span class="number">0</span>]*<span class="number">0.8</span>)</span><br><span class="line">train_iter = mx.io.NDArrayIter(data[:ntrain, :], label[:ntrain], batch_size, shuffle=<span class="keyword">True</span>)</span><br><span class="line">val_iter = mx.io.NDArrayIter(data[ntrain:, :], label[ntrain:], batch_size)</span><br></pre></td></tr></table></figure>
+<pre><code>INFO:root:letter-recognition.data exists, skipping download
+</code></pre><ul>
+<li>to visualzie the network, you need to download graphviz from <a href="https://graphviz.gitlab.io/download/" target="_blank" rel="noopener">https://graphviz.gitlab.io/download/</a> and add to the system path.</li>
+</ul>
+<figure class="highlight python"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br></pre></td><td class="code"><pre><span class="line">net = mx.sym.Variable(<span class="string">'data'</span>)</span><br><span class="line">net = mx.sym.FullyConnected(net, name=<span class="string">'fc1'</span>, num_hidden=<span class="number">64</span>)</span><br><span class="line">net = mx.sym.Activation(net, name=<span class="string">'relu1'</span>, act_type=<span class="string">"relu"</span>)</span><br><span class="line">net = mx.sym.FullyConnected(net, name=<span class="string">'fc2'</span>, num_hidden=<span class="number">26</span>)</span><br><span class="line">net = mx.sym.SoftmaxOutput(net, name=<span class="string">'softmax'</span>)</span><br><span class="line">mx.viz.plot_network(net)</span><br></pre></td></tr></table></figure>
+<p><img src="/img/post/20180524-001.png" alt="模型图"></p>
+<figure class="highlight python"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br></pre></td><td class="code"><pre><span class="line">mod = mx.mod.Module(symbol=net,</span><br><span class="line">                    context=mx.cpu(),</span><br><span class="line">                    data_names=[<span class="string">'data'</span>],</span><br><span class="line">                    label_names=[<span class="string">'softmax_label'</span>])</span><br></pre></td></tr></table></figure>
+<ul>
+<li>使用比较底层的函数来训练数据</li>
+</ul>
+<figure class="highlight python"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br><span class="line">11</span><br><span class="line">12</span><br><span class="line">13</span><br><span class="line">14</span><br><span class="line">15</span><br><span class="line">16</span><br><span class="line">17</span><br><span class="line">18</span><br></pre></td><td class="code"><pre><span class="line"><span class="comment"># allocate memory given the input data and label shapes</span></span><br><span class="line">mod.bind(data_shapes=train_iter.provide_data, label_shapes=train_iter.provide_label)</span><br><span class="line"><span class="comment"># initialize parameters by uniform random numbers</span></span><br><span class="line">mod.init_params(initializer=mx.init.Uniform(scale=<span class="number">.1</span>))</span><br><span class="line"><span class="comment"># use SGD with learning rate 0.1 to train</span></span><br><span class="line">mod.init_optimizer(optimizer=<span class="string">'sgd'</span>, optimizer_params=((<span class="string">'learning_rate'</span>, <span class="number">0.1</span>), ))</span><br><span class="line"><span class="comment"># use accuracy as the metric</span></span><br><span class="line">metric = mx.metric.create(<span class="string">'acc'</span>)</span><br><span class="line"><span class="comment"># train 5 epochs, i.e. going over the data iter one pass</span></span><br><span class="line"><span class="keyword">for</span> epoch <span class="keyword">in</span> range(<span class="number">5</span>):</span><br><span class="line">    train_iter.reset()</span><br><span class="line">    metric.reset()</span><br><span class="line">    <span class="keyword">for</span> batch <span class="keyword">in</span> train_iter:</span><br><span class="line">        mod.forward(batch, is_train=<span class="keyword">True</span>)       <span class="comment"># compute predictions</span></span><br><span class="line">        mod.update_metric(metric, batch.label)  <span class="comment"># accumulate prediction accuracy</span></span><br><span class="line">        mod.backward()                          <span class="comment"># compute gradients</span></span><br><span class="line">        mod.update()                            <span class="comment"># update parameters</span></span><br><span class="line">    print(<span class="string">'Epoch %d, Training %s'</span> % (epoch, metric.get()))</span><br></pre></td></tr></table></figure>
+<pre><code>Epoch 0, Training (&apos;accuracy&apos;, 0.43293749999999998)
+Epoch 1, Training (&apos;accuracy&apos;, 0.64149999999999996)
+Epoch 2, Training (&apos;accuracy&apos;, 0.69262500000000005)
+Epoch 3, Training (&apos;accuracy&apos;, 0.72768750000000004)
+Epoch 4, Training (&apos;accuracy&apos;, 0.75224999999999997)
+</code></pre><ul>
+<li>使用封装好的函数进行模型训练</li>
+</ul>
+<figure class="highlight python"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br></pre></td><td class="code"><pre><span class="line">train_iter.reset()</span><br><span class="line"></span><br><span class="line">mod = mx.mod.Module( symbol=net,</span><br><span class="line">                     context=mx.cpu(),</span><br><span class="line">                    data_names=[<span class="string">"data"</span>],</span><br><span class="line">                    label_names=[<span class="string">"softmax_label"</span>])</span><br><span class="line"></span><br><span class="line">mod.fit( train_iter, eval_data=val_iter, optimizer_params=&#123;<span class="string">"learning_rate"</span>:<span class="number">0.1</span>&#125;, eval_metric=<span class="string">"acc"</span>, num_epoch=<span class="number">8</span> )</span><br></pre></td></tr></table></figure>
+<pre><code>INFO:root:Epoch[0] Train-accuracy=0.374500
+INFO:root:Epoch[0] Time cost=0.473
+INFO:root:Epoch[0] Validation-accuracy=0.594500
+INFO:root:Epoch[1] Train-accuracy=0.627437
+INFO:root:Epoch[1] Time cost=0.410
+INFO:root:Epoch[1] Validation-accuracy=0.670500
+INFO:root:Epoch[2] Train-accuracy=0.701750
+INFO:root:Epoch[2] Time cost=0.412
+INFO:root:Epoch[2] Validation-accuracy=0.722500
+INFO:root:Epoch[3] Train-accuracy=0.745563
+INFO:root:Epoch[3] Time cost=0.569
+INFO:root:Epoch[3] Validation-accuracy=0.745000
+INFO:root:Epoch[4] Train-accuracy=0.767813
+INFO:root:Epoch[4] Time cost=0.479
+INFO:root:Epoch[4] Validation-accuracy=0.741750
+INFO:root:Epoch[5] Train-accuracy=0.784250
+INFO:root:Epoch[5] Time cost=0.539
+INFO:root:Epoch[5] Validation-accuracy=0.759750
+INFO:root:Epoch[6] Train-accuracy=0.799250
+INFO:root:Epoch[6] Time cost=0.478
+INFO:root:Epoch[6] Validation-accuracy=0.781750
+INFO:root:Epoch[7] Train-accuracy=0.809063
+INFO:root:Epoch[7] Time cost=0.464
+INFO:root:Epoch[7] Validation-accuracy=0.802500
+</code></pre><ul>
+<li>list all the arguments to of the net</li>
+</ul>
+<figure class="highlight python"><table><tr><td class="gutter"><pre><span class="line">1</span><br></pre></td><td class="code"><pre><span class="line">print( net.list_arguments() )</span><br></pre></td></tr></table></figure>
+<pre><code>[&apos;data&apos;, &apos;fc1_weight&apos;, &apos;fc1_bias&apos;, &apos;fc2_weight&apos;, &apos;fc2_bias&apos;, &apos;softmax_label&apos;]
+</code></pre><figure class="highlight python"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br></pre></td><td class="code"><pre><span class="line">y = mod.predict( val_iter )</span><br><span class="line"><span class="keyword">assert</span>( y.shape == (<span class="number">4000</span>,<span class="number">26</span>) )</span><br><span class="line"></span><br><span class="line">score = mod.score(val_iter, [<span class="string">'acc'</span>])</span><br><span class="line">print(<span class="string">"Accuracy score is %f"</span> % (score[<span class="number">0</span>][<span class="number">1</span>]))</span><br><span class="line"><span class="keyword">assert</span> score[<span class="number">0</span>][<span class="number">1</span>] &gt; <span class="number">0.77</span>, <span class="string">"Achieved accuracy (%f) is less than expected (0.77)"</span> % score[<span class="number">0</span>][<span class="number">1</span>]</span><br></pre></td></tr></table></figure>
+<pre><code>Accuracy score is 0.802500
+</code></pre><ul>
+<li>save model</li>
+<li>it saved parameters at each epoch, but just save one json file.</li>
+</ul>
+<figure class="highlight python"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br></pre></td><td class="code"><pre><span class="line"><span class="comment"># construct a callback function to save checkpoints</span></span><br><span class="line">model_prefix = <span class="string">'mlp/mlp_letter'</span></span><br><span class="line">checkpoint = mx.callback.do_checkpoint(model_prefix)</span><br><span class="line"></span><br><span class="line">mod = mx.mod.Module(symbol=net)</span><br><span class="line">mod.fit(train_iter, num_epoch=<span class="number">5</span>, epoch_end_callback=checkpoint)</span><br></pre></td></tr></table></figure>
+<pre><code>INFO:root:Epoch[0] Train-accuracy=0.083312
+INFO:root:Epoch[0] Time cost=0.464
+INFO:root:Saved checkpoint to &quot;mlp/mlp_letter-0001.params&quot;
+INFO:root:Epoch[1] Train-accuracy=0.256063
+INFO:root:Epoch[1] Time cost=0.359
+INFO:root:Saved checkpoint to &quot;mlp/mlp_letter-0002.params&quot;
+INFO:root:Epoch[2] Train-accuracy=0.441625
+INFO:root:Epoch[2] Time cost=0.413
+INFO:root:Saved checkpoint to &quot;mlp/mlp_letter-0003.params&quot;
+INFO:root:Epoch[3] Train-accuracy=0.547250
+INFO:root:Epoch[3] Time cost=0.456
+INFO:root:Saved checkpoint to &quot;mlp/mlp_letter-0004.params&quot;
+INFO:root:Epoch[4] Train-accuracy=0.606625
+INFO:root:Epoch[4] Time cost=0.425
+INFO:root:Saved checkpoint to &quot;mlp/mlp_letter-0005.params&quot;
+</code></pre><ul>
+<li>load the model and set params</li>
+<li>在这里没有进行训练，知道了网络的结构之后，直接使用sym对网络结构进行初始化，同时需要使用bind函数，确定网络的输入与输出的大小。否则会提示在set之前需要bind</li>
+</ul>
+<figure class="highlight python"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br><span class="line">11</span><br><span class="line">12</span><br><span class="line">13</span><br><span class="line">14</span><br><span class="line">15</span><br><span class="line">16</span><br><span class="line">17</span><br><span class="line">18</span><br><span class="line">19</span><br><span class="line">20</span><br><span class="line">21</span><br><span class="line">22</span><br><span class="line">23</span><br><span class="line">24</span><br><span class="line">25</span><br></pre></td><td class="code"><pre><span class="line">net = mx.sym.Variable(<span class="string">'data'</span>)</span><br><span class="line">net = mx.sym.FullyConnected(net, name=<span class="string">'fc1'</span>, num_hidden=<span class="number">64</span>)</span><br><span class="line">net = mx.sym.Activation(net, name=<span class="string">'relu1'</span>, act_type=<span class="string">"relu"</span>)</span><br><span class="line">net = mx.sym.FullyConnected(net, name=<span class="string">'fc2'</span>, num_hidden=<span class="number">26</span>)</span><br><span class="line">net = mx.sym.SoftmaxOutput(net, name=<span class="string">'softmax'</span>)</span><br><span class="line">mx.viz.plot_network(net)</span><br><span class="line"></span><br><span class="line">sym, arg_params, aux_params = mx.model.load_checkpoint(model_prefix, <span class="number">3</span>)</span><br><span class="line"><span class="keyword">assert</span> sym.tojson() == net.tojson()</span><br><span class="line"></span><br><span class="line">mod = mx.mod.Module(symbol=sym)</span><br><span class="line"><span class="comment"># you need to use bind func to </span></span><br><span class="line">mod.bind(data_shapes=val_iter.provide_data, label_shapes=val_iter.provide_label)</span><br><span class="line"></span><br><span class="line"><span class="comment"># init parameters</span></span><br><span class="line"><span class="comment"># mod.init_params()</span></span><br><span class="line"></span><br><span class="line"><span class="comment"># assign the loaded parameters to the module</span></span><br><span class="line">mod.set_params(arg_params, aux_params)</span><br><span class="line"></span><br><span class="line">y = mod.predict( val_iter )</span><br><span class="line"><span class="keyword">assert</span>( y.shape == (<span class="number">4000</span>,<span class="number">26</span>) )</span><br><span class="line"></span><br><span class="line">score = mod.score(val_iter, [<span class="string">'acc'</span>])</span><br><span class="line">print(<span class="string">"Accuracy score is %f"</span> % (score[<span class="number">0</span>][<span class="number">1</span>]))</span><br></pre></td></tr></table></figure>
+<pre><code>Accuracy score is 0.496000
+</code></pre><ul>
+<li>resume training from a saved checkpoint</li>
+</ul>
+<figure class="highlight python"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br></pre></td><td class="code"><pre><span class="line">mod = mx.mod.Module(symbol=sym)</span><br><span class="line">mod.fit(train_iter,</span><br><span class="line">        num_epoch=<span class="number">21</span>,</span><br><span class="line">        arg_params=arg_params,</span><br><span class="line">        aux_params=aux_params,</span><br><span class="line">        begin_epoch=<span class="number">3</span>)</span><br><span class="line"><span class="keyword">assert</span> score[<span class="number">0</span>][<span class="number">1</span>] &gt; <span class="number">0.77</span>, <span class="string">"Achieved accuracy (%f) is less than expected (0.77)"</span> % score[<span class="number">0</span>][<span class="number">1</span>]</span><br></pre></td></tr></table></figure>
+<pre><code>INFO:root:Epoch[3] Train-accuracy=0.547250
+INFO:root:Epoch[3] Time cost=0.496
+INFO:root:Epoch[4] Train-accuracy=0.606625
+INFO:root:Epoch[4] Time cost=0.396
+INFO:root:Epoch[5] Train-accuracy=0.649125
+INFO:root:Epoch[5] Time cost=0.394
+INFO:root:Epoch[6] Train-accuracy=0.684937
+INFO:root:Epoch[6] Time cost=0.383
+INFO:root:Epoch[7] Train-accuracy=0.709250
+INFO:root:Epoch[7] Time cost=0.393
+INFO:root:Epoch[8] Train-accuracy=0.722625
+INFO:root:Epoch[8] Time cost=0.412
+INFO:root:Epoch[9] Train-accuracy=0.732875
+INFO:root:Epoch[9] Time cost=0.408
+INFO:root:Epoch[10] Train-accuracy=0.740000
+INFO:root:Epoch[10] Time cost=0.404
+INFO:root:Epoch[11] Train-accuracy=0.747375
+INFO:root:Epoch[11] Time cost=0.396
+INFO:root:Epoch[12] Train-accuracy=0.753812
+INFO:root:Epoch[12] Time cost=0.368
+INFO:root:Epoch[13] Train-accuracy=0.758375
+INFO:root:Epoch[13] Time cost=0.405
+INFO:root:Epoch[14] Train-accuracy=0.763188
+INFO:root:Epoch[14] Time cost=0.380
+INFO:root:Epoch[15] Train-accuracy=0.767062
+INFO:root:Epoch[15] Time cost=0.386
+INFO:root:Epoch[16] Train-accuracy=0.771938
+INFO:root:Epoch[16] Time cost=0.398
+INFO:root:Epoch[17] Train-accuracy=0.776563
+INFO:root:Epoch[17] Time cost=0.399
+INFO:root:Epoch[18] Train-accuracy=0.781125
+INFO:root:Epoch[18] Time cost=0.383
+INFO:root:Epoch[19] Train-accuracy=0.786000
+INFO:root:Epoch[19] Time cost=0.399
+INFO:root:Epoch[20] Train-accuracy=0.790312
+INFO:root:Epoch[20] Time cost=0.438
+</code></pre>
+      
+    </div>
+    
+    
+    
+
+    
+
+    
+
+    
+
+    <footer class="post-footer">
+      
+        <div class="post-tags">
+          
+            <a href="/tags/mxnet/" rel="tag"># mxnet</a>
+          
+        </div>
+      
+
+      
+      
+      
+
+      
+        <div class="post-nav">
+          <div class="post-nav-next post-nav-item">
+            
+              <a href="/2018/05/20/2018-05-20-2018 计蒜之道 初赛 第四场/" rel="next" title="2018 计蒜之道 初赛 第四场">
+                <i class="fa fa-chevron-left"></i> 2018 计蒜之道 初赛 第四场
+              </a>
+            
+          </div>
+
+          <span class="post-nav-divider"></span>
+
+          <div class="post-nav-prev post-nav-item">
+            
+              <a href="/2018/06/03/2018-06-03-instance segmentation之DLF/" rel="prev" title="instance segmentation之DLF">
+                instance segmentation之DLF <i class="fa fa-chevron-right"></i>
+              </a>
+            
+          </div>
+        </div>
+      
+
+      
+      
+    </footer>
+  </div>
+  
+  
+  
+  </article>
+
+
+
+    <div class="post-spread">
+      
+    </div>
+  </div>
+
+
+          </div>
+          
+
+
+          
+
+  
+
+
+
+        </div>
+        
+          
+  
+  <div class="sidebar-toggle">
+    <div class="sidebar-toggle-line-wrap">
+      <span class="sidebar-toggle-line sidebar-toggle-line-first"></span>
+      <span class="sidebar-toggle-line sidebar-toggle-line-middle"></span>
+      <span class="sidebar-toggle-line sidebar-toggle-line-last"></span>
+    </div>
+  </div>
+
+  <aside id="sidebar" class="sidebar">
+    
+    <div class="sidebar-inner">
+
+      
+
+      
+        <ul class="sidebar-nav motion-element">
+          <li class="sidebar-nav-toc sidebar-nav-active" data-target="post-toc-wrap">
+            文章目录
+          </li>
+          <li class="sidebar-nav-overview" data-target="site-overview-wrap">
+            站点概览
+          </li>
+        </ul>
+      
+
+      <section class="site-overview-wrap sidebar-panel">
+        <div class="site-overview">
+          <div class="site-author motion-element" itemprop="author" itemscope="" itemtype="http://schema.org/Person">
+            
+              <img class="site-author-image" itemprop="image" src="/avatar/home-self.jpg" alt="donkey">
+            
+              <p class="site-author-name" itemprop="name">donkey</p>
+              <p class="site-description motion-element" itemprop="description">want to be an engineer</p>
+          </div>
+
+          <nav class="site-state motion-element">
+
+            
+              <div class="site-state-item site-state-posts">
+              
+                <a href="/archives/">
+              
+                  <span class="site-state-item-count">36</span>
+                  <span class="site-state-item-name">日志</span>
+                </a>
+              </div>
+            
+
+            
+
+            
+              
+              
+              <div class="site-state-item site-state-tags">
+                <a href="/tags/index.html">
+                  <span class="site-state-item-count">19</span>
+                  <span class="site-state-item-name">标签</span>
+                </a>
+              </div>
+            
+
+          </nav>
+
+          
+
+          
+            <div class="links-of-author motion-element">
+                
+                  <span class="links-of-author-item">
+                    <a href="https://github.com/littletomatodonkey" target="_blank" title="GitHub">
+                      
+                        <i class="fa fa-fw fa-github"></i>GitHub</a>
+                  </span>
+                
+                  <span class="links-of-author-item">
+                    <a href="https://blog.csdn.net/u012526003" target="_blank" title="CSDN">
+                      
+                        <i class="fa fa-fw fa-crosshairs"></i>CSDN</a>
+                  </span>
+                
+            </div>
+          
+
+          
+          
+
+          
+          
+
+          
+
+        </div>
+      </section>
+
+      
+      <!--noindex-->
+        <section class="post-toc-wrap motion-element sidebar-panel sidebar-panel-active">
+          <div class="post-toc">
+
+            
+              
+            
+
+            
+              <div class="post-toc-content"><ol class="nav"><li class="nav-item nav-level-1"><a class="nav-link" href="#mxnet变量和模型的加载及保存"><span class="nav-number">1.</span> <span class="nav-text">mxnet变量和模型的加载及保存</span></a><ol class="nav-child"><li class="nav-item nav-level-2"><a class="nav-link" href="#安装"><span class="nav-number">1.1.</span> <span class="nav-text">安装</span></a></li><li class="nav-item nav-level-2"><a class="nav-link" href="#变量"><span class="nav-number">1.2.</span> <span class="nav-text">变量</span></a></li><li class="nav-item nav-level-2"><a class="nav-link" href="#mnist简单测试"><span class="nav-number">1.3.</span> <span class="nav-text">mnist简单测试</span></a><ol class="nav-child"><li class="nav-item nav-level-3"><a class="nav-link" href="#MLP进行简单的测试"><span class="nav-number">1.3.1.</span> <span class="nav-text">MLP进行简单的测试</span></a></li><li class="nav-item nav-level-3"><a class="nav-link" href="#CNN-LeNet"><span class="nav-number">1.3.2.</span> <span class="nav-text">CNN(LeNet)</span></a></li></ol></li><li class="nav-item nav-level-2"><a class="nav-link" href="#UCI-letters-recognition-using-MLP"><span class="nav-number">1.4.</span> <span class="nav-text">UCI-letters recognition using MLP</span></a></li></ol></li></ol></div>
+            
+
+          </div>
+        </section>
+      <!--/noindex-->
+      
+
+      
+
+    </div>
+  </aside>
+
+
+        
+      </div>
+    </main>
+
+    <footer id="footer" class="footer">
+      <div class="footer-inner">
+        <div class="copyright">&copy; <span itemprop="copyrightYear">2018</span>
+  <span class="with-love">
+    <i class="fa fa-user"></i>
+  </span>
+  <span class="author" itemprop="copyrightHolder">donkey</span>
+
+  
+</div>
+
+
+  <div class="powered-by">由 <a class="theme-link" target="_blank" href="https://hexo.io">Hexo</a> 强力驱动</div>
+
+
+
+  <span class="post-meta-divider">|</span>
+
+
+
+  <div class="theme-info">主题 &mdash; <a class="theme-link" target="_blank" href="https://github.com/iissnan/hexo-theme-next">NexT.Muse</a> v5.1.4</div>
+
+
+
+
+        
+
+
+
+
+
+
+
+        
+      </div>
+    </footer>
+
+    
+      <div class="back-to-top">
+        <i class="fa fa-arrow-up"></i>
+        
+      </div>
+    
+
+    
+
+  </div>
+
+  
+
+<script type="text/javascript">
+  if (Object.prototype.toString.call(window.Promise) !== '[object Function]') {
+    window.Promise = null;
+  }
+</script>
+
+
+
+
+
+
+
+
+
+  
+
+
+
+
+
+
+
+
+
+
+
+
+  
+  
+    <script type="text/javascript" src="/lib/jquery/index.js?v=2.1.3"></script>
+  
+
+  
+  
+    <script type="text/javascript" src="/lib/fastclick/lib/fastclick.min.js?v=1.0.6"></script>
+  
+
+  
+  
+    <script type="text/javascript" src="/lib/jquery_lazyload/jquery.lazyload.js?v=1.9.7"></script>
+  
+
+  
+  
+    <script type="text/javascript" src="/lib/velocity/velocity.min.js?v=1.2.1"></script>
+  
+
+  
+  
+    <script type="text/javascript" src="/lib/velocity/velocity.ui.min.js?v=1.2.1"></script>
+  
+
+  
+  
+    <script type="text/javascript" src="/lib/fancybox/source/jquery.fancybox.pack.js?v=2.1.5"></script>
+  
+
+
+  
+
+
+  <script type="text/javascript" src="/js/src/utils.js?v=5.1.4"></script>
+
+  <script type="text/javascript" src="/js/src/motion.js?v=5.1.4"></script>
+
+
+
+  
+  
+
+  
+  <script type="text/javascript" src="/js/src/scrollspy.js?v=5.1.4"></script>
+<script type="text/javascript" src="/js/src/post-details.js?v=5.1.4"></script>
+
+
+
+  
+
+
+  <script type="text/javascript" src="/js/src/bootstrap.js?v=5.1.4"></script>
+
+
+
+  
+
+
+  
+
+
+
+
+	
+
+
+
+
+
+  
+
+
+
+
+
+  
+
+
+
+
+
+
+
+
+
+
+
+
+  
+
+
+
+
+
+  
+
+  
+
+  
+
+  
+  
+
+  
+  
+    <script type="text/x-mathjax-config">
+      MathJax.Hub.Config({
+        tex2jax: {
+          inlineMath: [ ['$','$'], ["\\(","\\)"]  ],
+          processEscapes: true,
+          skipTags: ['script', 'noscript', 'style', 'textarea', 'pre', 'code']
+        }
+      });
+    </script>
+
+    <script type="text/x-mathjax-config">
+      MathJax.Hub.Queue(function() {
+        var all = MathJax.Hub.getAllJax(), i;
+        for (i=0; i < all.length; i += 1) {
+          all[i].SourceElement().parentNode.className += ' has-jax';
+        }
+      });
+    </script>
+    <script type="text/javascript" src="//cdn.bootcss.com/mathjax/2.7.1/latest.js?config=TeX-AMS-MML_HTMLorMML"></script>
+  
+
+
+  
+
+  
+
+</body>
+</html>

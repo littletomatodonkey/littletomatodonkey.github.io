@@ -1,0 +1,780 @@
+<!DOCTYPE html>
+
+
+
+  
+
+
+<html class="theme-next muse use-motion" lang="zh-Hans">
+<head><meta name="generator" content="Hexo 3.8.0">
+  <meta charset="UTF-8">
+<meta http-equiv="X-UA-Compatible" content="IE=edge">
+<meta name="viewport" content="width=device-width, initial-scale=1, maximum-scale=1">
+<meta name="theme-color" content="#222">
+
+
+
+
+
+
+
+
+
+<meta http-equiv="Cache-Control" content="no-transform">
+<meta http-equiv="Cache-Control" content="no-siteapp">
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+  
+  
+  <link href="/lib/fancybox/source/jquery.fancybox.css?v=2.1.5" rel="stylesheet" type="text/css">
+
+
+
+
+
+
+
+<link href="/lib/font-awesome/css/font-awesome.min.css?v=4.6.2" rel="stylesheet" type="text/css">
+
+<link href="/css/main.css?v=5.1.4" rel="stylesheet" type="text/css">
+
+
+  <link rel="apple-touch-icon" sizes="180x180" href="/images/apple-touch-icon-next.png?v=5.1.4">
+
+
+  <link rel="icon" type="image/png" sizes="32x32" href="/images/favicon-32x32-next.png?v=5.1.4">
+
+
+  <link rel="icon" type="image/png" sizes="16x16" href="/images/favicon-16x16-next.png?v=5.1.4">
+
+
+  <link rel="mask-icon" href="/images/logo.svg?v=5.1.4" color="#222">
+
+
+
+
+
+  <meta name="keywords" content="论文,">
+
+
+
+
+
+
+
+
+
+
+<meta name="description" content="abstract 论文地址：Training Region-based Object Detectors with Online Hard Example Mining 在目标检测中，使用SS或者滑动窗口等方法得到的proposal中，正负样本的个数比例差距很大，之前的方法都是选择若干个负样本的proposal，使得正负比为1:3，论文中使用OHEM，对正负样本个数比例没有限制。 OHEM在每次训">
+<meta name="keywords" content="论文">
+<meta property="og:type" content="article">
+<meta property="og:title" content="困难样本挖掘之OHEM">
+<meta property="og:url" content="git@github.com:littletomatodonkey/littletomatodonkey.github.io.git/2018/10/18/2018-10-18-困难样本挖掘之OHEM/index.html">
+<meta property="og:site_name" content="donkey&#39;s blog">
+<meta property="og:description" content="abstract 论文地址：Training Region-based Object Detectors with Online Hard Example Mining 在目标检测中，使用SS或者滑动窗口等方法得到的proposal中，正负样本的个数比例差距很大，之前的方法都是选择若干个负样本的proposal，使得正负比为1:3，论文中使用OHEM，对正负样本个数比例没有限制。 OHEM在每次训">
+<meta property="og:locale" content="zh-Hans">
+<meta property="og:image" content="/img/post/20181017-ohem-fastRCNN.png">
+<meta property="og:image" content="/img/post/20181017-ohem-流程图.png">
+<meta property="og:updated_time" content="2018-10-18T12:36:17.811Z">
+<meta name="twitter:card" content="summary">
+<meta name="twitter:title" content="困难样本挖掘之OHEM">
+<meta name="twitter:description" content="abstract 论文地址：Training Region-based Object Detectors with Online Hard Example Mining 在目标检测中，使用SS或者滑动窗口等方法得到的proposal中，正负样本的个数比例差距很大，之前的方法都是选择若干个负样本的proposal，使得正负比为1:3，论文中使用OHEM，对正负样本个数比例没有限制。 OHEM在每次训">
+<meta name="twitter:image" content="/img/post/20181017-ohem-fastRCNN.png">
+
+
+
+<script type="text/javascript" id="hexo.configurations">
+  var NexT = window.NexT || {};
+  var CONFIG = {
+    root: '/',
+    scheme: 'Muse',
+    version: '5.1.4',
+    sidebar: {"position":"left","display":"post","offset":12,"b2t":false,"scrollpercent":false,"onmobile":false},
+    fancybox: true,
+    tabs: true,
+    motion: {"enable":true,"async":false,"transition":{"post_block":"fadeIn","post_header":"slideDownIn","post_body":"slideDownIn","coll_header":"slideLeftIn","sidebar":"slideUpIn"}},
+    duoshuo: {
+      userId: '0',
+      author: '博主'
+    },
+    algolia: {
+      applicationID: '',
+      apiKey: '',
+      indexName: '',
+      hits: {"per_page":10},
+      labels: {"input_placeholder":"Search for Posts","hits_empty":"We didn't find any results for the search: ${query}","hits_stats":"${hits} results found in ${time} ms"}
+    }
+  };
+</script>
+
+
+
+  <link rel="canonical" href="git@github.com:littletomatodonkey/littletomatodonkey.github.io.git/2018/10/18/2018-10-18-困难样本挖掘之OHEM/">
+
+
+
+
+
+  <title>困难样本挖掘之OHEM | donkey's blog</title>
+  
+
+
+
+
+
+
+
+
+</head>
+
+<body itemscope="" itemtype="http://schema.org/WebPage" lang="zh-Hans">
+
+  
+  
+    
+  
+
+  <div class="container sidebar-position-left page-post-detail">
+    <div class="headband"></div>
+
+    <header id="header" class="header" itemscope="" itemtype="http://schema.org/WPHeader">
+      <div class="header-inner"><div class="site-brand-wrapper">
+  <div class="site-meta ">
+    
+
+    <div class="custom-logo-site-title">
+      <a href="/" class="brand" rel="start">
+        <span class="logo-line-before"><i></i></span>
+        <span class="site-title">donkey's blog</span>
+        <span class="logo-line-after"><i></i></span>
+      </a>
+    </div>
+      
+        <p class="site-subtitle">to be BIG</p>
+      
+  </div>
+
+  <div class="site-nav-toggle">
+    <button>
+      <span class="btn-bar"></span>
+      <span class="btn-bar"></span>
+      <span class="btn-bar"></span>
+    </button>
+  </div>
+</div>
+
+<nav class="site-nav">
+  
+
+  
+    <ul id="menu" class="menu">
+      
+        
+        <li class="menu-item menu-item-home">
+          <a href="/" rel="section">
+            
+              <i class="menu-item-icon fa fa-fw fa-home"></i> <br>
+            
+            首页
+          </a>
+        </li>
+      
+        
+        <li class="menu-item menu-item-about">
+          <a href="/about/" rel="section">
+            
+              <i class="menu-item-icon fa fa-fw fa-user"></i> <br>
+            
+            关于
+          </a>
+        </li>
+      
+        
+        <li class="menu-item menu-item-tags">
+          <a href="/tags/" rel="section">
+            
+              <i class="menu-item-icon fa fa-fw fa-tags"></i> <br>
+            
+            标签
+          </a>
+        </li>
+      
+        
+        <li class="menu-item menu-item-archives">
+          <a href="/archives/" rel="section">
+            
+              <i class="menu-item-icon fa fa-fw fa-archive"></i> <br>
+            
+            归档
+          </a>
+        </li>
+      
+
+      
+    </ul>
+  
+
+  
+</nav>
+
+
+
+ </div>
+    </header>
+
+    <main id="main" class="main">
+      <div class="main-inner">
+        <div class="content-wrap">
+          <div id="content" class="content">
+            
+
+  <div id="posts" class="posts-expand">
+    
+
+  
+
+  
+  
+  
+
+  <article class="post post-type-normal" itemscope="" itemtype="http://schema.org/Article">
+  
+  
+  
+  <div class="post-block">
+    <link itemprop="mainEntityOfPage" href="git@github.com:littletomatodonkey/littletomatodonkey.github.io.git/2018/10/18/2018-10-18-困难样本挖掘之OHEM/">
+
+    <span hidden itemprop="author" itemscope="" itemtype="http://schema.org/Person">
+      <meta itemprop="name" content="donkey">
+      <meta itemprop="description" content="">
+      <meta itemprop="image" content="/avatar/home-self.jpg">
+    </span>
+
+    <span hidden itemprop="publisher" itemscope="" itemtype="http://schema.org/Organization">
+      <meta itemprop="name" content="donkey's blog">
+    </span>
+
+    
+      <header class="post-header">
+
+        
+        
+          <h1 class="post-title" itemprop="name headline">困难样本挖掘之OHEM</h1>
+        
+
+        <div class="post-meta">
+          <span class="post-time">
+            
+              <span class="post-meta-item-icon">
+                <i class="fa fa-calendar-o"></i>
+              </span>
+              
+                <span class="post-meta-item-text">发表于</span>
+              
+              <time title="创建于" itemprop="dateCreated datePublished" datetime="2018-10-18T10:00:00+08:00">
+                2018-10-18
+              </time>
+            
+
+            
+
+            
+          </span>
+
+          
+
+          
+            
+          
+
+          
+          
+
+          
+
+          
+
+          
+
+        </div>
+      </header>
+    
+
+    
+    
+    
+    <div class="post-body" itemprop="articleBody">
+
+      
+      
+
+      
+        <h2 id="abstract"><a href="#abstract" class="headerlink" title="abstract"></a>abstract</h2><ul>
+<li>论文地址：<a href="https://arxiv.org/abs/1604.03540" target="_blank" rel="noopener">Training Region-based Object Detectors with Online Hard Example Mining</a></li>
+<li>在目标检测中，使用SS或者滑动窗口等方法得到的proposal中，正负样本的个数比例差距很大，之前的方法都是选择若干个负样本的proposal，使得正负比为1:3，论文中使用OHEM，对正负样本个数比例没有限制。</li>
+<li>OHEM在每次训练的过程中，选取那些loss更大的roi，对其进行bp，这个思想与bootstrapping类似。</li>
+<li>基于OHEM的fastRCNN提升了几个mAP的点。</li>
+</ul>
+<h2 id="introduction"><a href="#introduction" class="headerlink" title="introduction"></a>introduction</h2><ul>
+<li>在目标检测中类别不均衡的情况一直很严重，即使引入region proposal，这种情况依然存在。</li>
+<li>bootstrapping之前在机器学习中应用得较多，主要是在每次迭代过程中，更加关注那些误分的样本，从而提升模型的精度。</li>
+<li>本文中的OHEM主要以下几个优势<ul>
+<li>移除了之前的一些假设与超参数。</li>
+<li>提升了检测任务的mAP。</li>
+<li>当检测任务更加复杂的时候，OHEM的有效性更加明显。</li>
+</ul>
+</li>
+</ul>
+<h2 id="fast-RCNN-overview"><a href="#fast-RCNN-overview" class="headerlink" title="fast RCNN overview"></a>fast RCNN overview</h2><ul>
+<li>fast RCNN主要流程图如下</li>
+</ul>
+<p><img src="/img/post/20181017-ohem-fastRCNN.png" alt="20181017-ohem-fastRCNN"></p>
+<ul>
+<li>在训练的过程中，因为每张图像上都有大量的proposal，因此基于一些假设，对其进行随机采样，最后每张图像中只取<code>B/N</code>个proposal给后面的RoI net进行运算。我们使用</li>
+<li>在proposal中，任何与gt box的IOU大于一定阈值的都被视为<code>foreground roi</code>，任何在IOU在[bg_lo,0.5)范围内的roi都被视为<code>background roi</code>，因为希望模型能够学习到更多的东西，因此在这里设置<code>bg_lo=0.1</code>，因为与gtbox有部分重叠的box在检测过程中可能更加困难。</li>
+<li>针对正负样本个数差距太大的问题，对负样本进行采样，使得最终正负样本在1:3左右。</li>
+</ul>
+<h2 id="our-approach"><a href="#our-approach" class="headerlink" title="our approach"></a>our approach</h2><ul>
+<li>之前是随机选择ROI进行之后roi net的操作，论文中则可以通过OHEM选择那些检测困难的样本，并进行之后的roi net。</li>
+<li>在OHEM中，所有的proposal都先通过roi net进行forward操作，在backward的过程中，因为只对那些loss很大的roi进行了bp，因此计算量没有增加太多。</li>
+<li>在使proposal经过roi net之前，使用NMS去除重叠的bbox。</li>
+<li>在这里因为只使用那些loss很大的roi做bp，因此不需要设置fg-bg ratio，因为那些被忽视的正例的loss会越来越高，在之后样本选择的过程中会有更大的概率被选中进行bp。</li>
+</ul>
+<h3 id="implementation-details"><a href="#implementation-details" class="headerlink" title="implementation details"></a>implementation details</h3><ul>
+<li>在实现的过程中，我们可以将所有non-hard roi的loss修改为0，但是这种方法仍然会对所有的roi进行bp的运算，这回造成大量的内存损耗。</li>
+<li>针对以上问题，使用下列解决方案：使用2个RoI network，它们之间共享参数，一个roi network只用于forward，它是只读的，计算loss之后，选取hard example之后，将其作为另外一个roi network的输入，这个network是用于forward与backward的，整体的流程图如下</li>
+</ul>
+<p><img src="/img/post/20181017-ohem-流程图.png" alt="20181017-ohem-流程图"></p>
+<h2 id="experiment-and-results"><a href="#experiment-and-results" class="headerlink" title="experiment and results"></a>experiment and results</h2><ul>
+<li>主要是在VOC和coco数据集上做了很多实验，并进行大量对比实验与调参（显卡要多才能做完这些啊。。。），具体的内容可以参考论文。</li>
+</ul>
+<h2 id="conclusion"><a href="#conclusion" class="headerlink" title="conclusion"></a>conclusion</h2><ul>
+<li>主要就是介绍了OHEM这种困难样本挖掘的方法，可以提升检测任务的baseline。</li>
+<li>论文中的方法是针对所有的类别进行的实验分析，之后的工作中，也可以研究在单一类别的性能上，不同训练方法的影响。</li>
+</ul>
+
+      
+    </div>
+    
+    
+    
+
+    
+
+    
+
+    
+
+    <footer class="post-footer">
+      
+        <div class="post-tags">
+          
+            <a href="/tags/论文/" rel="tag"># 论文</a>
+          
+        </div>
+      
+
+      
+      
+      
+
+      
+        <div class="post-nav">
+          <div class="post-nav-next post-nav-item">
+            
+              <a href="/2018/10/10/2018-10-10-模型压缩之模型蒸馏/" rel="next" title="模型压缩之模型蒸馏">
+                <i class="fa fa-chevron-left"></i> 模型压缩之模型蒸馏
+              </a>
+            
+          </div>
+
+          <span class="post-nav-divider"></span>
+
+          <div class="post-nav-prev post-nav-item">
+            
+              <a href="/2018/10/19/2018-10-19-目标检测之RetinaNet/" rel="prev" title="目标检测之retinanet">
+                目标检测之retinanet <i class="fa fa-chevron-right"></i>
+              </a>
+            
+          </div>
+        </div>
+      
+
+      
+      
+    </footer>
+  </div>
+  
+  
+  
+  </article>
+
+
+
+    <div class="post-spread">
+      
+    </div>
+  </div>
+
+
+          </div>
+          
+
+
+          
+
+  
+
+
+
+        </div>
+        
+          
+  
+  <div class="sidebar-toggle">
+    <div class="sidebar-toggle-line-wrap">
+      <span class="sidebar-toggle-line sidebar-toggle-line-first"></span>
+      <span class="sidebar-toggle-line sidebar-toggle-line-middle"></span>
+      <span class="sidebar-toggle-line sidebar-toggle-line-last"></span>
+    </div>
+  </div>
+
+  <aside id="sidebar" class="sidebar">
+    
+    <div class="sidebar-inner">
+
+      
+
+      
+        <ul class="sidebar-nav motion-element">
+          <li class="sidebar-nav-toc sidebar-nav-active" data-target="post-toc-wrap">
+            文章目录
+          </li>
+          <li class="sidebar-nav-overview" data-target="site-overview-wrap">
+            站点概览
+          </li>
+        </ul>
+      
+
+      <section class="site-overview-wrap sidebar-panel">
+        <div class="site-overview">
+          <div class="site-author motion-element" itemprop="author" itemscope="" itemtype="http://schema.org/Person">
+            
+              <img class="site-author-image" itemprop="image" src="/avatar/home-self.jpg" alt="donkey">
+            
+              <p class="site-author-name" itemprop="name">donkey</p>
+              <p class="site-description motion-element" itemprop="description">want to be an engineer</p>
+          </div>
+
+          <nav class="site-state motion-element">
+
+            
+              <div class="site-state-item site-state-posts">
+              
+                <a href="/archives/">
+              
+                  <span class="site-state-item-count">36</span>
+                  <span class="site-state-item-name">日志</span>
+                </a>
+              </div>
+            
+
+            
+
+            
+              
+              
+              <div class="site-state-item site-state-tags">
+                <a href="/tags/index.html">
+                  <span class="site-state-item-count">19</span>
+                  <span class="site-state-item-name">标签</span>
+                </a>
+              </div>
+            
+
+          </nav>
+
+          
+
+          
+            <div class="links-of-author motion-element">
+                
+                  <span class="links-of-author-item">
+                    <a href="https://github.com/littletomatodonkey" target="_blank" title="GitHub">
+                      
+                        <i class="fa fa-fw fa-github"></i>GitHub</a>
+                  </span>
+                
+                  <span class="links-of-author-item">
+                    <a href="https://blog.csdn.net/u012526003" target="_blank" title="CSDN">
+                      
+                        <i class="fa fa-fw fa-crosshairs"></i>CSDN</a>
+                  </span>
+                
+            </div>
+          
+
+          
+          
+
+          
+          
+
+          
+
+        </div>
+      </section>
+
+      
+      <!--noindex-->
+        <section class="post-toc-wrap motion-element sidebar-panel sidebar-panel-active">
+          <div class="post-toc">
+
+            
+              
+            
+
+            
+              <div class="post-toc-content"><ol class="nav"><li class="nav-item nav-level-2"><a class="nav-link" href="#abstract"><span class="nav-number">1.</span> <span class="nav-text">abstract</span></a></li><li class="nav-item nav-level-2"><a class="nav-link" href="#introduction"><span class="nav-number">2.</span> <span class="nav-text">introduction</span></a></li><li class="nav-item nav-level-2"><a class="nav-link" href="#fast-RCNN-overview"><span class="nav-number">3.</span> <span class="nav-text">fast RCNN overview</span></a></li><li class="nav-item nav-level-2"><a class="nav-link" href="#our-approach"><span class="nav-number">4.</span> <span class="nav-text">our approach</span></a><ol class="nav-child"><li class="nav-item nav-level-3"><a class="nav-link" href="#implementation-details"><span class="nav-number">4.1.</span> <span class="nav-text">implementation details</span></a></li></ol></li><li class="nav-item nav-level-2"><a class="nav-link" href="#experiment-and-results"><span class="nav-number">5.</span> <span class="nav-text">experiment and results</span></a></li><li class="nav-item nav-level-2"><a class="nav-link" href="#conclusion"><span class="nav-number">6.</span> <span class="nav-text">conclusion</span></a></li></ol></div>
+            
+
+          </div>
+        </section>
+      <!--/noindex-->
+      
+
+      
+
+    </div>
+  </aside>
+
+
+        
+      </div>
+    </main>
+
+    <footer id="footer" class="footer">
+      <div class="footer-inner">
+        <div class="copyright">&copy; <span itemprop="copyrightYear">2018</span>
+  <span class="with-love">
+    <i class="fa fa-user"></i>
+  </span>
+  <span class="author" itemprop="copyrightHolder">donkey</span>
+
+  
+</div>
+
+
+  <div class="powered-by">由 <a class="theme-link" target="_blank" href="https://hexo.io">Hexo</a> 强力驱动</div>
+
+
+
+  <span class="post-meta-divider">|</span>
+
+
+
+  <div class="theme-info">主题 &mdash; <a class="theme-link" target="_blank" href="https://github.com/iissnan/hexo-theme-next">NexT.Muse</a> v5.1.4</div>
+
+
+
+
+        
+
+
+
+
+
+
+
+        
+      </div>
+    </footer>
+
+    
+      <div class="back-to-top">
+        <i class="fa fa-arrow-up"></i>
+        
+      </div>
+    
+
+    
+
+  </div>
+
+  
+
+<script type="text/javascript">
+  if (Object.prototype.toString.call(window.Promise) !== '[object Function]') {
+    window.Promise = null;
+  }
+</script>
+
+
+
+
+
+
+
+
+
+  
+
+
+
+
+
+
+
+
+
+
+
+
+  
+  
+    <script type="text/javascript" src="/lib/jquery/index.js?v=2.1.3"></script>
+  
+
+  
+  
+    <script type="text/javascript" src="/lib/fastclick/lib/fastclick.min.js?v=1.0.6"></script>
+  
+
+  
+  
+    <script type="text/javascript" src="/lib/jquery_lazyload/jquery.lazyload.js?v=1.9.7"></script>
+  
+
+  
+  
+    <script type="text/javascript" src="/lib/velocity/velocity.min.js?v=1.2.1"></script>
+  
+
+  
+  
+    <script type="text/javascript" src="/lib/velocity/velocity.ui.min.js?v=1.2.1"></script>
+  
+
+  
+  
+    <script type="text/javascript" src="/lib/fancybox/source/jquery.fancybox.pack.js?v=2.1.5"></script>
+  
+
+
+  
+
+
+  <script type="text/javascript" src="/js/src/utils.js?v=5.1.4"></script>
+
+  <script type="text/javascript" src="/js/src/motion.js?v=5.1.4"></script>
+
+
+
+  
+  
+
+  
+  <script type="text/javascript" src="/js/src/scrollspy.js?v=5.1.4"></script>
+<script type="text/javascript" src="/js/src/post-details.js?v=5.1.4"></script>
+
+
+
+  
+
+
+  <script type="text/javascript" src="/js/src/bootstrap.js?v=5.1.4"></script>
+
+
+
+  
+
+
+  
+
+
+
+
+	
+
+
+
+
+
+  
+
+
+
+
+
+  
+
+
+
+
+
+
+
+
+
+
+
+
+  
+
+
+
+
+
+  
+
+  
+
+  
+
+  
+  
+
+  
+  
+    <script type="text/x-mathjax-config">
+      MathJax.Hub.Config({
+        tex2jax: {
+          inlineMath: [ ['$','$'], ["\\(","\\)"]  ],
+          processEscapes: true,
+          skipTags: ['script', 'noscript', 'style', 'textarea', 'pre', 'code']
+        }
+      });
+    </script>
+
+    <script type="text/x-mathjax-config">
+      MathJax.Hub.Queue(function() {
+        var all = MathJax.Hub.getAllJax(), i;
+        for (i=0; i < all.length; i += 1) {
+          all[i].SourceElement().parentNode.className += ' has-jax';
+        }
+      });
+    </script>
+    <script type="text/javascript" src="//cdn.bootcss.com/mathjax/2.7.1/latest.js?config=TeX-AMS-MML_HTMLorMML"></script>
+  
+
+
+  
+
+  
+
+</body>
+</html>

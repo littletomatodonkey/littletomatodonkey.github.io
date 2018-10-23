@@ -1,0 +1,811 @@
+<!DOCTYPE html>
+
+
+
+  
+
+
+<html class="theme-next muse use-motion" lang="zh-Hans">
+<head><meta name="generator" content="Hexo 3.8.0">
+  <meta charset="UTF-8">
+<meta http-equiv="X-UA-Compatible" content="IE=edge">
+<meta name="viewport" content="width=device-width, initial-scale=1, maximum-scale=1">
+<meta name="theme-color" content="#222">
+
+
+
+
+
+
+
+
+
+<meta http-equiv="Cache-Control" content="no-transform">
+<meta http-equiv="Cache-Control" content="no-siteapp">
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+  
+  
+  <link href="/lib/fancybox/source/jquery.fancybox.css?v=2.1.5" rel="stylesheet" type="text/css">
+
+
+
+
+
+
+
+<link href="/lib/font-awesome/css/font-awesome.min.css?v=4.6.2" rel="stylesheet" type="text/css">
+
+<link href="/css/main.css?v=5.1.4" rel="stylesheet" type="text/css">
+
+
+  <link rel="apple-touch-icon" sizes="180x180" href="/images/apple-touch-icon-next.png?v=5.1.4">
+
+
+  <link rel="icon" type="image/png" sizes="32x32" href="/images/favicon-32x32-next.png?v=5.1.4">
+
+
+  <link rel="icon" type="image/png" sizes="16x16" href="/images/favicon-16x16-next.png?v=5.1.4">
+
+
+  <link rel="mask-icon" href="/images/logo.svg?v=5.1.4" color="#222">
+
+
+
+
+
+  <meta name="keywords" content="论文,detection,">
+
+
+
+
+
+
+
+
+
+
+<meta name="description" content="概览 RCNN相关检测方法属于two stage的方法，跟yolo、SSD等one stage的方法不同，它是首先得到proposal，再对其进行regression与classification。比较经典的论文有RCNN、fast-RCNN、SPP Net、faster RCNN等。当然也衍生出许多其他的方法，在这里主要对提到的几篇论文及其方法做一个大概的总结。  RCNN主要思路与方法 det">
+<meta name="keywords" content="论文,detection">
+<meta property="og:type" content="article">
+<meta property="og:title" content="RCNN流派的检测方法总结">
+<meta property="og:url" content="git@github.com:littletomatodonkey/littletomatodonkey.github.io.git/2018/08/29/2018-08-29-RCNN流派的检测方法总结/index.html">
+<meta property="og:site_name" content="donkey&#39;s blog">
+<meta property="og:description" content="概览 RCNN相关检测方法属于two stage的方法，跟yolo、SSD等one stage的方法不同，它是首先得到proposal，再对其进行regression与classification。比较经典的论文有RCNN、fast-RCNN、SPP Net、faster RCNN等。当然也衍生出许多其他的方法，在这里主要对提到的几篇论文及其方法做一个大概的总结。  RCNN主要思路与方法 det">
+<meta property="og:locale" content="zh-Hans">
+<meta property="og:image" content="/img/post/20180829-SPPlayer.png">
+<meta property="og:image" content="/img/post/20180829-fasterRCNN.png">
+<meta property="og:image" content="/img/post/20180829-RPN.png">
+<meta property="og:updated_time" content="2018-08-31T18:42:31.885Z">
+<meta name="twitter:card" content="summary">
+<meta name="twitter:title" content="RCNN流派的检测方法总结">
+<meta name="twitter:description" content="概览 RCNN相关检测方法属于two stage的方法，跟yolo、SSD等one stage的方法不同，它是首先得到proposal，再对其进行regression与classification。比较经典的论文有RCNN、fast-RCNN、SPP Net、faster RCNN等。当然也衍生出许多其他的方法，在这里主要对提到的几篇论文及其方法做一个大概的总结。  RCNN主要思路与方法 det">
+<meta name="twitter:image" content="/img/post/20180829-SPPlayer.png">
+
+
+
+<script type="text/javascript" id="hexo.configurations">
+  var NexT = window.NexT || {};
+  var CONFIG = {
+    root: '/',
+    scheme: 'Muse',
+    version: '5.1.4',
+    sidebar: {"position":"left","display":"post","offset":12,"b2t":false,"scrollpercent":false,"onmobile":false},
+    fancybox: true,
+    tabs: true,
+    motion: {"enable":true,"async":false,"transition":{"post_block":"fadeIn","post_header":"slideDownIn","post_body":"slideDownIn","coll_header":"slideLeftIn","sidebar":"slideUpIn"}},
+    duoshuo: {
+      userId: '0',
+      author: '博主'
+    },
+    algolia: {
+      applicationID: '',
+      apiKey: '',
+      indexName: '',
+      hits: {"per_page":10},
+      labels: {"input_placeholder":"Search for Posts","hits_empty":"We didn't find any results for the search: ${query}","hits_stats":"${hits} results found in ${time} ms"}
+    }
+  };
+</script>
+
+
+
+  <link rel="canonical" href="git@github.com:littletomatodonkey/littletomatodonkey.github.io.git/2018/08/29/2018-08-29-RCNN流派的检测方法总结/">
+
+
+
+
+
+  <title>RCNN流派的检测方法总结 | donkey's blog</title>
+  
+
+
+
+
+
+
+
+
+</head>
+
+<body itemscope="" itemtype="http://schema.org/WebPage" lang="zh-Hans">
+
+  
+  
+    
+  
+
+  <div class="container sidebar-position-left page-post-detail">
+    <div class="headband"></div>
+
+    <header id="header" class="header" itemscope="" itemtype="http://schema.org/WPHeader">
+      <div class="header-inner"><div class="site-brand-wrapper">
+  <div class="site-meta ">
+    
+
+    <div class="custom-logo-site-title">
+      <a href="/" class="brand" rel="start">
+        <span class="logo-line-before"><i></i></span>
+        <span class="site-title">donkey's blog</span>
+        <span class="logo-line-after"><i></i></span>
+      </a>
+    </div>
+      
+        <p class="site-subtitle">to be BIG</p>
+      
+  </div>
+
+  <div class="site-nav-toggle">
+    <button>
+      <span class="btn-bar"></span>
+      <span class="btn-bar"></span>
+      <span class="btn-bar"></span>
+    </button>
+  </div>
+</div>
+
+<nav class="site-nav">
+  
+
+  
+    <ul id="menu" class="menu">
+      
+        
+        <li class="menu-item menu-item-home">
+          <a href="/" rel="section">
+            
+              <i class="menu-item-icon fa fa-fw fa-home"></i> <br>
+            
+            首页
+          </a>
+        </li>
+      
+        
+        <li class="menu-item menu-item-about">
+          <a href="/about/" rel="section">
+            
+              <i class="menu-item-icon fa fa-fw fa-user"></i> <br>
+            
+            关于
+          </a>
+        </li>
+      
+        
+        <li class="menu-item menu-item-tags">
+          <a href="/tags/" rel="section">
+            
+              <i class="menu-item-icon fa fa-fw fa-tags"></i> <br>
+            
+            标签
+          </a>
+        </li>
+      
+        
+        <li class="menu-item menu-item-archives">
+          <a href="/archives/" rel="section">
+            
+              <i class="menu-item-icon fa fa-fw fa-archive"></i> <br>
+            
+            归档
+          </a>
+        </li>
+      
+
+      
+    </ul>
+  
+
+  
+</nav>
+
+
+
+ </div>
+    </header>
+
+    <main id="main" class="main">
+      <div class="main-inner">
+        <div class="content-wrap">
+          <div id="content" class="content">
+            
+
+  <div id="posts" class="posts-expand">
+    
+
+  
+
+  
+  
+  
+
+  <article class="post post-type-normal" itemscope="" itemtype="http://schema.org/Article">
+  
+  
+  
+  <div class="post-block">
+    <link itemprop="mainEntityOfPage" href="git@github.com:littletomatodonkey/littletomatodonkey.github.io.git/2018/08/29/2018-08-29-RCNN流派的检测方法总结/">
+
+    <span hidden itemprop="author" itemscope="" itemtype="http://schema.org/Person">
+      <meta itemprop="name" content="donkey">
+      <meta itemprop="description" content="">
+      <meta itemprop="image" content="/avatar/home-self.jpg">
+    </span>
+
+    <span hidden itemprop="publisher" itemscope="" itemtype="http://schema.org/Organization">
+      <meta itemprop="name" content="donkey's blog">
+    </span>
+
+    
+      <header class="post-header">
+
+        
+        
+          <h1 class="post-title" itemprop="name headline">RCNN流派的检测方法总结</h1>
+        
+
+        <div class="post-meta">
+          <span class="post-time">
+            
+              <span class="post-meta-item-icon">
+                <i class="fa fa-calendar-o"></i>
+              </span>
+              
+                <span class="post-meta-item-text">发表于</span>
+              
+              <time title="创建于" itemprop="dateCreated datePublished" datetime="2018-08-29T12:00:00+08:00">
+                2018-08-29
+              </time>
+            
+
+            
+
+            
+          </span>
+
+          
+
+          
+            
+          
+
+          
+          
+
+          
+
+          
+
+          
+
+        </div>
+      </header>
+    
+
+    
+    
+    
+    <div class="post-body" itemprop="articleBody">
+
+      
+      
+
+      
+        <h1 id="概览"><a href="#概览" class="headerlink" title="概览"></a>概览</h1><ul>
+<li>RCNN相关检测方法属于two stage的方法，跟yolo、SSD等<code>one stage</code>的方法不同，它是首先得到proposal，再对其进行regression与classification。比较经典的论文有RCNN、fast-RCNN、SPP Net、faster RCNN等。当然也衍生出许多其他的方法，在这里主要对提到的几篇论文及其方法做一个大概的总结。</li>
+</ul>
+<h2 id="RCNN"><a href="#RCNN" class="headerlink" title="RCNN"></a>RCNN</h2><h3 id="主要思路与方法"><a href="#主要思路与方法" class="headerlink" title="主要思路与方法"></a>主要思路与方法</h3><ul>
+<li>detection与classification不同，他不仅需要知道物体的类别，还需要知道物体的位置。</li>
+<li>作者将detection的定位问题视为一个回归问题，之前也有一些基于类似的思路展开的工作，但是效果很差。</li>
+<li>跟之前的基于传统特征不同(HAAR、HOG等)，论文使用了CNN进行特征提取，同时与之前的基于滑动窗口的proposal生成的方法不同，论文使用了<code>Selective Search</code>方法生成1k~2k个proposal（候选框），在此基础上进行特征提取。</li>
+<li>RCNN对CNN提取的特征使用SVM进行分类，同时使用bounding box regression对bbox进行finetune，最终得到检测结果（bbox+classification）。</li>
+<li><code>bounding box regression</code>的讲解可以见该博客：<a href="https://blog.csdn.net/u012526003/article/details/82155937" target="_blank" rel="noopener">https://blog.csdn.net/u012526003/article/details/82155937</a></li>
+</ul>
+<h3 id="contribution"><a href="#contribution" class="headerlink" title="contribution"></a>contribution</h3><ul>
+<li>在detection任务中提出了基于CNN的特征提取的方法，引入了<code>bounding box regression</code>，同时使用<code>Selective Search</code>代替传统的滑动窗口的方法。</li>
+<li>RCNN中，没有实现CNN的参数共享，因为每个proposal都会单独使用CNN提取一遍特征，这在后续的工作中得到了解决。</li>
+</ul>
+<h2 id="SPP-Net"><a href="#SPP-Net" class="headerlink" title="SPP Net"></a>SPP Net</h2><h3 id="主要思路和方法"><a href="#主要思路和方法" class="headerlink" title="主要思路和方法"></a>主要思路和方法</h3><ul>
+<li>之前的CNN方法中，要求图像是固定大小的，这样CNN才能进行正常的信息传输，论文中提出了一种空间金字塔池化的方法，可以将任意大小的图像作为CNN的输出，经过SPP layer之后变成相同大小，这样可以保证最后fc层的输入是固定大小的。</li>
+<li>SPP layer的可视化举例如下</li>
+</ul>
+<p><img src="/img/post/20180829-SPPlayer.png" alt="SPP layer"></p>
+<p>不管图像尺寸多大，首先经过CNN，得到feature map，对这个feature map做空间金字塔池化，将不同金字塔的池化结果(max pooling)做concatenation，最后形成一个固定维度大小的feature，这样就可以作为fc层的输入了。</p>
+<ul>
+<li>使用SPP net，可以同时检测大物体和小物体（设置不同的池化尺寸即可），同时不需要对图像做crop或者resize，从而避免了信息损失和物体变形的问题。</li>
+</ul>
+<h3 id="与RCNN的区别与联系"><a href="#与RCNN的区别与联系" class="headerlink" title="与RCNN的区别与联系"></a>与RCNN的区别与联系</h3><ul>
+<li>SPP-Net与RCNN都是首选使用<code>Selective Search</code>生成候选框。</li>
+<li>RCNN将proposal缩放到固定大小，再输入到CNN中提取特征，因此十分耗时（有需要feature都被重复计算了）；而SPP-Net是将整张图像输入到CNN中提取特征，然后在proposal在feature中对应的位置使用<code>SPP layer</code>提取特征，因此减少了大量的CNN feature的计算。</li>
+<li>最后也是基于SVM进行分类。</li>
+</ul>
+<h2 id="fast-RCNN"><a href="#fast-RCNN" class="headerlink" title="fast RCNN"></a>fast RCNN</h2><h3 id="主要思路与方法-1"><a href="#主要思路与方法-1" class="headerlink" title="主要思路与方法"></a>主要思路与方法</h3><ul>
+<li>fast RCNN相对于RCNN，训练和测试时间大大缩减，它对整张图像只需要提取一次CNN feature。</li>
+<li>fast RCNN的输入是RGB图像以及一系列的proposal，proposal可以通过<code>selective search</code>方法生成。</li>
+<li>提出了Roi Pooling的概念，将不同proposal的中的feature map（大小不同）经过<code>RoIPooling layer</code>处理之后变成统一的大小。</li>
+<li>引入了多任务的loss，使得整个训练过程是<code>single stage</code>的。对于分类loss，使用<code>softmax loss</code>，对于bounding box regression的loss，使用<code>Smooth L1 loss</code>，具体概念可以见：<a href="https://blog.csdn.net/u012526003/article/details/81609096" target="_blank" rel="noopener">https://blog.csdn.net/u012526003/article/details/81609096</a>。上述2个loss加权和就是整个任务的loss。</li>
+</ul>
+<h3 id="contribution-1"><a href="#contribution-1" class="headerlink" title="contribution"></a>contribution</h3><ul>
+<li>相对于RCNN，SPP-Net大大缩短了训练与测试时间，但是仍然有一些比较明显的缺点：整个过程十分复杂（多个步骤），同时也需要将CNN feature写入到硬盘中，用于后续的分类任务。相对于这2个工作，fast RCNN有以下优点：<ul>
+<li>比RCNN与SPP-Net的mAP更大。</li>
+<li>使用多任务loss，使得整个任务的训练是single stage的。</li>
+<li>训练过程可以更新所有网路的参数（之前都是单独训练的）。</li>
+<li>不需要磁盘空间去存储特征。</li>
+</ul>
+</li>
+<li>最主要的几个点：<code>shared CNN feature</code> + <code>RoI Pooling</code> + <code>Multi task loss</code>。</li>
+</ul>
+<h3 id="其他值得借鉴的地方"><a href="#其他值得借鉴的地方" class="headerlink" title="其他值得借鉴的地方"></a>其他值得借鉴的地方</h3><ul>
+<li>论文中作者也做了很多其他的实验，比如说SS生成的proposal的数量对结果的影响，数据增强方法等，这都对神经网路的设计与学习有比较好的思考，具体可以看论文。</li>
+</ul>
+<h2 id="faster-RCNN"><a href="#faster-RCNN" class="headerlink" title="faster RCNN"></a>faster RCNN</h2><h3 id="主要思路与工作"><a href="#主要思路与工作" class="headerlink" title="主要思路与工作"></a>主要思路与工作</h3><ul>
+<li>之前的proposal都是需要使用一些方法去生成，比如说<code>Selective Search</code>等，faster RCNN则是提出了<code>region proposal network(RPN)</code>，使得候选框生成的过程也被集成到整个网络中，使得整个任务的pipeline更加简洁。</li>
+<li>整个detection任务的示意图如下</li>
+</ul>
+<p><img src="/img/post/20180829-fasterRCNN.png" alt="faster RCNN"></p>
+<p>首先也是使用CNN提取<code>CNN feature</code>，在feature map上的每个点生成proposal(每个点生成9个，<code>3 scales</code>与 <code>3 aspect ratios</code>)。RPN可视化如下</p>
+<p><img src="/img/post/20180829-RPN.png" alt="RPN"></p>
+<p>假设每个feature layer的生成滑动窗口的位置都产生$k$个<code>anchor box</code>，因此会生成$2k$个分类结果(每个box都有是物体以及不是物体的概率)以及$4k$个score结果(box的xywh信息)，之后使用bbox regression获得精确的proposal。该步骤的loss是二分类的loss(proposal是否为物体)以及proposal的<code>bbox regression loss</code>。</p>
+<ul>
+<li>对proposal在feature layer中的对应部分经过RoI Pooling，之后送入fc层用于判断物体的类别。</li>
+<li>使用softmax loss训练proposal feature layer进行分类，同时使用bbox regression再次修正anchor的位置。</li>
+<li>论文中使用了<code>4步训练</code>的方法<ul>
+<li>step1：训练RPN</li>
+<li>step2：基于step1中生成的proposal，基于fast RCNN模型去训练一个detection network。</li>
+<li>step3：使用detection network对RPN进行微调，在这里固定shared CNN layers，只对那些只属于RPN的网络参数进行finetune。</li>
+<li>step4：固定shared feature layer，对只属于fast RCNN的CNN layer进行finetune。</li>
+<li>得到最终的模型。</li>
+</ul>
+</li>
+</ul>
+<h3 id="contribution-2"><a href="#contribution-2" class="headerlink" title="contribution"></a>contribution</h3><ul>
+<li>RPN</li>
+<li>training method</li>
+</ul>
+
+      
+    </div>
+    
+    
+    
+
+    
+
+    
+
+    
+
+    <footer class="post-footer">
+      
+        <div class="post-tags">
+          
+            <a href="/tags/论文/" rel="tag"># 论文</a>
+          
+            <a href="/tags/detection/" rel="tag"># detection</a>
+          
+        </div>
+      
+
+      
+      
+      
+
+      
+        <div class="post-nav">
+          <div class="post-nav-next post-nav-item">
+            
+              <a href="/2018/07/23/2018-07-23-目标检测之SSD/" rel="next" title="目标检测之SSD">
+                <i class="fa fa-chevron-left"></i> 目标检测之SSD
+              </a>
+            
+          </div>
+
+          <span class="post-nav-divider"></span>
+
+          <div class="post-nav-prev post-nav-item">
+            
+              <a href="/2018/09/01/2018-09-01-语义分割之DeepLab系列/" rel="prev" title="语义分割之DeepLab系列">
+                语义分割之DeepLab系列 <i class="fa fa-chevron-right"></i>
+              </a>
+            
+          </div>
+        </div>
+      
+
+      
+      
+    </footer>
+  </div>
+  
+  
+  
+  </article>
+
+
+
+    <div class="post-spread">
+      
+    </div>
+  </div>
+
+
+          </div>
+          
+
+
+          
+
+  
+
+
+
+        </div>
+        
+          
+  
+  <div class="sidebar-toggle">
+    <div class="sidebar-toggle-line-wrap">
+      <span class="sidebar-toggle-line sidebar-toggle-line-first"></span>
+      <span class="sidebar-toggle-line sidebar-toggle-line-middle"></span>
+      <span class="sidebar-toggle-line sidebar-toggle-line-last"></span>
+    </div>
+  </div>
+
+  <aside id="sidebar" class="sidebar">
+    
+    <div class="sidebar-inner">
+
+      
+
+      
+        <ul class="sidebar-nav motion-element">
+          <li class="sidebar-nav-toc sidebar-nav-active" data-target="post-toc-wrap">
+            文章目录
+          </li>
+          <li class="sidebar-nav-overview" data-target="site-overview-wrap">
+            站点概览
+          </li>
+        </ul>
+      
+
+      <section class="site-overview-wrap sidebar-panel">
+        <div class="site-overview">
+          <div class="site-author motion-element" itemprop="author" itemscope="" itemtype="http://schema.org/Person">
+            
+              <img class="site-author-image" itemprop="image" src="/avatar/home-self.jpg" alt="donkey">
+            
+              <p class="site-author-name" itemprop="name">donkey</p>
+              <p class="site-description motion-element" itemprop="description">want to be an engineer</p>
+          </div>
+
+          <nav class="site-state motion-element">
+
+            
+              <div class="site-state-item site-state-posts">
+              
+                <a href="/archives/">
+              
+                  <span class="site-state-item-count">36</span>
+                  <span class="site-state-item-name">日志</span>
+                </a>
+              </div>
+            
+
+            
+
+            
+              
+              
+              <div class="site-state-item site-state-tags">
+                <a href="/tags/index.html">
+                  <span class="site-state-item-count">19</span>
+                  <span class="site-state-item-name">标签</span>
+                </a>
+              </div>
+            
+
+          </nav>
+
+          
+
+          
+            <div class="links-of-author motion-element">
+                
+                  <span class="links-of-author-item">
+                    <a href="https://github.com/littletomatodonkey" target="_blank" title="GitHub">
+                      
+                        <i class="fa fa-fw fa-github"></i>GitHub</a>
+                  </span>
+                
+                  <span class="links-of-author-item">
+                    <a href="https://blog.csdn.net/u012526003" target="_blank" title="CSDN">
+                      
+                        <i class="fa fa-fw fa-crosshairs"></i>CSDN</a>
+                  </span>
+                
+            </div>
+          
+
+          
+          
+
+          
+          
+
+          
+
+        </div>
+      </section>
+
+      
+      <!--noindex-->
+        <section class="post-toc-wrap motion-element sidebar-panel sidebar-panel-active">
+          <div class="post-toc">
+
+            
+              
+            
+
+            
+              <div class="post-toc-content"><ol class="nav"><li class="nav-item nav-level-1"><a class="nav-link" href="#概览"><span class="nav-number">1.</span> <span class="nav-text">概览</span></a><ol class="nav-child"><li class="nav-item nav-level-2"><a class="nav-link" href="#RCNN"><span class="nav-number">1.1.</span> <span class="nav-text">RCNN</span></a><ol class="nav-child"><li class="nav-item nav-level-3"><a class="nav-link" href="#主要思路与方法"><span class="nav-number">1.1.1.</span> <span class="nav-text">主要思路与方法</span></a></li><li class="nav-item nav-level-3"><a class="nav-link" href="#contribution"><span class="nav-number">1.1.2.</span> <span class="nav-text">contribution</span></a></li></ol></li><li class="nav-item nav-level-2"><a class="nav-link" href="#SPP-Net"><span class="nav-number">1.2.</span> <span class="nav-text">SPP Net</span></a><ol class="nav-child"><li class="nav-item nav-level-3"><a class="nav-link" href="#主要思路和方法"><span class="nav-number">1.2.1.</span> <span class="nav-text">主要思路和方法</span></a></li><li class="nav-item nav-level-3"><a class="nav-link" href="#与RCNN的区别与联系"><span class="nav-number">1.2.2.</span> <span class="nav-text">与RCNN的区别与联系</span></a></li></ol></li><li class="nav-item nav-level-2"><a class="nav-link" href="#fast-RCNN"><span class="nav-number">1.3.</span> <span class="nav-text">fast RCNN</span></a><ol class="nav-child"><li class="nav-item nav-level-3"><a class="nav-link" href="#主要思路与方法-1"><span class="nav-number">1.3.1.</span> <span class="nav-text">主要思路与方法</span></a></li><li class="nav-item nav-level-3"><a class="nav-link" href="#contribution-1"><span class="nav-number">1.3.2.</span> <span class="nav-text">contribution</span></a></li><li class="nav-item nav-level-3"><a class="nav-link" href="#其他值得借鉴的地方"><span class="nav-number">1.3.3.</span> <span class="nav-text">其他值得借鉴的地方</span></a></li></ol></li><li class="nav-item nav-level-2"><a class="nav-link" href="#faster-RCNN"><span class="nav-number">1.4.</span> <span class="nav-text">faster RCNN</span></a><ol class="nav-child"><li class="nav-item nav-level-3"><a class="nav-link" href="#主要思路与工作"><span class="nav-number">1.4.1.</span> <span class="nav-text">主要思路与工作</span></a></li><li class="nav-item nav-level-3"><a class="nav-link" href="#contribution-2"><span class="nav-number">1.4.2.</span> <span class="nav-text">contribution</span></a></li></ol></li></ol></li></ol></div>
+            
+
+          </div>
+        </section>
+      <!--/noindex-->
+      
+
+      
+
+    </div>
+  </aside>
+
+
+        
+      </div>
+    </main>
+
+    <footer id="footer" class="footer">
+      <div class="footer-inner">
+        <div class="copyright">&copy; <span itemprop="copyrightYear">2018</span>
+  <span class="with-love">
+    <i class="fa fa-user"></i>
+  </span>
+  <span class="author" itemprop="copyrightHolder">donkey</span>
+
+  
+</div>
+
+
+  <div class="powered-by">由 <a class="theme-link" target="_blank" href="https://hexo.io">Hexo</a> 强力驱动</div>
+
+
+
+  <span class="post-meta-divider">|</span>
+
+
+
+  <div class="theme-info">主题 &mdash; <a class="theme-link" target="_blank" href="https://github.com/iissnan/hexo-theme-next">NexT.Muse</a> v5.1.4</div>
+
+
+
+
+        
+
+
+
+
+
+
+
+        
+      </div>
+    </footer>
+
+    
+      <div class="back-to-top">
+        <i class="fa fa-arrow-up"></i>
+        
+      </div>
+    
+
+    
+
+  </div>
+
+  
+
+<script type="text/javascript">
+  if (Object.prototype.toString.call(window.Promise) !== '[object Function]') {
+    window.Promise = null;
+  }
+</script>
+
+
+
+
+
+
+
+
+
+  
+
+
+
+
+
+
+
+
+
+
+
+
+  
+  
+    <script type="text/javascript" src="/lib/jquery/index.js?v=2.1.3"></script>
+  
+
+  
+  
+    <script type="text/javascript" src="/lib/fastclick/lib/fastclick.min.js?v=1.0.6"></script>
+  
+
+  
+  
+    <script type="text/javascript" src="/lib/jquery_lazyload/jquery.lazyload.js?v=1.9.7"></script>
+  
+
+  
+  
+    <script type="text/javascript" src="/lib/velocity/velocity.min.js?v=1.2.1"></script>
+  
+
+  
+  
+    <script type="text/javascript" src="/lib/velocity/velocity.ui.min.js?v=1.2.1"></script>
+  
+
+  
+  
+    <script type="text/javascript" src="/lib/fancybox/source/jquery.fancybox.pack.js?v=2.1.5"></script>
+  
+
+
+  
+
+
+  <script type="text/javascript" src="/js/src/utils.js?v=5.1.4"></script>
+
+  <script type="text/javascript" src="/js/src/motion.js?v=5.1.4"></script>
+
+
+
+  
+  
+
+  
+  <script type="text/javascript" src="/js/src/scrollspy.js?v=5.1.4"></script>
+<script type="text/javascript" src="/js/src/post-details.js?v=5.1.4"></script>
+
+
+
+  
+
+
+  <script type="text/javascript" src="/js/src/bootstrap.js?v=5.1.4"></script>
+
+
+
+  
+
+
+  
+
+
+
+
+	
+
+
+
+
+
+  
+
+
+
+
+
+  
+
+
+
+
+
+
+
+
+
+
+
+
+  
+
+
+
+
+
+  
+
+  
+
+  
+
+  
+  
+
+  
+  
+    <script type="text/x-mathjax-config">
+      MathJax.Hub.Config({
+        tex2jax: {
+          inlineMath: [ ['$','$'], ["\\(","\\)"]  ],
+          processEscapes: true,
+          skipTags: ['script', 'noscript', 'style', 'textarea', 'pre', 'code']
+        }
+      });
+    </script>
+
+    <script type="text/x-mathjax-config">
+      MathJax.Hub.Queue(function() {
+        var all = MathJax.Hub.getAllJax(), i;
+        for (i=0; i < all.length; i += 1) {
+          all[i].SourceElement().parentNode.className += ' has-jax';
+        }
+      });
+    </script>
+    <script type="text/javascript" src="//cdn.bootcss.com/mathjax/2.7.1/latest.js?config=TeX-AMS-MML_HTMLorMML"></script>
+  
+
+
+  
+
+  
+
+</body>
+</html>

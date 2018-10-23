@@ -1,0 +1,814 @@
+<!DOCTYPE html>
+
+
+
+  
+
+
+<html class="theme-next muse use-motion" lang="zh-Hans">
+<head><meta name="generator" content="Hexo 3.8.0">
+  <meta charset="UTF-8">
+<meta http-equiv="X-UA-Compatible" content="IE=edge">
+<meta name="viewport" content="width=device-width, initial-scale=1, maximum-scale=1">
+<meta name="theme-color" content="#222">
+
+
+
+
+
+
+
+
+
+<meta http-equiv="Cache-Control" content="no-transform">
+<meta http-equiv="Cache-Control" content="no-siteapp">
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+  
+  
+  <link href="/lib/fancybox/source/jquery.fancybox.css?v=2.1.5" rel="stylesheet" type="text/css">
+
+
+
+
+
+
+
+<link href="/lib/font-awesome/css/font-awesome.min.css?v=4.6.2" rel="stylesheet" type="text/css">
+
+<link href="/css/main.css?v=5.1.4" rel="stylesheet" type="text/css">
+
+
+  <link rel="apple-touch-icon" sizes="180x180" href="/images/apple-touch-icon-next.png?v=5.1.4">
+
+
+  <link rel="icon" type="image/png" sizes="32x32" href="/images/favicon-32x32-next.png?v=5.1.4">
+
+
+  <link rel="icon" type="image/png" sizes="16x16" href="/images/favicon-16x16-next.png?v=5.1.4">
+
+
+  <link rel="mask-icon" href="/images/logo.svg?v=5.1.4" color="#222">
+
+
+
+
+
+  <meta name="keywords" content="论文,instance segmentation,">
+
+
+
+
+
+
+
+
+
+
+<meta name="description" content="论文简介 地址：Fully Convolutional Instance-aware Semantic Segmentation。 论文是首次使用end to end的方法实现实例分割，它同时完成对物体实例的检测与分割，在精度和速度都达到了state of art的水平。同时赢得了coco2016的分割比赛。  introduction FCN被广泛应用于语义分割，但是它具有平移不变性，即相同物体">
+<meta name="keywords" content="论文,instance segmentation">
+<meta property="og:type" content="article">
+<meta property="og:title" content="实例分割之FCIS">
+<meta property="og:url" content="git@github.com:littletomatodonkey/littletomatodonkey.github.io.git/2018/07/10/2018-07-10-实例分割之FCIS/index.html">
+<meta property="og:site_name" content="donkey&#39;s blog">
+<meta property="og:description" content="论文简介 地址：Fully Convolutional Instance-aware Semantic Segmentation。 论文是首次使用end to end的方法实现实例分割，它同时完成对物体实例的检测与分割，在精度和速度都达到了state of art的水平。同时赢得了coco2016的分割比赛。  introduction FCN被广泛应用于语义分割，但是它具有平移不变性，即相同物体">
+<meta property="og:locale" content="zh-Hans">
+<meta property="og:image" content="/img/post/20180710-FCIS结构.png">
+<meta property="og:updated_time" content="2018-07-10T15:27:35.728Z">
+<meta name="twitter:card" content="summary">
+<meta name="twitter:title" content="实例分割之FCIS">
+<meta name="twitter:description" content="论文简介 地址：Fully Convolutional Instance-aware Semantic Segmentation。 论文是首次使用end to end的方法实现实例分割，它同时完成对物体实例的检测与分割，在精度和速度都达到了state of art的水平。同时赢得了coco2016的分割比赛。  introduction FCN被广泛应用于语义分割，但是它具有平移不变性，即相同物体">
+<meta name="twitter:image" content="/img/post/20180710-FCIS结构.png">
+
+
+
+<script type="text/javascript" id="hexo.configurations">
+  var NexT = window.NexT || {};
+  var CONFIG = {
+    root: '/',
+    scheme: 'Muse',
+    version: '5.1.4',
+    sidebar: {"position":"left","display":"post","offset":12,"b2t":false,"scrollpercent":false,"onmobile":false},
+    fancybox: true,
+    tabs: true,
+    motion: {"enable":true,"async":false,"transition":{"post_block":"fadeIn","post_header":"slideDownIn","post_body":"slideDownIn","coll_header":"slideLeftIn","sidebar":"slideUpIn"}},
+    duoshuo: {
+      userId: '0',
+      author: '博主'
+    },
+    algolia: {
+      applicationID: '',
+      apiKey: '',
+      indexName: '',
+      hits: {"per_page":10},
+      labels: {"input_placeholder":"Search for Posts","hits_empty":"We didn't find any results for the search: ${query}","hits_stats":"${hits} results found in ${time} ms"}
+    }
+  };
+</script>
+
+
+
+  <link rel="canonical" href="git@github.com:littletomatodonkey/littletomatodonkey.github.io.git/2018/07/10/2018-07-10-实例分割之FCIS/">
+
+
+
+
+
+  <title>实例分割之FCIS | donkey's blog</title>
+  
+
+
+
+
+
+
+
+
+</head>
+
+<body itemscope="" itemtype="http://schema.org/WebPage" lang="zh-Hans">
+
+  
+  
+    
+  
+
+  <div class="container sidebar-position-left page-post-detail">
+    <div class="headband"></div>
+
+    <header id="header" class="header" itemscope="" itemtype="http://schema.org/WPHeader">
+      <div class="header-inner"><div class="site-brand-wrapper">
+  <div class="site-meta ">
+    
+
+    <div class="custom-logo-site-title">
+      <a href="/" class="brand" rel="start">
+        <span class="logo-line-before"><i></i></span>
+        <span class="site-title">donkey's blog</span>
+        <span class="logo-line-after"><i></i></span>
+      </a>
+    </div>
+      
+        <p class="site-subtitle">to be BIG</p>
+      
+  </div>
+
+  <div class="site-nav-toggle">
+    <button>
+      <span class="btn-bar"></span>
+      <span class="btn-bar"></span>
+      <span class="btn-bar"></span>
+    </button>
+  </div>
+</div>
+
+<nav class="site-nav">
+  
+
+  
+    <ul id="menu" class="menu">
+      
+        
+        <li class="menu-item menu-item-home">
+          <a href="/" rel="section">
+            
+              <i class="menu-item-icon fa fa-fw fa-home"></i> <br>
+            
+            首页
+          </a>
+        </li>
+      
+        
+        <li class="menu-item menu-item-about">
+          <a href="/about/" rel="section">
+            
+              <i class="menu-item-icon fa fa-fw fa-user"></i> <br>
+            
+            关于
+          </a>
+        </li>
+      
+        
+        <li class="menu-item menu-item-tags">
+          <a href="/tags/" rel="section">
+            
+              <i class="menu-item-icon fa fa-fw fa-tags"></i> <br>
+            
+            标签
+          </a>
+        </li>
+      
+        
+        <li class="menu-item menu-item-archives">
+          <a href="/archives/" rel="section">
+            
+              <i class="menu-item-icon fa fa-fw fa-archive"></i> <br>
+            
+            归档
+          </a>
+        </li>
+      
+
+      
+    </ul>
+  
+
+  
+</nav>
+
+
+
+ </div>
+    </header>
+
+    <main id="main" class="main">
+      <div class="main-inner">
+        <div class="content-wrap">
+          <div id="content" class="content">
+            
+
+  <div id="posts" class="posts-expand">
+    
+
+  
+
+  
+  
+  
+
+  <article class="post post-type-normal" itemscope="" itemtype="http://schema.org/Article">
+  
+  
+  
+  <div class="post-block">
+    <link itemprop="mainEntityOfPage" href="git@github.com:littletomatodonkey/littletomatodonkey.github.io.git/2018/07/10/2018-07-10-实例分割之FCIS/">
+
+    <span hidden itemprop="author" itemscope="" itemtype="http://schema.org/Person">
+      <meta itemprop="name" content="donkey">
+      <meta itemprop="description" content="">
+      <meta itemprop="image" content="/avatar/home-self.jpg">
+    </span>
+
+    <span hidden itemprop="publisher" itemscope="" itemtype="http://schema.org/Organization">
+      <meta itemprop="name" content="donkey's blog">
+    </span>
+
+    
+      <header class="post-header">
+
+        
+        
+          <h1 class="post-title" itemprop="name headline">实例分割之FCIS</h1>
+        
+
+        <div class="post-meta">
+          <span class="post-time">
+            
+              <span class="post-meta-item-icon">
+                <i class="fa fa-calendar-o"></i>
+              </span>
+              
+                <span class="post-meta-item-text">发表于</span>
+              
+              <time title="创建于" itemprop="dateCreated datePublished" datetime="2018-07-10T12:00:00+08:00">
+                2018-07-10
+              </time>
+            
+
+            
+
+            
+          </span>
+
+          
+
+          
+            
+          
+
+          
+          
+
+          
+
+          
+
+          
+
+        </div>
+      </header>
+    
+
+    
+    
+    
+    <div class="post-body" itemprop="articleBody">
+
+      
+      
+
+      
+        <h2 id="论文简介"><a href="#论文简介" class="headerlink" title="论文简介"></a>论文简介</h2><ul>
+<li>地址：<a href="https://arxiv.org/abs/1611.07709" target="_blank" rel="noopener">Fully Convolutional Instance-aware Semantic Segmentation</a>。</li>
+<li>论文是首次使用<code>end to end</code>的方法实现实例分割，它同时完成对物体实例的检测与分割，在精度和速度都达到了<code>state of art</code>的水平。同时赢得了coco2016的分割比赛。</li>
+</ul>
+<h2 id="introduction"><a href="#introduction" class="headerlink" title="introduction"></a>introduction</h2><ul>
+<li>FCN被广泛应用于语义分割，但是它具有<strong>平移不变性</strong>，即相同物体在不同位置仍然被识别为同一个类别，而这不符合实例分割的要求。因此需要设计一些translation-variant的方法来解决传统CNN中存在的问题。</li>
+<li>主流的实例分割方法主要是将该任务分为三个步骤<ul>
+<li>FCN用于提取特征，得到共享的feature maps</li>
+<li>使用pooling layer，将每个ROI中对应的<code>shared feature maps</code>转化为固定大小的<code>ROI feature maps</code>，作为后续步骤中网络的输入（网络输入需要是固定大小的）</li>
+<li>使用FC layer，将<code>ROI feature maps</code>转化为<code>ROI mask</code>。这一步中，为模型引入了平移变化的特性。</li>
+</ul>
+</li>
+<li>上面的方法有几个缺点<ul>
+<li>在feature map做warp和resize的时候，会丢失部分空间信息（因为需要将feature map转换为固定大小），这会降低分割的精度。</li>
+<li>第三个步骤中的FC layer的参数量太多（之前很多网络中的FC layer都占据了整个网络绝大部分的参数量）</li>
+<li>在第三个步骤上，ROI的计算没有共享计算。</li>
+</ul>
+</li>
+<li>最近有学者提出了基于instance mask proposal的FCN，但是这种网络无法检测物体的类别，需要再使用检测算法去对物体进行detection。</li>
+</ul>
+<h2 id="本文的模型"><a href="#本文的模型" class="headerlink" title="本文的模型"></a>本文的模型</h2><h3 id="简介"><a href="#简介" class="headerlink" title="简介"></a>简介</h3><ul>
+<li>FCIS是第一个<code>end to end</code>的实例分割网络。网络中的feature maps和score map都被之后的物体分割和检测任务所共享。同时在<code>per-ROI</code>的计算中，也不涉及到<code>warp和resize</code>。</li>
+<li>FCIS是基于region proposal的，不是基于滑动窗口的。</li>
+</ul>
+<h3 id="Position-sensitive-Score-Map-Parameterization"><a href="#Position-sensitive-Score-Map-Parameterization" class="headerlink" title="Position-sensitive Score Map Parameterization"></a>Position-sensitive Score Map Parameterization</h3><ul>
+<li>FCN可以得到每个pixel属于某个class的confidence，在不同的位置都会预测出相同的结果，因此仅仅用这种<code>score map</code>来对pixel进行表示的话，无法区分不同的instance。</li>
+<li>针对上述问题，论文5(<code>Instance-sensitive fully convolutional networks</code>)中提出了一种具有translation-variant性质的FCN。使用$k^2$个score map给出被均匀划分为$k \cdot k$个cell的object的score map，每个score map的大小相等。每个score map都代表<code>pixel在特定位置属于某个instance的概率</code>。</li>
+<li>对于特定大小的滑动窗口，通过计算对应score map中$k \cdot k$的cell可以计算其<code>pixel-wise foreground likelihood map</code>。</li>
+<li>上面论文中的方法有几个缺点：<ul>
+<li>用于检测的滑动窗口的大小的固定的。</li>
+<li>该网络需要对不同尺寸的图像进行处理，得到不同尺寸的instance。</li>
+<li>这种方法无法识别出物体类别。</li>
+</ul>
+</li>
+</ul>
+<h3 id="Joint-Mask-Prediction-and-Classification"><a href="#Joint-Mask-Prediction-and-Classification" class="headerlink" title="Joint Mask Prediction and Classification"></a>Joint Mask Prediction and Classification</h3><ul>
+<li>之前的CNN实例分割方法基本上都是单独运行分割和检测两个任务（这两个任务是独立的，先进行分割，再做检测）。作者推断这种方法没有完全利用网络中的数据信息。</li>
+<li>FCIS改进了<code>position-sensitive score map</code>，使得segmentation和detection两个任务可以同时进行，它们都共享CNN出来的score map，这种方法也减少了网络参数，同时避免了网络的设计选择问题。</li>
+<li>具体的对比以及框图如下。</li>
+</ul>
+<p><img src="/img/post/20180710-FCIS结构.png" alt="FCIS"></p>
+<ul>
+<li>在FCIS中，score map有inside和outside两种，分别用于segmentation和detection，他们经过1X1的convolution layer就可以得到每个pixel的结果。对于下面三种可能的结果。<ul>
+<li>(1)high inside score and low outside score: detection+, segmentation+</li>
+<li>(2)low inside score and high outside score: detection+, segmentation-</li>
+<li>(3)both scores are low: detection-, segmentation-<br>对于每个pixel，使用<code>max operation</code>可以区分(1,2)和(3)，使用<code>softmax operation</code>可以区分(1)和(2)。使用全局池化，可以得到该ROI的detection结果；使用softmax，也可以给出每个pixel的类别，最终得到ROI的mask。</li>
+</ul>
+</li>
+</ul>
+<h3 id="An-End-to-End-Solution"><a href="#An-End-to-End-Solution" class="headerlink" title="An End-to-End Solution"></a>An End-to-End Solution</h3><ul>
+<li>作者采用了ResNet的结果，舍弃了最后的1000FC layer，之前ResNet中，在网络顶层的stride是32，这个对于像素级别的分割来说来太coarse了，作者使用了<code>hole algorithm</code>来减少stride，保持feature map的视野。</li>
+<li>论文中使用RPN来生成ROI。</li>
+<li>总共有$2k(C+1)$个score map，C是类别数目，还需要考虑背景，2是对应了inside和outside。</li>
+<li>使用<code>bounding box regression</code>，对初始化的ROI做refinement，同时使用$1X1X4k^2$的filter，对bbox的shift和size做估计。</li>
+</ul>
+<h4 id="inference"><a href="#inference" class="headerlink" title="inference"></a>inference</h4><ul>
+<li>使用RPN生成ROI，并保留其中score最高的300个ROI。</li>
+<li>上述的300个ROI经过bbox regression之后，得到新的300个ROI。</li>
+<li>对于每个ROI，都可以得到classification score和foreground mask</li>
+<li>使用非极大值抑制，去除多余的ROI（那些重合度很高的ROI），剩余的ROI按照他们的<code>classification score</code>进行分类。</li>
+<li>对于当前的IOU，找到在600个ROI中与其IOU大于0.5的所有的ROI，foreground mask的类别对是所有ROI的mask进行逐像素的平均，再按照他们的<code>classification score</code>进行加权。将average mask进行二值化之后输出，得到最终的foreground mask。</li>
+</ul>
+<h4 id="train"><a href="#train" class="headerlink" title="train"></a>train</h4><ul>
+<li>如果ROI与离他最近的groundtruth的IOU&gt;0.5，则它就就被视为是positive的。</li>
+<li>每个ROI都有3个loss：<ul>
+<li>a softmax detection loss over C + 1 categories</li>
+<li>a softmax segmentation loss over the foreground mask of the ground-truth category only</li>
+<li>a bbox regression loss<br>后面2个loss只对positive ROI才起作用。</li>
+</ul>
+</li>
+<li>使用imagenet的pretained模型进行初始化，使用SGD进行优化。</li>
+<li>对于RPN的proposal，使用9个anchors（3个尺寸，3个纵横比），coco多3个anchor（因为coco数据集的图像尺寸更加精细化，有很多很小的物体）。同时联合戌年FCIS和RPN，用于feature sharing。</li>
+</ul>
+<h2 id="实验和结论"><a href="#实验和结论" class="headerlink" title="实验和结论"></a>实验和结论</h2><ul>
+<li>作者做了大量的实验，包括对比MNC，结合InstFCN + R-FCN等，具体的实验结果见原文。这种方法赢得了coco2016分割比赛的第一。在coco detection上也是第二。</li>
+</ul>
+
+      
+    </div>
+    
+    
+    
+
+    
+
+    
+
+    
+
+    <footer class="post-footer">
+      
+        <div class="post-tags">
+          
+            <a href="/tags/论文/" rel="tag"># 论文</a>
+          
+            <a href="/tags/instance-segmentation/" rel="tag"># instance segmentation</a>
+          
+        </div>
+      
+
+      
+      
+      
+
+      
+        <div class="post-nav">
+          <div class="post-nav-next post-nav-item">
+            
+              <a href="/2018/06/26/2018-06-26-语义分割之unet/" rel="next" title="语义分割之unet">
+                <i class="fa fa-chevron-left"></i> 语义分割之unet
+              </a>
+            
+          </div>
+
+          <span class="post-nav-divider"></span>
+
+          <div class="post-nav-prev post-nav-item">
+            
+              <a href="/2018/07/22/2018-07-22-YOLO及其V2V3/" rel="prev" title="YOLO及其V2V3">
+                YOLO及其V2V3 <i class="fa fa-chevron-right"></i>
+              </a>
+            
+          </div>
+        </div>
+      
+
+      
+      
+    </footer>
+  </div>
+  
+  
+  
+  </article>
+
+
+
+    <div class="post-spread">
+      
+    </div>
+  </div>
+
+
+          </div>
+          
+
+
+          
+
+  
+
+
+
+        </div>
+        
+          
+  
+  <div class="sidebar-toggle">
+    <div class="sidebar-toggle-line-wrap">
+      <span class="sidebar-toggle-line sidebar-toggle-line-first"></span>
+      <span class="sidebar-toggle-line sidebar-toggle-line-middle"></span>
+      <span class="sidebar-toggle-line sidebar-toggle-line-last"></span>
+    </div>
+  </div>
+
+  <aside id="sidebar" class="sidebar">
+    
+    <div class="sidebar-inner">
+
+      
+
+      
+        <ul class="sidebar-nav motion-element">
+          <li class="sidebar-nav-toc sidebar-nav-active" data-target="post-toc-wrap">
+            文章目录
+          </li>
+          <li class="sidebar-nav-overview" data-target="site-overview-wrap">
+            站点概览
+          </li>
+        </ul>
+      
+
+      <section class="site-overview-wrap sidebar-panel">
+        <div class="site-overview">
+          <div class="site-author motion-element" itemprop="author" itemscope="" itemtype="http://schema.org/Person">
+            
+              <img class="site-author-image" itemprop="image" src="/avatar/home-self.jpg" alt="donkey">
+            
+              <p class="site-author-name" itemprop="name">donkey</p>
+              <p class="site-description motion-element" itemprop="description">want to be an engineer</p>
+          </div>
+
+          <nav class="site-state motion-element">
+
+            
+              <div class="site-state-item site-state-posts">
+              
+                <a href="/archives/">
+              
+                  <span class="site-state-item-count">36</span>
+                  <span class="site-state-item-name">日志</span>
+                </a>
+              </div>
+            
+
+            
+
+            
+              
+              
+              <div class="site-state-item site-state-tags">
+                <a href="/tags/index.html">
+                  <span class="site-state-item-count">19</span>
+                  <span class="site-state-item-name">标签</span>
+                </a>
+              </div>
+            
+
+          </nav>
+
+          
+
+          
+            <div class="links-of-author motion-element">
+                
+                  <span class="links-of-author-item">
+                    <a href="https://github.com/littletomatodonkey" target="_blank" title="GitHub">
+                      
+                        <i class="fa fa-fw fa-github"></i>GitHub</a>
+                  </span>
+                
+                  <span class="links-of-author-item">
+                    <a href="https://blog.csdn.net/u012526003" target="_blank" title="CSDN">
+                      
+                        <i class="fa fa-fw fa-crosshairs"></i>CSDN</a>
+                  </span>
+                
+            </div>
+          
+
+          
+          
+
+          
+          
+
+          
+
+        </div>
+      </section>
+
+      
+      <!--noindex-->
+        <section class="post-toc-wrap motion-element sidebar-panel sidebar-panel-active">
+          <div class="post-toc">
+
+            
+              
+            
+
+            
+              <div class="post-toc-content"><ol class="nav"><li class="nav-item nav-level-2"><a class="nav-link" href="#论文简介"><span class="nav-number">1.</span> <span class="nav-text">论文简介</span></a></li><li class="nav-item nav-level-2"><a class="nav-link" href="#introduction"><span class="nav-number">2.</span> <span class="nav-text">introduction</span></a></li><li class="nav-item nav-level-2"><a class="nav-link" href="#本文的模型"><span class="nav-number">3.</span> <span class="nav-text">本文的模型</span></a><ol class="nav-child"><li class="nav-item nav-level-3"><a class="nav-link" href="#简介"><span class="nav-number">3.1.</span> <span class="nav-text">简介</span></a></li><li class="nav-item nav-level-3"><a class="nav-link" href="#Position-sensitive-Score-Map-Parameterization"><span class="nav-number">3.2.</span> <span class="nav-text">Position-sensitive Score Map Parameterization</span></a></li><li class="nav-item nav-level-3"><a class="nav-link" href="#Joint-Mask-Prediction-and-Classification"><span class="nav-number">3.3.</span> <span class="nav-text">Joint Mask Prediction and Classification</span></a></li><li class="nav-item nav-level-3"><a class="nav-link" href="#An-End-to-End-Solution"><span class="nav-number">3.4.</span> <span class="nav-text">An End-to-End Solution</span></a><ol class="nav-child"><li class="nav-item nav-level-4"><a class="nav-link" href="#inference"><span class="nav-number">3.4.1.</span> <span class="nav-text">inference</span></a></li><li class="nav-item nav-level-4"><a class="nav-link" href="#train"><span class="nav-number">3.4.2.</span> <span class="nav-text">train</span></a></li></ol></li></ol></li><li class="nav-item nav-level-2"><a class="nav-link" href="#实验和结论"><span class="nav-number">4.</span> <span class="nav-text">实验和结论</span></a></li></ol></div>
+            
+
+          </div>
+        </section>
+      <!--/noindex-->
+      
+
+      
+
+    </div>
+  </aside>
+
+
+        
+      </div>
+    </main>
+
+    <footer id="footer" class="footer">
+      <div class="footer-inner">
+        <div class="copyright">&copy; <span itemprop="copyrightYear">2018</span>
+  <span class="with-love">
+    <i class="fa fa-user"></i>
+  </span>
+  <span class="author" itemprop="copyrightHolder">donkey</span>
+
+  
+</div>
+
+
+  <div class="powered-by">由 <a class="theme-link" target="_blank" href="https://hexo.io">Hexo</a> 强力驱动</div>
+
+
+
+  <span class="post-meta-divider">|</span>
+
+
+
+  <div class="theme-info">主题 &mdash; <a class="theme-link" target="_blank" href="https://github.com/iissnan/hexo-theme-next">NexT.Muse</a> v5.1.4</div>
+
+
+
+
+        
+
+
+
+
+
+
+
+        
+      </div>
+    </footer>
+
+    
+      <div class="back-to-top">
+        <i class="fa fa-arrow-up"></i>
+        
+      </div>
+    
+
+    
+
+  </div>
+
+  
+
+<script type="text/javascript">
+  if (Object.prototype.toString.call(window.Promise) !== '[object Function]') {
+    window.Promise = null;
+  }
+</script>
+
+
+
+
+
+
+
+
+
+  
+
+
+
+
+
+
+
+
+
+
+
+
+  
+  
+    <script type="text/javascript" src="/lib/jquery/index.js?v=2.1.3"></script>
+  
+
+  
+  
+    <script type="text/javascript" src="/lib/fastclick/lib/fastclick.min.js?v=1.0.6"></script>
+  
+
+  
+  
+    <script type="text/javascript" src="/lib/jquery_lazyload/jquery.lazyload.js?v=1.9.7"></script>
+  
+
+  
+  
+    <script type="text/javascript" src="/lib/velocity/velocity.min.js?v=1.2.1"></script>
+  
+
+  
+  
+    <script type="text/javascript" src="/lib/velocity/velocity.ui.min.js?v=1.2.1"></script>
+  
+
+  
+  
+    <script type="text/javascript" src="/lib/fancybox/source/jquery.fancybox.pack.js?v=2.1.5"></script>
+  
+
+
+  
+
+
+  <script type="text/javascript" src="/js/src/utils.js?v=5.1.4"></script>
+
+  <script type="text/javascript" src="/js/src/motion.js?v=5.1.4"></script>
+
+
+
+  
+  
+
+  
+  <script type="text/javascript" src="/js/src/scrollspy.js?v=5.1.4"></script>
+<script type="text/javascript" src="/js/src/post-details.js?v=5.1.4"></script>
+
+
+
+  
+
+
+  <script type="text/javascript" src="/js/src/bootstrap.js?v=5.1.4"></script>
+
+
+
+  
+
+
+  
+
+
+
+
+	
+
+
+
+
+
+  
+
+
+
+
+
+  
+
+
+
+
+
+
+
+
+
+
+
+
+  
+
+
+
+
+
+  
+
+  
+
+  
+
+  
+  
+
+  
+  
+    <script type="text/x-mathjax-config">
+      MathJax.Hub.Config({
+        tex2jax: {
+          inlineMath: [ ['$','$'], ["\\(","\\)"]  ],
+          processEscapes: true,
+          skipTags: ['script', 'noscript', 'style', 'textarea', 'pre', 'code']
+        }
+      });
+    </script>
+
+    <script type="text/x-mathjax-config">
+      MathJax.Hub.Queue(function() {
+        var all = MathJax.Hub.getAllJax(), i;
+        for (i=0; i < all.length; i += 1) {
+          all[i].SourceElement().parentNode.className += ' has-jax';
+        }
+      });
+    </script>
+    <script type="text/javascript" src="//cdn.bootcss.com/mathjax/2.7.1/latest.js?config=TeX-AMS-MML_HTMLorMML"></script>
+  
+
+
+  
+
+  
+
+</body>
+</html>

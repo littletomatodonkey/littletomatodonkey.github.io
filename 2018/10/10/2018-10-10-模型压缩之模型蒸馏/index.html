@@ -1,0 +1,771 @@
+<!DOCTYPE html>
+
+
+
+  
+
+
+<html class="theme-next muse use-motion" lang="zh-Hans">
+<head><meta name="generator" content="Hexo 3.8.0">
+  <meta charset="UTF-8">
+<meta http-equiv="X-UA-Compatible" content="IE=edge">
+<meta name="viewport" content="width=device-width, initial-scale=1, maximum-scale=1">
+<meta name="theme-color" content="#222">
+
+
+
+
+
+
+
+
+
+<meta http-equiv="Cache-Control" content="no-transform">
+<meta http-equiv="Cache-Control" content="no-siteapp">
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+  
+  
+  <link href="/lib/fancybox/source/jquery.fancybox.css?v=2.1.5" rel="stylesheet" type="text/css">
+
+
+
+
+
+
+
+<link href="/lib/font-awesome/css/font-awesome.min.css?v=4.6.2" rel="stylesheet" type="text/css">
+
+<link href="/css/main.css?v=5.1.4" rel="stylesheet" type="text/css">
+
+
+  <link rel="apple-touch-icon" sizes="180x180" href="/images/apple-touch-icon-next.png?v=5.1.4">
+
+
+  <link rel="icon" type="image/png" sizes="32x32" href="/images/favicon-32x32-next.png?v=5.1.4">
+
+
+  <link rel="icon" type="image/png" sizes="16x16" href="/images/favicon-16x16-next.png?v=5.1.4">
+
+
+  <link rel="mask-icon" href="/images/logo.svg?v=5.1.4" color="#222">
+
+
+
+
+
+  <meta name="keywords" content="论文,模型压缩,">
+
+
+
+
+
+
+
+
+
+
+<meta name="description" content="abstract 论文地址：Distilling the Knowledge in a Neural Network 在机器学习算法中，一个比较常用的方法是在相同的数据集上训练多个模型，然后对这些模型的预测结果进行加权，得到最终的预测结果，这也就是所谓的集成学习，由单个的弱学习器集成得到一个强学习器。但是如果基学习器太大，则这种方法难以在实际过程中使用。 论文中针对mnist数据集进行实验，将集成">
+<meta name="keywords" content="论文,模型压缩">
+<meta property="og:type" content="article">
+<meta property="og:title" content="模型压缩之模型蒸馏">
+<meta property="og:url" content="git@github.com:littletomatodonkey/littletomatodonkey.github.io.git/2018/10/10/2018-10-10-模型压缩之模型蒸馏/index.html">
+<meta property="og:site_name" content="donkey&#39;s blog">
+<meta property="og:description" content="abstract 论文地址：Distilling the Knowledge in a Neural Network 在机器学习算法中，一个比较常用的方法是在相同的数据集上训练多个模型，然后对这些模型的预测结果进行加权，得到最终的预测结果，这也就是所谓的集成学习，由单个的弱学习器集成得到一个强学习器。但是如果基学习器太大，则这种方法难以在实际过程中使用。 论文中针对mnist数据集进行实验，将集成">
+<meta property="og:locale" content="zh-Hans">
+<meta property="og:updated_time" content="2018-10-11T09:15:27.243Z">
+<meta name="twitter:card" content="summary">
+<meta name="twitter:title" content="模型压缩之模型蒸馏">
+<meta name="twitter:description" content="abstract 论文地址：Distilling the Knowledge in a Neural Network 在机器学习算法中，一个比较常用的方法是在相同的数据集上训练多个模型，然后对这些模型的预测结果进行加权，得到最终的预测结果，这也就是所谓的集成学习，由单个的弱学习器集成得到一个强学习器。但是如果基学习器太大，则这种方法难以在实际过程中使用。 论文中针对mnist数据集进行实验，将集成">
+
+
+
+<script type="text/javascript" id="hexo.configurations">
+  var NexT = window.NexT || {};
+  var CONFIG = {
+    root: '/',
+    scheme: 'Muse',
+    version: '5.1.4',
+    sidebar: {"position":"left","display":"post","offset":12,"b2t":false,"scrollpercent":false,"onmobile":false},
+    fancybox: true,
+    tabs: true,
+    motion: {"enable":true,"async":false,"transition":{"post_block":"fadeIn","post_header":"slideDownIn","post_body":"slideDownIn","coll_header":"slideLeftIn","sidebar":"slideUpIn"}},
+    duoshuo: {
+      userId: '0',
+      author: '博主'
+    },
+    algolia: {
+      applicationID: '',
+      apiKey: '',
+      indexName: '',
+      hits: {"per_page":10},
+      labels: {"input_placeholder":"Search for Posts","hits_empty":"We didn't find any results for the search: ${query}","hits_stats":"${hits} results found in ${time} ms"}
+    }
+  };
+</script>
+
+
+
+  <link rel="canonical" href="git@github.com:littletomatodonkey/littletomatodonkey.github.io.git/2018/10/10/2018-10-10-模型压缩之模型蒸馏/">
+
+
+
+
+
+  <title>模型压缩之模型蒸馏 | donkey's blog</title>
+  
+
+
+
+
+
+
+
+
+</head>
+
+<body itemscope="" itemtype="http://schema.org/WebPage" lang="zh-Hans">
+
+  
+  
+    
+  
+
+  <div class="container sidebar-position-left page-post-detail">
+    <div class="headband"></div>
+
+    <header id="header" class="header" itemscope="" itemtype="http://schema.org/WPHeader">
+      <div class="header-inner"><div class="site-brand-wrapper">
+  <div class="site-meta ">
+    
+
+    <div class="custom-logo-site-title">
+      <a href="/" class="brand" rel="start">
+        <span class="logo-line-before"><i></i></span>
+        <span class="site-title">donkey's blog</span>
+        <span class="logo-line-after"><i></i></span>
+      </a>
+    </div>
+      
+        <p class="site-subtitle">to be BIG</p>
+      
+  </div>
+
+  <div class="site-nav-toggle">
+    <button>
+      <span class="btn-bar"></span>
+      <span class="btn-bar"></span>
+      <span class="btn-bar"></span>
+    </button>
+  </div>
+</div>
+
+<nav class="site-nav">
+  
+
+  
+    <ul id="menu" class="menu">
+      
+        
+        <li class="menu-item menu-item-home">
+          <a href="/" rel="section">
+            
+              <i class="menu-item-icon fa fa-fw fa-home"></i> <br>
+            
+            首页
+          </a>
+        </li>
+      
+        
+        <li class="menu-item menu-item-about">
+          <a href="/about/" rel="section">
+            
+              <i class="menu-item-icon fa fa-fw fa-user"></i> <br>
+            
+            关于
+          </a>
+        </li>
+      
+        
+        <li class="menu-item menu-item-tags">
+          <a href="/tags/" rel="section">
+            
+              <i class="menu-item-icon fa fa-fw fa-tags"></i> <br>
+            
+            标签
+          </a>
+        </li>
+      
+        
+        <li class="menu-item menu-item-archives">
+          <a href="/archives/" rel="section">
+            
+              <i class="menu-item-icon fa fa-fw fa-archive"></i> <br>
+            
+            归档
+          </a>
+        </li>
+      
+
+      
+    </ul>
+  
+
+  
+</nav>
+
+
+
+ </div>
+    </header>
+
+    <main id="main" class="main">
+      <div class="main-inner">
+        <div class="content-wrap">
+          <div id="content" class="content">
+            
+
+  <div id="posts" class="posts-expand">
+    
+
+  
+
+  
+  
+  
+
+  <article class="post post-type-normal" itemscope="" itemtype="http://schema.org/Article">
+  
+  
+  
+  <div class="post-block">
+    <link itemprop="mainEntityOfPage" href="git@github.com:littletomatodonkey/littletomatodonkey.github.io.git/2018/10/10/2018-10-10-模型压缩之模型蒸馏/">
+
+    <span hidden itemprop="author" itemscope="" itemtype="http://schema.org/Person">
+      <meta itemprop="name" content="donkey">
+      <meta itemprop="description" content="">
+      <meta itemprop="image" content="/avatar/home-self.jpg">
+    </span>
+
+    <span hidden itemprop="publisher" itemscope="" itemtype="http://schema.org/Organization">
+      <meta itemprop="name" content="donkey's blog">
+    </span>
+
+    
+      <header class="post-header">
+
+        
+        
+          <h1 class="post-title" itemprop="name headline">模型压缩之模型蒸馏</h1>
+        
+
+        <div class="post-meta">
+          <span class="post-time">
+            
+              <span class="post-meta-item-icon">
+                <i class="fa fa-calendar-o"></i>
+              </span>
+              
+                <span class="post-meta-item-text">发表于</span>
+              
+              <time title="创建于" itemprop="dateCreated datePublished" datetime="2018-10-10T10:00:00+08:00">
+                2018-10-10
+              </time>
+            
+
+            
+
+            
+          </span>
+
+          
+
+          
+            
+          
+
+          
+          
+
+          
+
+          
+
+          
+
+        </div>
+      </header>
+    
+
+    
+    
+    
+    <div class="post-body" itemprop="articleBody">
+
+      
+      
+
+      
+        <h2 id="abstract"><a href="#abstract" class="headerlink" title="abstract"></a>abstract</h2><ul>
+<li>论文地址：<a href="https://arxiv.org/abs/1503.02531" target="_blank" rel="noopener">Distilling the Knowledge in a Neural Network</a></li>
+<li>在机器学习算法中，一个比较常用的方法是在相同的数据集上训练多个模型，然后对这些模型的预测结果进行加权，得到最终的预测结果，这也就是所谓的<strong>集成学习</strong>，由单个的弱学习器集成得到一个强学习器。但是如果基学习器太大，则这种方法难以在实际过程中使用。</li>
+<li>论文中针对mnist数据集进行实验，将集成的模型中的信息（知识）蒸馏到一个模型中。</li>
+<li>论文中也介绍了一种新的集成，包含了specialist models，用于去区分full model中无法区分的细粒度的类别。这些specialist models可以快速并行训练。</li>
+</ul>
+<h2 id="introduction"><a href="#introduction" class="headerlink" title="introduction"></a>introduction</h2><ul>
+<li>一般在训练过程中，训练的模型很大，如果需要部署在有实时性要求的平台上，则可以对之前这个很大的模型进行蒸馏，得到小模型并进行部署。这个过程的难点主要就是怎样在减小模型大小的情况下尽可能多地保留大模型中学到的知识。</li>
+<li>复杂模型有一个问题：在分类问题中，它只关注最大概率的那个值，对于其他的值，即使差距很大，它们之间也没有差别（对loss也没有贡献）。</li>
+<li>将负载模型的泛化能力迁移到小模型上的一种方式是将复杂模型得到的类别概率作为<code>soft targets</code>，并让小模型去学习<code>soft targets</code>，我们使用当前的模型去，之后再使用这些小模型进行集成，得到最终的结果。相对于复杂模型，小模型在<code>训练数据之间梯度的方差</code>更小，因此<code>小模型可以使用更大的学习率，在更小的模型上进行训练</code>。</li>
+<li>以mnist为例，数字2的被识别为3的概率是$10^{-6}$，被识别为7的概率是$10^{-9}$，它们之间的概率差距是很大的，这是非常有用的信息，但是这个信息对于最后的loss function几乎没有影响，有一个比较通用的方法，即在最后softmax时，使用更高的温度$T$，将最后的数值进行压缩(squash)，使得其值得差异相对不明显，再使用相同的温度训练小模型，来学习这些<code>softmax targets</code>。</li>
+<li>可以不使用<code>labeled data</code>，只使用得到的<code>soft targets</code>进行训练，但是作者发现同时使用原始带有<code>labeled data</code>的数据集进行训练会取得更好的效果，因此在这里同时预测soft targets与label，将两个loss进行加权求和，得到最终的loss。</li>
+</ul>
+<h2 id="distillation"><a href="#distillation" class="headerlink" title="distillation"></a>distillation</h2><ul>
+<li><code>match logits</code>只是一个<code>special case</code>，softmax更一般的表达式如下</li>
+</ul>
+<p>$${q_i} = \frac{\exp ({z_i}/T)}{\sum\nolimits_j {\exp ({z_j}/T)} }$$</p>
+<ul>
+<li>上面的公式中，$T$是温度系数，一般设置为1，在论文中，设置大于1，进行<code>knowledge distillation</code>，T越大，输出的概率之间的差异越小。</li>
+<li>在训练复杂模型和小模型的时候，T都是大于1的，在测试的时候，将T修改为1.</li>
+<li>当T很大时，loss对$z_i$进行求导，得到的偏导可以近似表示为</li>
+</ul>
+<p>$$\frac{\partial C}{\partial {z_i}} \approx \frac{1}{N{T^2}}({z_i} - {v_i})$$</p>
+<ul>
+<li>更详细的公式可以参见原文，上式主要的意思就是当T很大时，BP时的类别之间的梯度差异会很小。T很小的时候，则主要会关注<code>positive example</code>。</li>
+<li>作者同时也发现，当小模型太小，无法提取复杂模型的所有信息时，使用适中的温度$T$，可以去除<code>very negative logits</code>对结果的影响，这有助于最后的模型结果。</li>
+</ul>
+<h2 id="experiments-and-results"><a href="#experiments-and-results" class="headerlink" title="experiments and results"></a>experiments and results</h2><ul>
+<li>mnist：soft targets可以蒸馏得到更多的知识。</li>
+<li>语音识别任务上进行了实验，这里不详细说明。</li>
+</ul>
+<h2 id="discussion"><a href="#discussion" class="headerlink" title="discussion"></a>discussion</h2><ul>
+<li>模型蒸馏可以很好的进行知识迁移，论文也是在mnist等小的数据集上做了实验，证明了集成学习中的多个神经网络可以被蒸馏为相同大小的一个网络，这使得部署更加方便。</li>
+<li>在大的数据集上，可以通过使用大量specialist nets来提升模型的精度，但是目前还没有证明能够将这些小网络蒸馏为单独的大网络。</li>
+</ul>
+
+      
+    </div>
+    
+    
+    
+
+    
+
+    
+
+    
+
+    <footer class="post-footer">
+      
+        <div class="post-tags">
+          
+            <a href="/tags/论文/" rel="tag"># 论文</a>
+          
+            <a href="/tags/模型压缩/" rel="tag"># 模型压缩</a>
+          
+        </div>
+      
+
+      
+      
+      
+
+      
+        <div class="post-nav">
+          <div class="post-nav-next post-nav-item">
+            
+              <a href="/2018/10/10/2018-10-10-模型压缩之deep compression/" rel="next" title="模型压缩之deep compression">
+                <i class="fa fa-chevron-left"></i> 模型压缩之deep compression
+              </a>
+            
+          </div>
+
+          <span class="post-nav-divider"></span>
+
+          <div class="post-nav-prev post-nav-item">
+            
+              <a href="/2018/10/18/2018-10-18-困难样本挖掘之OHEM/" rel="prev" title="困难样本挖掘之OHEM">
+                困难样本挖掘之OHEM <i class="fa fa-chevron-right"></i>
+              </a>
+            
+          </div>
+        </div>
+      
+
+      
+      
+    </footer>
+  </div>
+  
+  
+  
+  </article>
+
+
+
+    <div class="post-spread">
+      
+    </div>
+  </div>
+
+
+          </div>
+          
+
+
+          
+
+  
+
+
+
+        </div>
+        
+          
+  
+  <div class="sidebar-toggle">
+    <div class="sidebar-toggle-line-wrap">
+      <span class="sidebar-toggle-line sidebar-toggle-line-first"></span>
+      <span class="sidebar-toggle-line sidebar-toggle-line-middle"></span>
+      <span class="sidebar-toggle-line sidebar-toggle-line-last"></span>
+    </div>
+  </div>
+
+  <aside id="sidebar" class="sidebar">
+    
+    <div class="sidebar-inner">
+
+      
+
+      
+        <ul class="sidebar-nav motion-element">
+          <li class="sidebar-nav-toc sidebar-nav-active" data-target="post-toc-wrap">
+            文章目录
+          </li>
+          <li class="sidebar-nav-overview" data-target="site-overview-wrap">
+            站点概览
+          </li>
+        </ul>
+      
+
+      <section class="site-overview-wrap sidebar-panel">
+        <div class="site-overview">
+          <div class="site-author motion-element" itemprop="author" itemscope="" itemtype="http://schema.org/Person">
+            
+              <img class="site-author-image" itemprop="image" src="/avatar/home-self.jpg" alt="donkey">
+            
+              <p class="site-author-name" itemprop="name">donkey</p>
+              <p class="site-description motion-element" itemprop="description">want to be an engineer</p>
+          </div>
+
+          <nav class="site-state motion-element">
+
+            
+              <div class="site-state-item site-state-posts">
+              
+                <a href="/archives/">
+              
+                  <span class="site-state-item-count">36</span>
+                  <span class="site-state-item-name">日志</span>
+                </a>
+              </div>
+            
+
+            
+
+            
+              
+              
+              <div class="site-state-item site-state-tags">
+                <a href="/tags/index.html">
+                  <span class="site-state-item-count">19</span>
+                  <span class="site-state-item-name">标签</span>
+                </a>
+              </div>
+            
+
+          </nav>
+
+          
+
+          
+            <div class="links-of-author motion-element">
+                
+                  <span class="links-of-author-item">
+                    <a href="https://github.com/littletomatodonkey" target="_blank" title="GitHub">
+                      
+                        <i class="fa fa-fw fa-github"></i>GitHub</a>
+                  </span>
+                
+                  <span class="links-of-author-item">
+                    <a href="https://blog.csdn.net/u012526003" target="_blank" title="CSDN">
+                      
+                        <i class="fa fa-fw fa-crosshairs"></i>CSDN</a>
+                  </span>
+                
+            </div>
+          
+
+          
+          
+
+          
+          
+
+          
+
+        </div>
+      </section>
+
+      
+      <!--noindex-->
+        <section class="post-toc-wrap motion-element sidebar-panel sidebar-panel-active">
+          <div class="post-toc">
+
+            
+              
+            
+
+            
+              <div class="post-toc-content"><ol class="nav"><li class="nav-item nav-level-2"><a class="nav-link" href="#abstract"><span class="nav-number">1.</span> <span class="nav-text">abstract</span></a></li><li class="nav-item nav-level-2"><a class="nav-link" href="#introduction"><span class="nav-number">2.</span> <span class="nav-text">introduction</span></a></li><li class="nav-item nav-level-2"><a class="nav-link" href="#distillation"><span class="nav-number">3.</span> <span class="nav-text">distillation</span></a></li><li class="nav-item nav-level-2"><a class="nav-link" href="#experiments-and-results"><span class="nav-number">4.</span> <span class="nav-text">experiments and results</span></a></li><li class="nav-item nav-level-2"><a class="nav-link" href="#discussion"><span class="nav-number">5.</span> <span class="nav-text">discussion</span></a></li></ol></div>
+            
+
+          </div>
+        </section>
+      <!--/noindex-->
+      
+
+      
+
+    </div>
+  </aside>
+
+
+        
+      </div>
+    </main>
+
+    <footer id="footer" class="footer">
+      <div class="footer-inner">
+        <div class="copyright">&copy; <span itemprop="copyrightYear">2018</span>
+  <span class="with-love">
+    <i class="fa fa-user"></i>
+  </span>
+  <span class="author" itemprop="copyrightHolder">donkey</span>
+
+  
+</div>
+
+
+  <div class="powered-by">由 <a class="theme-link" target="_blank" href="https://hexo.io">Hexo</a> 强力驱动</div>
+
+
+
+  <span class="post-meta-divider">|</span>
+
+
+
+  <div class="theme-info">主题 &mdash; <a class="theme-link" target="_blank" href="https://github.com/iissnan/hexo-theme-next">NexT.Muse</a> v5.1.4</div>
+
+
+
+
+        
+
+
+
+
+
+
+
+        
+      </div>
+    </footer>
+
+    
+      <div class="back-to-top">
+        <i class="fa fa-arrow-up"></i>
+        
+      </div>
+    
+
+    
+
+  </div>
+
+  
+
+<script type="text/javascript">
+  if (Object.prototype.toString.call(window.Promise) !== '[object Function]') {
+    window.Promise = null;
+  }
+</script>
+
+
+
+
+
+
+
+
+
+  
+
+
+
+
+
+
+
+
+
+
+
+
+  
+  
+    <script type="text/javascript" src="/lib/jquery/index.js?v=2.1.3"></script>
+  
+
+  
+  
+    <script type="text/javascript" src="/lib/fastclick/lib/fastclick.min.js?v=1.0.6"></script>
+  
+
+  
+  
+    <script type="text/javascript" src="/lib/jquery_lazyload/jquery.lazyload.js?v=1.9.7"></script>
+  
+
+  
+  
+    <script type="text/javascript" src="/lib/velocity/velocity.min.js?v=1.2.1"></script>
+  
+
+  
+  
+    <script type="text/javascript" src="/lib/velocity/velocity.ui.min.js?v=1.2.1"></script>
+  
+
+  
+  
+    <script type="text/javascript" src="/lib/fancybox/source/jquery.fancybox.pack.js?v=2.1.5"></script>
+  
+
+
+  
+
+
+  <script type="text/javascript" src="/js/src/utils.js?v=5.1.4"></script>
+
+  <script type="text/javascript" src="/js/src/motion.js?v=5.1.4"></script>
+
+
+
+  
+  
+
+  
+  <script type="text/javascript" src="/js/src/scrollspy.js?v=5.1.4"></script>
+<script type="text/javascript" src="/js/src/post-details.js?v=5.1.4"></script>
+
+
+
+  
+
+
+  <script type="text/javascript" src="/js/src/bootstrap.js?v=5.1.4"></script>
+
+
+
+  
+
+
+  
+
+
+
+
+	
+
+
+
+
+
+  
+
+
+
+
+
+  
+
+
+
+
+
+
+
+
+
+
+
+
+  
+
+
+
+
+
+  
+
+  
+
+  
+
+  
+  
+
+  
+  
+    <script type="text/x-mathjax-config">
+      MathJax.Hub.Config({
+        tex2jax: {
+          inlineMath: [ ['$','$'], ["\\(","\\)"]  ],
+          processEscapes: true,
+          skipTags: ['script', 'noscript', 'style', 'textarea', 'pre', 'code']
+        }
+      });
+    </script>
+
+    <script type="text/x-mathjax-config">
+      MathJax.Hub.Queue(function() {
+        var all = MathJax.Hub.getAllJax(), i;
+        for (i=0; i < all.length; i += 1) {
+          all[i].SourceElement().parentNode.className += ' has-jax';
+        }
+      });
+    </script>
+    <script type="text/javascript" src="//cdn.bootcss.com/mathjax/2.7.1/latest.js?config=TeX-AMS-MML_HTMLorMML"></script>
+  
+
+
+  
+
+  
+
+</body>
+</html>
