@@ -68,7 +68,7 @@
 
 
 
-  <meta name="keywords" content="论文,instance segmentation,">
+  <meta name="keywords" content="论文,语义分割,">
 
 
 
@@ -79,20 +79,21 @@
 
 
 
-<meta name="description" content="论文简介 地址：Instance-aware Semantic Segmentation via Multi-task Network Cascades 论文提出了一个可以用于多任务的级联网络，用于语义实例分割。模型主要有三个部分：区分实例、确定实例的mask以及确定实例的类别。级联的网络结构使得卷积特征可以被共享。 论文中的方法比当时其他具有类似精度的方法的速度(360ms)要快2个数量级。 论">
-<meta name="keywords" content="论文,instance segmentation">
+<meta name="description" content="abstract 论文地址：Loss Max-Pooling for Semantic Image Segmentation 论文中提出了loss max-pooling的概念，用于解决在语义分割中像素个数类别分布不均匀的情况，即实际情况中，大部分的数据都是符合长尾分布的，少量的类别对应的样本占据了所有样本个数中的大部分。 论文中提出的方法可以根据每个像素的loss对他们的权重进行自适应地调整，这">
+<meta name="keywords" content="论文,语义分割">
 <meta property="og:type" content="article">
-<meta property="og:title" content="instance segmentation之MNC">
-<meta property="og:url" content="git@github.com:littletomatodonkey/littletomatodonkey.github.io.git/2018/06/05/2018-06-05-instance segmentation之MNC/index.html">
+<meta property="og:title" content="语义分割之Loss Max-Pooling">
+<meta property="og:url" content="git@github.com:littletomatodonkey/littletomatodonkey.github.io.git/2018/10/27/2018-10-27-语义分割之loss max-pooling/index.html">
 <meta property="og:site_name" content="donkey&#39;s blog">
-<meta property="og:description" content="论文简介 地址：Instance-aware Semantic Segmentation via Multi-task Network Cascades 论文提出了一个可以用于多任务的级联网络，用于语义实例分割。模型主要有三个部分：区分实例、确定实例的mask以及确定实例的类别。级联的网络结构使得卷积特征可以被共享。 论文中的方法比当时其他具有类似精度的方法的速度(360ms)要快2个数量级。 论">
+<meta property="og:description" content="abstract 论文地址：Loss Max-Pooling for Semantic Image Segmentation 论文中提出了loss max-pooling的概念，用于解决在语义分割中像素个数类别分布不均匀的情况，即实际情况中，大部分的数据都是符合长尾分布的，少量的类别对应的样本占据了所有样本个数中的大部分。 论文中提出的方法可以根据每个像素的loss对他们的权重进行自适应地调整，这">
 <meta property="og:locale" content="zh-Hans">
-<meta property="og:image" content="/img/post/20180605-mnc框架.png">
-<meta property="og:updated_time" content="2018-06-04T17:39:24.171Z">
+<meta property="og:image" content="/img/post/20181027-weight%20function%20shape.png">
+<meta property="og:image" content="/img/post/20181027-optimal%20weights.png">
+<meta property="og:updated_time" content="2018-10-27T10:59:32.452Z">
 <meta name="twitter:card" content="summary">
-<meta name="twitter:title" content="instance segmentation之MNC">
-<meta name="twitter:description" content="论文简介 地址：Instance-aware Semantic Segmentation via Multi-task Network Cascades 论文提出了一个可以用于多任务的级联网络，用于语义实例分割。模型主要有三个部分：区分实例、确定实例的mask以及确定实例的类别。级联的网络结构使得卷积特征可以被共享。 论文中的方法比当时其他具有类似精度的方法的速度(360ms)要快2个数量级。 论">
-<meta name="twitter:image" content="/img/post/20180605-mnc框架.png">
+<meta name="twitter:title" content="语义分割之Loss Max-Pooling">
+<meta name="twitter:description" content="abstract 论文地址：Loss Max-Pooling for Semantic Image Segmentation 论文中提出了loss max-pooling的概念，用于解决在语义分割中像素个数类别分布不均匀的情况，即实际情况中，大部分的数据都是符合长尾分布的，少量的类别对应的样本占据了所有样本个数中的大部分。 论文中提出的方法可以根据每个像素的loss对他们的权重进行自适应地调整，这">
+<meta name="twitter:image" content="/img/post/20181027-weight%20function%20shape.png">
 
 
 
@@ -122,13 +123,13 @@
 
 
 
-  <link rel="canonical" href="git@github.com:littletomatodonkey/littletomatodonkey.github.io.git/2018/06/05/2018-06-05-instance segmentation之MNC/">
+  <link rel="canonical" href="git@github.com:littletomatodonkey/littletomatodonkey.github.io.git/2018/10/27/2018-10-27-语义分割之loss max-pooling/">
 
 
 
 
 
-  <title>instance segmentation之MNC | donkey's blog</title>
+  <title>语义分割之Loss Max-Pooling | donkey's blog</title>
   
 
 
@@ -255,7 +256,7 @@
   
   
   <div class="post-block">
-    <link itemprop="mainEntityOfPage" href="git@github.com:littletomatodonkey/littletomatodonkey.github.io.git/2018/06/05/2018-06-05-instance segmentation之MNC/">
+    <link itemprop="mainEntityOfPage" href="git@github.com:littletomatodonkey/littletomatodonkey.github.io.git/2018/10/27/2018-10-27-语义分割之loss max-pooling/">
 
     <span hidden itemprop="author" itemscope="" itemtype="http://schema.org/Person">
       <meta itemprop="name" content="donkey">
@@ -272,7 +273,7 @@
 
         
         
-          <h1 class="post-title" itemprop="name headline">instance segmentation之MNC</h1>
+          <h1 class="post-title" itemprop="name headline">语义分割之Loss Max-Pooling</h1>
         
 
         <div class="post-meta">
@@ -284,8 +285,8 @@
               
                 <span class="post-meta-item-text">发表于</span>
               
-              <time title="创建于" itemprop="dateCreated datePublished" datetime="2018-06-05T01:00:00+08:00">
-                2018-06-05
+              <time title="创建于" itemprop="dateCreated datePublished" datetime="2018-10-27T10:00:00+08:00">
+                2018-10-27
               </time>
             
 
@@ -322,26 +323,72 @@
       
 
       
-        <h2 id="论文简介"><a href="#论文简介" class="headerlink" title="论文简介"></a>论文简介</h2><ul>
-<li>地址：<a href="https://arxiv.org/abs/1512.04412" target="_blank" rel="noopener">Instance-aware Semantic Segmentation via Multi-task Network Cascades</a></li>
-<li>论文提出了一个可以用于多任务的级联网络，用于语义实例分割。模型主要有三个部分：区分实例、确定实例的mask以及确定实例的类别。级联的网络结构使得卷积特征可以被共享。</li>
-<li>论文中的方法比当时其他具有类似精度的方法的速度(360ms)要快2个数量级。</li>
-<li>论文中的模型也可以用于目标检测，精度超过了Faster-RCNN。</li>
-<li>15年COCO语义分割的第一名。</li>
+        <h2 id="abstract"><a href="#abstract" class="headerlink" title="abstract"></a>abstract</h2><ul>
+<li>论文地址：<a href="https://arxiv.org/pdf/1704.02966.pdf" target="_blank" rel="noopener">Loss Max-Pooling for Semantic Image Segmentation</a></li>
+<li>论文中提出了<code>loss max-pooling</code>的概念，用于解决在语义分割中像素个数类别分布不均匀的情况，即实际情况中，大部分的数据都是符合长尾分布的，少量的类别对应的样本占据了所有样本个数中的大部分。</li>
+<li>论文中提出的方法可以根据每个像素的loss对他们的权重进行自适应地调整，这也可以间接解决训练数据分布不均匀的情况。</li>
+<li>提供了理论证明，同时在Pascal VOC和cityscapes上做了实验，超过了传统loss function所得到的模型的精度。</li>
 </ul>
-<h2 id="主要部分"><a href="#主要部分" class="headerlink" title="主要部分"></a>主要部分</h2><h3 id="网络框架"><a href="#网络框架" class="headerlink" title="网络框架"></a>网络框架</h3><ul>
-<li>主要是使用了级联的结构，实现了卷积特征参数的共享。</li>
+<h2 id="introduction"><a href="#introduction" class="headerlink" title="introduction"></a>introduction</h2><h3 id="class-imbalance"><a href="#class-imbalance" class="headerlink" title="class imbalance"></a>class imbalance</h3><ul>
+<li>之前对于类别不均衡现象的处理主要有以下几种方向。<ul>
+<li>在数据采集的过程中就考虑到这种情况，即尽可能使所有的样本类别对应的数量比较均衡。</li>
+<li>对于不同类别的样本，它们训练得到的loss的权重设置成不同的值，比如说不同类别的loss weight与它们的样本数量成反比等。</li>
 </ul>
-<p><img src="/img/post/20180605-mnc框架.png" alt="MNC"></p>
-<h3 id="论文流程"><a href="#论文流程" class="headerlink" title="论文流程"></a>论文流程</h3><ul>
-<li>Differentiating instances：给出所有实例的bounding box，但是这些实例的类别是未知的。</li>
-<li>Estimating masks：对实例的结果进行精细化，实现像素级的mask。</li>
-<li>Categorizing objects：判断出实例的类别。</li>
-<li>为了实现反向传播，在标准的<code>max pooling</code>后面加一个可微的<code>warping layer</code>，来实现一个可微的<code>ROI pooling</code>。</li>
+</li>
+<li>因为在语义分割中，像素之间可能还有更多的相关性，因此在语义分割任务中使用第二种方法会更好一些。</li>
 </ul>
-<h3 id="损失函数"><a href="#损失函数" class="headerlink" title="损失函数"></a>损失函数</h3><ul>
-<li>在阶段1中，网络结构与损失函数与RPN相同，输出为bounding box的信息以及它的概率p；阶段2中，对阶段1的结果做ROI pooling，再衔接2个FC层，第二个FC层的输出个数为$m^2$，与mask的大小相同(注意：论文中假定mask的大小是固定的)。对应会输出每个实例的mask；阶段3中，每个实例中只有mask部分对应的像素才会对损失函数做出贡献。</li>
-<li>每个过程都包含一个损失函数，但是后一级的损失函数依赖于上一级的损失函数。</li>
+<h3 id="contribution"><a href="#contribution" class="headerlink" title="contribution"></a>contribution</h3><ul>
+<li>提出了一个用于处理类别不均衡的语义分割任务的深度学习方法，导致更高loss的像素点的权重更大，而且本文中的方法不需要知道像素类别的统计信息。</li>
+<li>max pooling和本文中的loss function都是在于怎么去划分<code>weighting functions</code>。本文主要基于p-norm的问题给出了loss function的理论推导。</li>
+<li>本文中还给出了一个基于性能的采样方法，并证明了稍微改变采样策略，就能够加快模型训练的收敛速度，同时提升模型性能。</li>
+</ul>
+<h2 id="Pixel-Loss-Max-Pooling"><a href="#Pixel-Loss-Max-Pooling" class="headerlink" title="Pixel-Loss Max-Pooling"></a>Pixel-Loss Max-Pooling</h2><h3 id="Standard-setting"><a href="#Standard-setting" class="headerlink" title="Standard setting"></a>Standard setting</h3><ul>
+<li>标准的目标函数如下</li>
+</ul>
+<p>$$\min {\kern 4pt} \sum {L({f_\theta }(x),y) + \lambda R(\theta )}$$</p>
+<p>前面是经验风险，后面是模型的正则化项，表示结构风险。在语义分割中，前面的loss如下，表示所有像素loss的均值。</p>
+<p>$$L(\hat y,y) = \frac{1}{n}\left\langle {\ell _{\hat yy}} \right\rangle$$</p>
+<p>论文里假设每个像素的loss是<strong>非负且有界</strong>的。</p>
+<h3 id="Loss-max-pooling"><a href="#Loss-max-pooling" class="headerlink" title="Loss max-pooling"></a>Loss max-pooling</h3><ul>
+<li>在标准的loss function中，每个loss的weight是相同的。这对像素个数很多的类别的训练有利，为了避免这个问题，对每个像素的weight基于其loss进行reweight，pixel loss可以修改为</li>
+</ul>
+<p>$$L_w(\hat y,y) =  w \cdot {\ell _{\hat yy}} $$</p>
+<p>$w \in W$。定义新的loss function，使得对于不同的<code>weighting functions</code>，loss可以取得最大值。</p>
+<p>$${L_W}(\hat y,y) = max{ {L_w}(\hat y,y):w \in W} $$</p>
+<p>这种loss可以被视为在pixel loss上进行max pooling的操作。之前标准的loss则可以视为<code>average pooling</code>操作。</p>
+<h3 id="The-space-W-of-weighting-functions"><a href="#The-space-W-of-weighting-functions" class="headerlink" title="The space W of weighting functions"></a>The space W of weighting functions</h3><ul>
+<li>论文中主要对weight function进行讨论，weight function的边界在论文中为</li>
+</ul>
+<p>$${\left| w \right|<em>p} \le \gamma ,{\left| w \right|</em>\infty } \le \tau$$</p>
+<p>设置p-norm的bound为$\gamma = n^{-1/q}$,其中$q=\frac {p} {p-1}$</p>
+<p>最终$p$和$\tau$是超参数。</p>
+<ul>
+<li>一方面，$p$可以控制<code>pixel selectivity degree of the pooling operation</code><ul>
+<li>$p=1$，optimal weight会focus on single pixel（类似于那种L1正则化过程）</li>
+<li>$p=\infty$，optimal weight对所有pixel都会均匀关注。</li>
+</ul>
+</li>
+<li>另一方面，$\tau$可以通过$m = \frac {\gamma} {\tau}$控制被optimal weight function支持的最小的像素个数（最少可以保证被赋予权重的像素个数）。</li>
+</ul>
+<ul>
+<li>下面给出了不同超参数下，weight function的形状。</li>
+</ul>
+<p><img src="/img/post/20181027-weight function shape.png" alt="weight function shape"></p>
+<ul>
+<li>下面给出了控制变量时，$p$和$m/n$对最终loss weight的影响。</li>
+</ul>
+<p><img src="/img/post/20181027-optimal weights.png" alt="optimal weights.png"></p>
+<h3 id="Computation-of-L-W"><a href="#Computation-of-L-W" class="headerlink" title="Computation of $L_W$"></a>Computation of $L_W$</h3><ul>
+<li>在$p \ge 1$的时候，可以将原始问题转化为对偶问题进行求解，论文中针对$p \gt 1$和$p = 1$分情况进行了讨论与求解。</li>
+</ul>
+<h2 id="experiment"><a href="#experiment" class="headerlink" title="experiment"></a>experiment</h2><ul>
+<li>主要是基于deeplab V2进行的实验。</li>
+<li>数据集为cityscapes和Pascal VOC 2012。</li>
+<li>采用论文中的loss max-pooling方法之后，在绝大部分类别上的精度都有提升（truck稍微降低了一些）。</li>
+</ul>
+<h2 id="conclusion"><a href="#conclusion" class="headerlink" title="conclusion"></a>conclusion</h2><ul>
+<li>论文主要是提出了一种处理不均衡数据的新的方法，提出了一种新的loss function，用于对pixel-specific loss进行max-pooling的操作，这是传统loss function的上限，它是一种<code>adaptive weighting scheme</code>，因而也可以表面类别不均衡的问题。</li>
+<li>对<code>weight functions space</code>进行研究，通过控制超参数，可以控制<code>pixel selectivity and the extent of the supported pixels</code>，对这种方法进行了公式推导，并用实验验证了其正确性。</li>
 </ul>
 
       
@@ -362,7 +409,7 @@
           
             <a href="/tags/论文/" rel="tag"># 论文</a>
           
-            <a href="/tags/instance-segmentation/" rel="tag"># instance segmentation</a>
+            <a href="/tags/语义分割/" rel="tag"># 语义分割</a>
           
         </div>
       
@@ -375,8 +422,8 @@
         <div class="post-nav">
           <div class="post-nav-next post-nav-item">
             
-              <a href="/2018/06/04/2018-06-04-instance segmentation之车道线检测/" rel="next" title="instance segmentation之车道线检测">
-                <i class="fa fa-chevron-left"></i> instance segmentation之车道线检测
+              <a href="/2018/10/19/2018-10-19-目标检测之RetinaNet/" rel="next" title="目标检测之retinanet">
+                <i class="fa fa-chevron-left"></i> 目标检测之retinanet
               </a>
             
           </div>
@@ -384,10 +431,6 @@
           <span class="post-nav-divider"></span>
 
           <div class="post-nav-prev post-nav-item">
-            
-              <a href="/2018/06/05/2018-06-05-instance segmentation之PANet/" rel="prev" title="instance segmentation之PANet">
-                instance segmentation之PANet <i class="fa fa-chevron-right"></i>
-              </a>
             
           </div>
         </div>
@@ -528,7 +571,7 @@
             
 
             
-              <div class="post-toc-content"><ol class="nav"><li class="nav-item nav-level-2"><a class="nav-link" href="#论文简介"><span class="nav-number">1.</span> <span class="nav-text">论文简介</span></a></li><li class="nav-item nav-level-2"><a class="nav-link" href="#主要部分"><span class="nav-number">2.</span> <span class="nav-text">主要部分</span></a><ol class="nav-child"><li class="nav-item nav-level-3"><a class="nav-link" href="#网络框架"><span class="nav-number">2.1.</span> <span class="nav-text">网络框架</span></a></li><li class="nav-item nav-level-3"><a class="nav-link" href="#论文流程"><span class="nav-number">2.2.</span> <span class="nav-text">论文流程</span></a></li><li class="nav-item nav-level-3"><a class="nav-link" href="#损失函数"><span class="nav-number">2.3.</span> <span class="nav-text">损失函数</span></a></li></ol></li></ol></div>
+              <div class="post-toc-content"><ol class="nav"><li class="nav-item nav-level-2"><a class="nav-link" href="#abstract"><span class="nav-number">1.</span> <span class="nav-text">abstract</span></a></li><li class="nav-item nav-level-2"><a class="nav-link" href="#introduction"><span class="nav-number">2.</span> <span class="nav-text">introduction</span></a><ol class="nav-child"><li class="nav-item nav-level-3"><a class="nav-link" href="#class-imbalance"><span class="nav-number">2.1.</span> <span class="nav-text">class imbalance</span></a></li><li class="nav-item nav-level-3"><a class="nav-link" href="#contribution"><span class="nav-number">2.2.</span> <span class="nav-text">contribution</span></a></li></ol></li><li class="nav-item nav-level-2"><a class="nav-link" href="#Pixel-Loss-Max-Pooling"><span class="nav-number">3.</span> <span class="nav-text">Pixel-Loss Max-Pooling</span></a><ol class="nav-child"><li class="nav-item nav-level-3"><a class="nav-link" href="#Standard-setting"><span class="nav-number">3.1.</span> <span class="nav-text">Standard setting</span></a></li><li class="nav-item nav-level-3"><a class="nav-link" href="#Loss-max-pooling"><span class="nav-number">3.2.</span> <span class="nav-text">Loss max-pooling</span></a></li><li class="nav-item nav-level-3"><a class="nav-link" href="#The-space-W-of-weighting-functions"><span class="nav-number">3.3.</span> <span class="nav-text">The space W of weighting functions</span></a></li><li class="nav-item nav-level-3"><a class="nav-link" href="#Computation-of-L-W"><span class="nav-number">3.4.</span> <span class="nav-text">Computation of $L_W$</span></a></li></ol></li><li class="nav-item nav-level-2"><a class="nav-link" href="#experiment"><span class="nav-number">4.</span> <span class="nav-text">experiment</span></a></li><li class="nav-item nav-level-2"><a class="nav-link" href="#conclusion"><span class="nav-number">5.</span> <span class="nav-text">conclusion</span></a></li></ol></div>
             
 
           </div>
