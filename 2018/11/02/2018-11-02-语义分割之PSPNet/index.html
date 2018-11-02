@@ -68,7 +68,7 @@
 
 
 
-  <meta name="keywords" content="论文,instance segmentation,">
+  <meta name="keywords" content="论文,语义分割,">
 
 
 
@@ -79,20 +79,22 @@
 
 
 
-<meta name="description" content="论文简介 地址：Path Aggregation Network for Instance Segmentation 论文提出的PANet是一个基于proposal的实例分割框架，缩短了底层和高层特征的通路；提出了自适应的特征pooling，可以各个各个尺度中的特征；在预测mask的时候，增加一个额外的FC旁路，辅助FCN分割支路的结果。 COCO 17实例分割第一名，检测任务第二名。  主要部分">
-<meta name="keywords" content="论文,instance segmentation">
+<meta name="description" content="前言 这其实算是挺早的一篇文章了，但是之前在面试roadstar时，面试官说了他关于语义分割这一块的实验经验，说较大的batchsize和多尺度的池化(金字塔池化)、以及困难样本的挖掘都可以提升语义分割的精度，本文是多尺度池化相关，因此在这里回顾一下。  abstract 论文地址：https://arxiv.org/pdf/1612.01105.pdf 论文提出了PSPNet，通过金字塔池化模型">
+<meta name="keywords" content="论文,语义分割">
 <meta property="og:type" content="article">
-<meta property="og:title" content="instance segmentation之PANet">
-<meta property="og:url" content="git@github.com:littletomatodonkey/littletomatodonkey.github.io.git/2018/06/05/2018-06-05-instance segmentation之PANet/index.html">
+<meta property="og:title" content="语义分割之PSPNet">
+<meta property="og:url" content="git@github.com:littletomatodonkey/littletomatodonkey.github.io.git/2018/11/02/2018-11-02-语义分割之PSPNet/index.html">
 <meta property="og:site_name" content="donkey&#39;s blog">
-<meta property="og:description" content="论文简介 地址：Path Aggregation Network for Instance Segmentation 论文提出的PANet是一个基于proposal的实例分割框架，缩短了底层和高层特征的通路；提出了自适应的特征pooling，可以各个各个尺度中的特征；在预测mask的时候，增加一个额外的FC旁路，辅助FCN分割支路的结果。 COCO 17实例分割第一名，检测任务第二名。  主要部分">
+<meta property="og:description" content="前言 这其实算是挺早的一篇文章了，但是之前在面试roadstar时，面试官说了他关于语义分割这一块的实验经验，说较大的batchsize和多尺度的池化(金字塔池化)、以及困难样本的挖掘都可以提升语义分割的精度，本文是多尺度池化相关，因此在这里回顾一下。  abstract 论文地址：https://arxiv.org/pdf/1612.01105.pdf 论文提出了PSPNet，通过金字塔池化模型">
 <meta property="og:locale" content="zh-Hans">
-<meta property="og:image" content="/img/post/20180605-PANet框架.png">
-<meta property="og:updated_time" content="2018-06-05T03:53:14.684Z">
+<meta property="og:image" content="/img/post/20181102-PSPNet模型结构.png">
+<meta property="og:image" content="/img/post/20181102-PSPNet-resnet.png">
+<meta property="og:image" content="/img/post/20181102-PSPNet-resnet结果.png">
+<meta property="og:updated_time" content="2018-11-02T09:15:05.103Z">
 <meta name="twitter:card" content="summary">
-<meta name="twitter:title" content="instance segmentation之PANet">
-<meta name="twitter:description" content="论文简介 地址：Path Aggregation Network for Instance Segmentation 论文提出的PANet是一个基于proposal的实例分割框架，缩短了底层和高层特征的通路；提出了自适应的特征pooling，可以各个各个尺度中的特征；在预测mask的时候，增加一个额外的FC旁路，辅助FCN分割支路的结果。 COCO 17实例分割第一名，检测任务第二名。  主要部分">
-<meta name="twitter:image" content="/img/post/20180605-PANet框架.png">
+<meta name="twitter:title" content="语义分割之PSPNet">
+<meta name="twitter:description" content="前言 这其实算是挺早的一篇文章了，但是之前在面试roadstar时，面试官说了他关于语义分割这一块的实验经验，说较大的batchsize和多尺度的池化(金字塔池化)、以及困难样本的挖掘都可以提升语义分割的精度，本文是多尺度池化相关，因此在这里回顾一下。  abstract 论文地址：https://arxiv.org/pdf/1612.01105.pdf 论文提出了PSPNet，通过金字塔池化模型">
+<meta name="twitter:image" content="/img/post/20181102-PSPNet模型结构.png">
 
 
 
@@ -122,13 +124,13 @@
 
 
 
-  <link rel="canonical" href="git@github.com:littletomatodonkey/littletomatodonkey.github.io.git/2018/06/05/2018-06-05-instance segmentation之PANet/">
+  <link rel="canonical" href="git@github.com:littletomatodonkey/littletomatodonkey.github.io.git/2018/11/02/2018-11-02-语义分割之PSPNet/">
 
 
 
 
 
-  <title>instance segmentation之PANet | donkey's blog</title>
+  <title>语义分割之PSPNet | donkey's blog</title>
   
 
 
@@ -255,7 +257,7 @@
   
   
   <div class="post-block">
-    <link itemprop="mainEntityOfPage" href="git@github.com:littletomatodonkey/littletomatodonkey.github.io.git/2018/06/05/2018-06-05-instance segmentation之PANet/">
+    <link itemprop="mainEntityOfPage" href="git@github.com:littletomatodonkey/littletomatodonkey.github.io.git/2018/11/02/2018-11-02-语义分割之PSPNet/">
 
     <span hidden itemprop="author" itemscope="" itemtype="http://schema.org/Person">
       <meta itemprop="name" content="donkey">
@@ -272,7 +274,7 @@
 
         
         
-          <h1 class="post-title" itemprop="name headline">instance segmentation之PANet</h1>
+          <h1 class="post-title" itemprop="name headline">语义分割之PSPNet</h1>
         
 
         <div class="post-meta">
@@ -284,8 +286,8 @@
               
                 <span class="post-meta-item-text">发表于</span>
               
-              <time title="创建于" itemprop="dateCreated datePublished" datetime="2018-06-05T08:00:00+08:00">
-                2018-06-05
+              <time title="创建于" itemprop="dateCreated datePublished" datetime="2018-11-02T10:00:00+08:00">
+                2018-11-02
               </time>
             
 
@@ -322,24 +324,63 @@
       
 
       
-        <h2 id="论文简介"><a href="#论文简介" class="headerlink" title="论文简介"></a>论文简介</h2><ul>
-<li>地址：<a href="https://arxiv.org/abs/1803.01534" target="_blank" rel="noopener">Path Aggregation Network for Instance Segmentation</a></li>
-<li>论文提出的PANet是一个基于proposal的实例分割框架，缩短了底层和高层特征的通路；提出了自适应的特征pooling，可以各个各个尺度中的特征；在预测mask的时候，增加一个额外的FC旁路，辅助FCN分割支路的结果。</li>
-<li>COCO 17实例分割第一名，检测任务第二名。</li>
+        <h2 id="前言"><a href="#前言" class="headerlink" title="前言"></a>前言</h2><ul>
+<li>这其实算是挺早的一篇文章了，但是之前在面试roadstar时，面试官说了他关于语义分割这一块的实验经验，说<code>较大的batchsize和多尺度的池化(金字塔池化)、以及困难样本的挖掘都可以提升语义分割的精度</code>，本文是多尺度池化相关，因此在这里回顾一下。</li>
 </ul>
-<h2 id="主要部分"><a href="#主要部分" class="headerlink" title="主要部分"></a>主要部分</h2><ul>
-<li>论文模型框架如下图所示</li>
+<h2 id="abstract"><a href="#abstract" class="headerlink" title="abstract"></a>abstract</h2><ul>
+<li>论文地址：<a href="https://arxiv.org/pdf/1612.01105.pdf" target="_blank" rel="noopener">https://arxiv.org/pdf/1612.01105.pdf</a></li>
+<li>论文提出了PSPNet，通过金字塔池化模型去获取<code>global context information</code>。</li>
+<li>PSPNet在ImageNet2016、Pascal VOC、cityscapes等数据集上都超过了SOTA。</li>
 </ul>
-<p><img src="/img/post/20180605-PANet框架.png" alt="MNC"></p>
-<h3 id="Bottom-up-Path-Augmentation"><a href="#Bottom-up-Path-Augmentation" class="headerlink" title="Bottom-up Path Augmentation"></a>Bottom-up Path Augmentation</h3><ul>
-<li>基于FPN网络，PANet新构建了N2~N5，N2与P2完全相同，N3~N5与P3~P5的尺寸是相同的，$N_i$得到的输出与$P_{i+1}$逐像素叠加，新建的之路缩短了底层尺寸的大的特征到高层尺寸小的特征之间的距离，实现更加有效的特征融合。</li>
+<h2 id="introduction"><a href="#introduction" class="headerlink" title="introduction"></a>introduction</h2><ul>
+<li>场景理解的主要难点在于场景中像素类别之间的差异很小。</li>
+<li>之前语义分割或者场景理解时，主要的网络结构是FCN，但是作者发现FCN有个很明显的问题：它没有办法获取global context information。之前也有学者基于这个问题提出了<code>spatial pyramid network</code>。</li>
+<li>与之前的网络结构不同，作者提出了<code>PSPNet</code>，除了使用<code>dilated convolution</code>用于FCN之外，也结合<code>global pyramid pooling</code>，全局和局部的信息相结合，可以进一步提升预测结果的性能。</li>
+<li>论文主要的contribution如下<ul>
+<li>提出了PSPNet网络结构。</li>
+<li>提出了deeply supervised loss的优化策略，可以用于ResNet中。</li>
+<li>刷新了<code>scene parsing</code>的SOTA，同时公布了很多细节。</li>
 </ul>
-<h3 id="Adaptive-Feature-Pooling"><a href="#Adaptive-Feature-Pooling" class="headerlink" title="Adaptive Feature Pooling"></a>Adaptive Feature Pooling</h3><ul>
-<li>高层特征由大的感受野生成，可以捕捉更加丰富的上下文信息；而低层特征可以获取更多的细节以及更高的定位精度。基于这样的结论，针对每个proposal，PANet对其在所有层的特征进行池化，并通过FC层，最后进行融合，在通过FC层，得到最终的分割结果。因为是对所有层的特征进行池化并融合，作者将其称之为<code>自适应特征池化</code>。</li>
+</li>
 </ul>
-<h3 id="Mask-Prediction-Structure"><a href="#Mask-Prediction-Structure" class="headerlink" title="Mask Prediction Structure"></a>Mask Prediction Structure</h3><ul>
-<li>FCN(全卷积神经网络)基于局部感受野的特征和参数给出每个像素的预测结果，特征参数在不同的参数都是共享的，它对空间信息不敏感。而fc(全连接层)对空间位置很敏感，因为它在不同的空间位置使用不同的参数对像素进行预测。因此考虑将2种方法进行融合。</li>
-<li>在<code>Mask R-CNN</code>的基础上增加了一个fc层，对fc的结果进行reshape，然后将其与<code>Mask R-CNN</code>的输出结果进行融合，得到最终的mask。</li>
+<h2 id="Pyramid-Scene-Parsing-Network"><a href="#Pyramid-Scene-Parsing-Network" class="headerlink" title="Pyramid Scene Parsing Network"></a>Pyramid Scene Parsing Network</h2><h3 id="Important-Observations"><a href="#Important-Observations" class="headerlink" title="Important Observations"></a>Important Observations</h3><ul>
+<li>论文中提到<code>ADE20K dataset</code>在分割任务中主要有以下一些问题：<ul>
+<li>不匹配的上下文关系，即比如说水上一般是可以有船，但是不能有车的。</li>
+<li>容易混淆的类别，比如说有field和earth这两个类别是比较容易混淆的。</li>
+<li>不显眼的类别，即特定类别所占的像素太少，比如建筑物上的钟摆，这在池化的时候相对于那些大的物体，更加容易被忽视。</li>
+</ul>
+</li>
+</ul>
+<h3 id="Pyramid-Pooling-Module"><a href="#Pyramid-Pooling-Module" class="headerlink" title="Pyramid Pooling Module"></a>Pyramid Pooling Module</h3><ul>
+<li>在DNN中，虽然有些层感受野的大小在理论上大于输入图像，但是在实际的使用过程中，high level layers的感受野基本都是远小于理论值的。因此许多网络也无法充分利用<code>global context information</code>，论文中使用<code>global prior representation</code>来解决这个问题。</li>
+<li>之前有使用<code>global average pooling</code>来作为<code>global prior representation</code>，同时可以使得不同输入大小的图像都可以经过卷积之后变成固定维度，用于后续的分类，但是这会丢失大量的信息（最后的feature map size为1）。</li>
+<li>为了减少<code>context information loss</code>，论文中提出了<code>hierarchical global prior</code>，可以包含不同sub-regions中不同尺度的信息，模型主要框图如下</li>
+</ul>
+<p><img src="/img/post/20181102-PSPNet模型结构.png" alt="PSPNet模型结构"></p>
+<p>经过多尺度的池化之后，使用1X1 conv对其进行降维，之后使用双线性插值进行上采样，并做concatenate，最后conv得到最终地feature map。</p>
+<h3 id="Network-Architecture"><a href="#Network-Architecture" class="headerlink" title="Network Architecture"></a>Network Architecture</h3><ul>
+<li>网络的backbone是ResNet101，除了最后的loss function之外，还在<code>res4b22</code>后面加了一个<code>auxiliary loss</code>。</li>
+</ul>
+<p><img src="/img/post/20181102-PSPNet-resnet.png" alt="auxiliary loss"></p>
+<h2 id="Deep-Supervision-for-ResNet-Based-FCN"><a href="#Deep-Supervision-for-ResNet-Based-FCN" class="headerlink" title="Deep Supervision for ResNet-Based FCN"></a>Deep Supervision for ResNet-Based FCN</h2><ul>
+<li>传统的resnet只有一个loss，论文中，加上一个auxiliary loss，这个auxiliary loss在BP的时候在所有之前的网络层中都起了作用，而非传统的只对<code>low-level layers</code>起作用。此外，对loss与<code>auxiliary loss</code>进行加权，最后的softmax loss起主导作用，而<code>auxiliary loss</code>用于改善训练过程。</li>
+</ul>
+<h2 id="experiment"><a href="#experiment" class="headerlink" title="experiment"></a>experiment</h2><ul>
+<li>作者主要是针对以下几个方面来进行比较<ul>
+<li>baseline</li>
+<li>是否采用多个池化</li>
+<li>max pooling还是average pooling</li>
+<li>是否使用auxiliary loss以及auxiliary loss的weight</li>
+</ul>
+</li>
+<li>在<code>Pascal VOC</code>上的对比实验结果如下</li>
+</ul>
+<p><img src="/img/post/20181102-PSPNet-resnet结果.png" alt="PSPNet-resnet结果.png"></p>
+<ul>
+<li>作者也在ImageNet、cityscapes上做了实验，具体实验结果可以见论文，最后的结论就是PSPNet得到的分割结果很好，加上data augmentation、auxiliary loss、multi scale之后，性能都会有所提升。</li>
+</ul>
+<h2 id="conclusion"><a href="#conclusion" class="headerlink" title="conclusion"></a>conclusion</h2><ul>
+<li>论文最主要的就是提出了PSPNet用于scene parsing，此外也提出了<code>deeply supervised optimization strategy</code>，用于优化resnet作为backbone的FCN网络结构，同时公布了代码。</li>
 </ul>
 
       
@@ -360,7 +401,7 @@
           
             <a href="/tags/论文/" rel="tag"># 论文</a>
           
-            <a href="/tags/instance-segmentation/" rel="tag"># instance segmentation</a>
+            <a href="/tags/语义分割/" rel="tag"># 语义分割</a>
           
         </div>
       
@@ -373,8 +414,8 @@
         <div class="post-nav">
           <div class="post-nav-next post-nav-item">
             
-              <a href="/2018/06/05/2018-06-05-instance segmentation之MNC/" rel="next" title="instance segmentation之MNC">
-                <i class="fa fa-chevron-left"></i> instance segmentation之MNC
+              <a href="/2018/10/27/2018-10-27-语义分割之loss max-pooling/" rel="next" title="语义分割之Loss Max-Pooling">
+                <i class="fa fa-chevron-left"></i> 语义分割之Loss Max-Pooling
               </a>
             
           </div>
@@ -382,10 +423,6 @@
           <span class="post-nav-divider"></span>
 
           <div class="post-nav-prev post-nav-item">
-            
-              <a href="/2018/06/05/2018-06-05-MOT之instance flow/" rel="prev" title="MOT之instance flow">
-                MOT之instance flow <i class="fa fa-chevron-right"></i>
-              </a>
             
           </div>
         </div>
@@ -526,7 +563,7 @@
             
 
             
-              <div class="post-toc-content"><ol class="nav"><li class="nav-item nav-level-2"><a class="nav-link" href="#论文简介"><span class="nav-number">1.</span> <span class="nav-text">论文简介</span></a></li><li class="nav-item nav-level-2"><a class="nav-link" href="#主要部分"><span class="nav-number">2.</span> <span class="nav-text">主要部分</span></a><ol class="nav-child"><li class="nav-item nav-level-3"><a class="nav-link" href="#Bottom-up-Path-Augmentation"><span class="nav-number">2.1.</span> <span class="nav-text">Bottom-up Path Augmentation</span></a></li><li class="nav-item nav-level-3"><a class="nav-link" href="#Adaptive-Feature-Pooling"><span class="nav-number">2.2.</span> <span class="nav-text">Adaptive Feature Pooling</span></a></li><li class="nav-item nav-level-3"><a class="nav-link" href="#Mask-Prediction-Structure"><span class="nav-number">2.3.</span> <span class="nav-text">Mask Prediction Structure</span></a></li></ol></li></ol></div>
+              <div class="post-toc-content"><ol class="nav"><li class="nav-item nav-level-2"><a class="nav-link" href="#前言"><span class="nav-number">1.</span> <span class="nav-text">前言</span></a></li><li class="nav-item nav-level-2"><a class="nav-link" href="#abstract"><span class="nav-number">2.</span> <span class="nav-text">abstract</span></a></li><li class="nav-item nav-level-2"><a class="nav-link" href="#introduction"><span class="nav-number">3.</span> <span class="nav-text">introduction</span></a></li><li class="nav-item nav-level-2"><a class="nav-link" href="#Pyramid-Scene-Parsing-Network"><span class="nav-number">4.</span> <span class="nav-text">Pyramid Scene Parsing Network</span></a><ol class="nav-child"><li class="nav-item nav-level-3"><a class="nav-link" href="#Important-Observations"><span class="nav-number">4.1.</span> <span class="nav-text">Important Observations</span></a></li><li class="nav-item nav-level-3"><a class="nav-link" href="#Pyramid-Pooling-Module"><span class="nav-number">4.2.</span> <span class="nav-text">Pyramid Pooling Module</span></a></li><li class="nav-item nav-level-3"><a class="nav-link" href="#Network-Architecture"><span class="nav-number">4.3.</span> <span class="nav-text">Network Architecture</span></a></li></ol></li><li class="nav-item nav-level-2"><a class="nav-link" href="#Deep-Supervision-for-ResNet-Based-FCN"><span class="nav-number">5.</span> <span class="nav-text">Deep Supervision for ResNet-Based FCN</span></a></li><li class="nav-item nav-level-2"><a class="nav-link" href="#experiment"><span class="nav-number">6.</span> <span class="nav-text">experiment</span></a></li><li class="nav-item nav-level-2"><a class="nav-link" href="#conclusion"><span class="nav-number">7.</span> <span class="nav-text">conclusion</span></a></li></ol></div>
             
 
           </div>
