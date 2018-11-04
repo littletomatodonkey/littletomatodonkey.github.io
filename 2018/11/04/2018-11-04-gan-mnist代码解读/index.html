@@ -68,7 +68,7 @@
 
 
 
-  <meta name="keywords" content="论文,instance segmentation,autonomous driving,">
+  <meta name="keywords" content="GAN,code,">
 
 
 
@@ -79,20 +79,18 @@
 
 
 
-<meta name="description" content="论文简介 地址：Towards End-to-End Lane Detection: an Instance Segmentation Approach 传统的车道线检测方法十分依赖人工选取特征，需要大量的后处理步骤，对于已经有的一些DNN的方法，它们只能处理预先定义好的、数目固定的车道线，无法处理车道线发生变化的情况。 引入instance segmentation的方法，将每个车道线都视为一个">
-<meta name="keywords" content="论文,instance segmentation,autonomous driving">
+<meta name="description" content="introduction 本文主要是写一下看了gan-mnist代码之后的一些总结，之前是陈天奇大神写的，我fork到自己的repo中，添加了一些其他的代码，地址：https://github.com/littletomatodonkey/gan-mnist  code 主要有2个文件夹，一个mxgan，是主要代码，一个example，用于测试。mxganencoder.py 这个主要是将输入图像">
+<meta name="keywords" content="GAN,code">
 <meta property="og:type" content="article">
-<meta property="og:title" content="instance segmentation之车道线检测">
-<meta property="og:url" content="git@github.com:littletomatodonkey/littletomatodonkey.github.io.git/2018/06/04/2018-06-04-instance segmentation之车道线检测/index.html">
+<meta property="og:title" content="gan-mnist代码解读">
+<meta property="og:url" content="git@github.com:littletomatodonkey/littletomatodonkey.github.io.git/2018/11/04/2018-11-04-gan-mnist代码解读/index.html">
 <meta property="og:site_name" content="donkey&#39;s blog">
-<meta property="og:description" content="论文简介 地址：Towards End-to-End Lane Detection: an Instance Segmentation Approach 传统的车道线检测方法十分依赖人工选取特征，需要大量的后处理步骤，对于已经有的一些DNN的方法，它们只能处理预先定义好的、数目固定的车道线，无法处理车道线发生变化的情况。 引入instance segmentation的方法，将每个车道线都视为一个">
+<meta property="og:description" content="introduction 本文主要是写一下看了gan-mnist代码之后的一些总结，之前是陈天奇大神写的，我fork到自己的repo中，添加了一些其他的代码，地址：https://github.com/littletomatodonkey/gan-mnist  code 主要有2个文件夹，一个mxgan，是主要代码，一个example，用于测试。mxganencoder.py 这个主要是将输入图像">
 <meta property="og:locale" content="zh-Hans">
-<meta property="og:image" content="/img/post/20180602-lanenet.png">
-<meta property="og:updated_time" content="2018-06-04T02:17:00.516Z">
+<meta property="og:updated_time" content="2018-11-04T07:41:51.691Z">
 <meta name="twitter:card" content="summary">
-<meta name="twitter:title" content="instance segmentation之车道线检测">
-<meta name="twitter:description" content="论文简介 地址：Towards End-to-End Lane Detection: an Instance Segmentation Approach 传统的车道线检测方法十分依赖人工选取特征，需要大量的后处理步骤，对于已经有的一些DNN的方法，它们只能处理预先定义好的、数目固定的车道线，无法处理车道线发生变化的情况。 引入instance segmentation的方法，将每个车道线都视为一个">
-<meta name="twitter:image" content="/img/post/20180602-lanenet.png">
+<meta name="twitter:title" content="gan-mnist代码解读">
+<meta name="twitter:description" content="introduction 本文主要是写一下看了gan-mnist代码之后的一些总结，之前是陈天奇大神写的，我fork到自己的repo中，添加了一些其他的代码，地址：https://github.com/littletomatodonkey/gan-mnist  code 主要有2个文件夹，一个mxgan，是主要代码，一个example，用于测试。mxganencoder.py 这个主要是将输入图像">
 
 
 
@@ -122,13 +120,13 @@
 
 
 
-  <link rel="canonical" href="git@github.com:littletomatodonkey/littletomatodonkey.github.io.git/2018/06/04/2018-06-04-instance segmentation之车道线检测/">
+  <link rel="canonical" href="git@github.com:littletomatodonkey/littletomatodonkey.github.io.git/2018/11/04/2018-11-04-gan-mnist代码解读/">
 
 
 
 
 
-  <title>instance segmentation之车道线检测 | donkey's blog</title>
+  <title>gan-mnist代码解读 | donkey's blog</title>
   
 
 
@@ -255,7 +253,7 @@
   
   
   <div class="post-block">
-    <link itemprop="mainEntityOfPage" href="git@github.com:littletomatodonkey/littletomatodonkey.github.io.git/2018/06/04/2018-06-04-instance segmentation之车道线检测/">
+    <link itemprop="mainEntityOfPage" href="git@github.com:littletomatodonkey/littletomatodonkey.github.io.git/2018/11/04/2018-11-04-gan-mnist代码解读/">
 
     <span hidden itemprop="author" itemscope="" itemtype="http://schema.org/Person">
       <meta itemprop="name" content="donkey">
@@ -272,7 +270,7 @@
 
         
         
-          <h1 class="post-title" itemprop="name headline">instance segmentation之车道线检测</h1>
+          <h1 class="post-title" itemprop="name headline">gan-mnist代码解读</h1>
         
 
         <div class="post-meta">
@@ -284,8 +282,8 @@
               
                 <span class="post-meta-item-text">发表于</span>
               
-              <time title="创建于" itemprop="dateCreated datePublished" datetime="2018-06-04T10:00:00+08:00">
-                2018-06-04
+              <time title="创建于" itemprop="dateCreated datePublished" datetime="2018-11-04T10:00:00+08:00">
+                2018-11-04
               </time>
             
 
@@ -322,22 +320,33 @@
       
 
       
-        <h2 id="论文简介"><a href="#论文简介" class="headerlink" title="论文简介"></a>论文简介</h2><ul>
-<li>地址：<a href="https://arxiv.org/abs/1802.05591" target="_blank" rel="noopener">Towards End-to-End Lane Detection: an Instance Segmentation Approach</a></li>
-<li>传统的车道线检测方法十分依赖人工选取特征，需要大量的后处理步骤，对于已经有的一些DNN的方法，它们只能处理预先定义好的、数目固定的车道线，无法处理车道线发生变化的情况。</li>
-<li>引入instance segmentation的方法，将每个车道线都视为一个instance，论文中提出一种使用学习得到的透视变换方法，保证模型在路面发生变化时也会有较强的鲁棒性。</li>
-<li>论文提出的方法可以处理任意车道线数目、车道线变化的情况，同时能够做到实时(50fps,图像大小为512X256,Nvidia 1080Ti)。</li>
+        <h2 id="introduction"><a href="#introduction" class="headerlink" title="introduction"></a>introduction</h2><ul>
+<li>本文主要是写一下看了<code>gan-mnist</code>代码之后的一些总结，之前是陈天奇大神写的，我fork到自己的repo中，添加了一些其他的代码，地址：<a href="https://github.com/littletomatodonkey/gan-mnist" target="_blank" rel="noopener">https://github.com/littletomatodonkey/gan-mnist</a></li>
 </ul>
-<h2 id="论文主要的组成部分"><a href="#论文主要的组成部分" class="headerlink" title="论文主要的组成部分"></a>论文主要的组成部分</h2><h3 id="LaneNet"><a href="#LaneNet" class="headerlink" title="LaneNet"></a>LaneNet</h3><ul>
-<li>网络结构如下图。使用一个共享的encoder，对输入图像进行处理，得到2个branch：嵌入branch和语义分割的branch。嵌入branch可以将不同的车道线区分为不同的instance；因为只需要考虑车道线，因此语义分割的结果是二值化图像；然后对2个branch做聚类，最终得到结果。</li>
+<h2 id="code"><a href="#code" class="headerlink" title="code"></a>code</h2><ul>
+<li>主要有2个文件夹，一个<code>mxgan</code>，是主要代码，一个<code>example</code>，用于测试。<h3 id="mxgan"><a href="#mxgan" class="headerlink" title="mxgan"></a>mxgan</h3><h4 id="encoder-py"><a href="#encoder-py" class="headerlink" title="encoder.py"></a><code>encoder.py</code></h4></li>
+<li>这个主要是将输入图像转化为一个向量，可以使用lenet或者一个dcgan model。</li>
+<li>输出的向量的维度越小，计算量越小，但是可能难以表征所以隐含的特征，越大可能越准确，但是计算量也会越大，目前关于该向量的维度，没有得到证明的上界。</li>
 </ul>
-<p><img src="/img/post/20180602-lanenet.png" alt="LaneNet"></p>
-<h3 id="基于学习方法的投影变换方法-H-Net"><a href="#基于学习方法的投影变换方法-H-Net" class="headerlink" title="基于学习方法的投影变换方法()H-Net"></a>基于学习方法的投影变换方法()H-Net</h3><ul>
-<li>将输入的RGB图像作为输入，使用LaneNet得到输出的实例分割结果，然后将车道线像素使用H-Net输出得到的透视变换矩阵进行变换，对变换后的车道线像素在变化后的空间中进行拟合，再将拟合结果经过逆投影变换，最终得到原始视野中的车道线拟合结果。</li>
-<li>H-Net将RGB作为输入，输出为基于该图像的透视变换系数矩阵，优化目标为车道线拟合效果。</li>
+<h4 id="generator-py"><a href="#generator-py" class="headerlink" title="generator.py"></a><code>generator.py</code></h4><ul>
+<li>这个是decoder模块，将向量转化为最终地图像，相当于G网络生成图像，可以使用dcgan或者fcgan方法生成图像。</li>
 </ul>
-<h3 id="关于嵌入"><a href="#关于嵌入" class="headerlink" title="关于嵌入"></a>关于嵌入</h3><ul>
-<li>嵌入的方法与<a href="https://arxiv.org/abs/1708.02551" target="_blank" rel="noopener">https://arxiv.org/abs/1708.02551</a>中介绍的类似，只是修改了hinge loss的阈值，设置为$\delta _v &gt; 6\delta _d$。</li>
+<h3 id="module-py"><a href="#module-py" class="headerlink" title="module.py"></a><code>module.py</code></h3><ul>
+<li>这个是GAN的module部分，D网络是encoder部分，fake image的输出向量为0，real image的输出向量为1；fake image是使用D网络在给定随机数的输入之后通过CNN生成的。</li>
+<li>mxnet的module在训练的时候，通常情况下有<code>forward</code>,<code>backward</code>,<code>update</code>三个过程，分别对应前向计算输出、反向计算梯度、根据梯度更新权重。在训练GAN的时候。过程如下：<ul>
+<li>首先生成随机数，维度为<code>batch_size * vector_dims</code></li>
+<li>使用G网络生成fake image。</li>
+<li>设置label为0，将fake image和label输入到D网络中，进行<code>forward</code>,<code>backward</code>，先存储梯度信息，不进行更新（后面进行real image的forward之后再进行更新）。</li>
+<li>更新G网络：将label设置为1，将fake image传入到D网络中（因为G网络的目的就是使D网络将fake image识别为real image），再使用G网络的输入梯度(<code>get_input_grads</code>函数)进行<code>backward</code>与<code>update</code>。</li>
+<li>更新D网络：设置label为<code>pos label</code>(作者在这里设置了默认为0.9)，将real image和label输入到D网络中；进行<code>backward</code>，和之前的梯度相加，之后进行<code>update</code>。</li>
+</ul>
+</li>
+</ul>
+<h2 id="example"><a href="#example" class="headerlink" title="example"></a>example</h2><h3 id="gan-mnist-py"><a href="#gan-mnist-py" class="headerlink" title="gan_mnist.py"></a><code>gan_mnist.py</code></h3><ul>
+<li>这是作者写的训练gan-mnist的过程，我自己是添加了模型保存(G网络)的代码。</li>
+</ul>
+<h3 id="generate-mnist-py"><a href="#generate-mnist-py" class="headerlink" title="generate_mnist.py"></a><code>generate_mnist.py</code></h3><ul>
+<li>根据生成的G网络，随机生成图像数据。</li>
 </ul>
 
       
@@ -356,11 +365,9 @@
       
         <div class="post-tags">
           
-            <a href="/tags/论文/" rel="tag"># 论文</a>
+            <a href="/tags/GAN/" rel="tag"># GAN</a>
           
-            <a href="/tags/instance-segmentation/" rel="tag"># instance segmentation</a>
-          
-            <a href="/tags/autonomous-driving/" rel="tag"># autonomous driving</a>
+            <a href="/tags/code/" rel="tag"># code</a>
           
         </div>
       
@@ -373,8 +380,8 @@
         <div class="post-nav">
           <div class="post-nav-next post-nav-item">
             
-              <a href="/2018/06/03/2018-06-03-instance segmentation之FCN/" rel="next" title="instance segmentation之FCN">
-                <i class="fa fa-chevron-left"></i> instance segmentation之FCN
+              <a href="/2018/11/02/2018-11-02-语义分割之PSPNet/" rel="next" title="语义分割之PSPNet">
+                <i class="fa fa-chevron-left"></i> 语义分割之PSPNet
               </a>
             
           </div>
@@ -382,10 +389,6 @@
           <span class="post-nav-divider"></span>
 
           <div class="post-nav-prev post-nav-item">
-            
-              <a href="/2018/06/05/2018-06-05-instance segmentation之MNC/" rel="prev" title="instance segmentation之MNC">
-                instance segmentation之MNC <i class="fa fa-chevron-right"></i>
-              </a>
             
           </div>
         </div>
@@ -526,7 +529,7 @@
             
 
             
-              <div class="post-toc-content"><ol class="nav"><li class="nav-item nav-level-2"><a class="nav-link" href="#论文简介"><span class="nav-number">1.</span> <span class="nav-text">论文简介</span></a></li><li class="nav-item nav-level-2"><a class="nav-link" href="#论文主要的组成部分"><span class="nav-number">2.</span> <span class="nav-text">论文主要的组成部分</span></a><ol class="nav-child"><li class="nav-item nav-level-3"><a class="nav-link" href="#LaneNet"><span class="nav-number">2.1.</span> <span class="nav-text">LaneNet</span></a></li><li class="nav-item nav-level-3"><a class="nav-link" href="#基于学习方法的投影变换方法-H-Net"><span class="nav-number">2.2.</span> <span class="nav-text">基于学习方法的投影变换方法()H-Net</span></a></li><li class="nav-item nav-level-3"><a class="nav-link" href="#关于嵌入"><span class="nav-number">2.3.</span> <span class="nav-text">关于嵌入</span></a></li></ol></li></ol></div>
+              <div class="post-toc-content"><ol class="nav"><li class="nav-item nav-level-2"><a class="nav-link" href="#introduction"><span class="nav-number">1.</span> <span class="nav-text">introduction</span></a></li><li class="nav-item nav-level-2"><a class="nav-link" href="#code"><span class="nav-number">2.</span> <span class="nav-text">code</span></a><ol class="nav-child"><li class="nav-item nav-level-3"><a class="nav-link" href="#mxgan"><span class="nav-number">2.1.</span> <span class="nav-text">mxgan</span></a><ol class="nav-child"><li class="nav-item nav-level-4"><a class="nav-link" href="#encoder-py"><span class="nav-number">2.1.1.</span> <span class="nav-text">encoder.py</span></a></li><li class="nav-item nav-level-4"><a class="nav-link" href="#generator-py"><span class="nav-number">2.1.2.</span> <span class="nav-text">generator.py</span></a></li></ol></li><li class="nav-item nav-level-3"><a class="nav-link" href="#module-py"><span class="nav-number">2.2.</span> <span class="nav-text">module.py</span></a></li></ol></li><li class="nav-item nav-level-2"><a class="nav-link" href="#example"><span class="nav-number">3.</span> <span class="nav-text">example</span></a><ol class="nav-child"><li class="nav-item nav-level-3"><a class="nav-link" href="#gan-mnist-py"><span class="nav-number">3.1.</span> <span class="nav-text">gan_mnist.py</span></a></li><li class="nav-item nav-level-3"><a class="nav-link" href="#generate-mnist-py"><span class="nav-number">3.2.</span> <span class="nav-text">generate_mnist.py</span></a></li></ol></li></ol></div>
             
 
           </div>

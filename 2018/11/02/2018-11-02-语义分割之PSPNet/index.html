@@ -90,7 +90,7 @@
 <meta property="og:image" content="/img/post/20181102-PSPNet模型结构.png">
 <meta property="og:image" content="/img/post/20181102-PSPNet-resnet.png">
 <meta property="og:image" content="/img/post/20181102-PSPNet-resnet结果.png">
-<meta property="og:updated_time" content="2018-11-02T09:15:05.103Z">
+<meta property="og:updated_time" content="2018-11-03T07:57:28.306Z">
 <meta name="twitter:card" content="summary">
 <meta name="twitter:title" content="语义分割之PSPNet">
 <meta name="twitter:description" content="前言 这其实算是挺早的一篇文章了，但是之前在面试roadstar时，面试官说了他关于语义分割这一块的实验经验，说较大的batchsize和多尺度的池化(金字塔池化)、以及困难样本的挖掘都可以提升语义分割的精度，本文是多尺度池化相关，因此在这里回顾一下。  abstract 论文地址：https://arxiv.org/pdf/1612.01105.pdf 论文提出了PSPNet，通过金字塔池化模型">
@@ -364,6 +364,7 @@
 <p><img src="/img/post/20181102-PSPNet-resnet.png" alt="auxiliary loss"></p>
 <h2 id="Deep-Supervision-for-ResNet-Based-FCN"><a href="#Deep-Supervision-for-ResNet-Based-FCN" class="headerlink" title="Deep Supervision for ResNet-Based FCN"></a>Deep Supervision for ResNet-Based FCN</h2><ul>
 <li>传统的resnet只有一个loss，论文中，加上一个auxiliary loss，这个auxiliary loss在BP的时候在所有之前的网络层中都起了作用，而非传统的只对<code>low-level layers</code>起作用。此外，对loss与<code>auxiliary loss</code>进行加权，最后的softmax loss起主导作用，而<code>auxiliary loss</code>用于改善训练过程。</li>
+<li>在这里需要注意的是，因为<code>aux layer</code>与最后的<code>output layer</code>的feature map size是相同的，因此aux layer在训练过程中的<code>gt label</code>与<code>output layer</code>的<code>gt label</code>是相同的，它们经过softmax之后进行BP。具体可以参见<code>gluoncv</code>中<code>PSPNet</code>的具体实现方式：<a href="https://github.com/dmlc/gluon-cv/blob/master/gluoncv/model_zoo/pspnet.py" target="_blank" rel="noopener">https://github.com/dmlc/gluon-cv/blob/master/gluoncv/model_zoo/pspnet.py</a></li>
 </ul>
 <h2 id="experiment"><a href="#experiment" class="headerlink" title="experiment"></a>experiment</h2><ul>
 <li>作者主要是针对以下几个方面来进行比较<ul>
@@ -423,6 +424,10 @@
           <span class="post-nav-divider"></span>
 
           <div class="post-nav-prev post-nav-item">
+            
+              <a href="/2018/11/04/2018-11-04-gan-mnist代码解读/" rel="prev" title="gan-mnist代码解读">
+                gan-mnist代码解读 <i class="fa fa-chevron-right"></i>
+              </a>
             
           </div>
         </div>
@@ -501,7 +506,7 @@
               
                 <a href="/archives/">
               
-                  <span class="site-state-item-count">38</span>
+                  <span class="site-state-item-count">39</span>
                   <span class="site-state-item-name">日志</span>
                 </a>
               </div>
@@ -514,7 +519,7 @@
               
               <div class="site-state-item site-state-tags">
                 <a href="/tags/index.html">
-                  <span class="site-state-item-count">19</span>
+                  <span class="site-state-item-count">21</span>
                   <span class="site-state-item-name">标签</span>
                 </a>
               </div>
