@@ -1,0 +1,785 @@
+<!DOCTYPE html>
+
+
+
+  
+
+
+<html class="theme-next muse use-motion" lang="zh-Hans">
+<head><meta name="generator" content="Hexo 3.8.0">
+  <meta charset="UTF-8">
+<meta http-equiv="X-UA-Compatible" content="IE=edge">
+<meta name="viewport" content="width=device-width, initial-scale=1, maximum-scale=1">
+<meta name="theme-color" content="#222">
+
+
+
+
+
+
+
+
+
+<meta http-equiv="Cache-Control" content="no-transform">
+<meta http-equiv="Cache-Control" content="no-siteapp">
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+  
+  
+  <link href="/lib/fancybox/source/jquery.fancybox.css?v=2.1.5" rel="stylesheet" type="text/css">
+
+
+
+
+
+
+
+<link href="/lib/font-awesome/css/font-awesome.min.css?v=4.6.2" rel="stylesheet" type="text/css">
+
+<link href="/css/main.css?v=5.1.4" rel="stylesheet" type="text/css">
+
+
+  <link rel="apple-touch-icon" sizes="180x180" href="/images/apple-touch-icon-next.png?v=5.1.4">
+
+
+  <link rel="icon" type="image/png" sizes="32x32" href="/images/favicon-32x32-next.png?v=5.1.4">
+
+
+  <link rel="icon" type="image/png" sizes="16x16" href="/images/favicon-16x16-next.png?v=5.1.4">
+
+
+  <link rel="mask-icon" href="/images/logo.svg?v=5.1.4" color="#222">
+
+
+
+
+
+  <meta name="keywords" content="论文,GAN,">
+
+
+
+
+
+
+
+
+
+
+<meta name="description" content="abstract 论文基于对抗过程提出了估计生成模型的新框架，主要的做法就是：同时训练2个网络：G网络和D网络，G网络主要是通过学习获取信息分布，使用隐空间的随机变量生成接近于真实的数据，即使得D网络将生成的数据识别为真实的训练数据；而D网络主要是通过学习，尽可能地区分开真实的训练数据与生成的虚假数据。G网络和D网络都是可微的，因此可以使用BP进行学习。  introduction 之前在判别式模">
+<meta name="keywords" content="论文,GAN">
+<meta property="og:type" content="article">
+<meta property="og:title" content="Generative Adversarial Nets论文解读">
+<meta property="og:url" content="git@github.com:littletomatodonkey/littletomatodonkey.github.io.git/2018/11/09/2018-11-09-Generative Adversarial Nets论文解读/index.html">
+<meta property="og:site_name" content="donkey&#39;s blog">
+<meta property="og:description" content="abstract 论文基于对抗过程提出了估计生成模型的新框架，主要的做法就是：同时训练2个网络：G网络和D网络，G网络主要是通过学习获取信息分布，使用隐空间的随机变量生成接近于真实的数据，即使得D网络将生成的数据识别为真实的训练数据；而D网络主要是通过学习，尽可能地区分开真实的训练数据与生成的虚假数据。G网络和D网络都是可微的，因此可以使用BP进行学习。  introduction 之前在判别式模">
+<meta property="og:locale" content="zh-Hans">
+<meta property="og:image" content="/img/post/20181109-GAN训练流程.png">
+<meta property="og:image" content="/img/post/20181109-GAN训练可视化过程.png">
+<meta property="og:image" content="/img/post/20181109-生成模型的比较.png">
+<meta property="og:updated_time" content="2018-11-10T14:25:38.390Z">
+<meta name="twitter:card" content="summary">
+<meta name="twitter:title" content="Generative Adversarial Nets论文解读">
+<meta name="twitter:description" content="abstract 论文基于对抗过程提出了估计生成模型的新框架，主要的做法就是：同时训练2个网络：G网络和D网络，G网络主要是通过学习获取信息分布，使用隐空间的随机变量生成接近于真实的数据，即使得D网络将生成的数据识别为真实的训练数据；而D网络主要是通过学习，尽可能地区分开真实的训练数据与生成的虚假数据。G网络和D网络都是可微的，因此可以使用BP进行学习。  introduction 之前在判别式模">
+<meta name="twitter:image" content="/img/post/20181109-GAN训练流程.png">
+
+
+
+<script type="text/javascript" id="hexo.configurations">
+  var NexT = window.NexT || {};
+  var CONFIG = {
+    root: '/',
+    scheme: 'Muse',
+    version: '5.1.4',
+    sidebar: {"position":"left","display":"post","offset":12,"b2t":false,"scrollpercent":false,"onmobile":false},
+    fancybox: true,
+    tabs: true,
+    motion: {"enable":true,"async":false,"transition":{"post_block":"fadeIn","post_header":"slideDownIn","post_body":"slideDownIn","coll_header":"slideLeftIn","sidebar":"slideUpIn"}},
+    duoshuo: {
+      userId: '0',
+      author: '博主'
+    },
+    algolia: {
+      applicationID: '',
+      apiKey: '',
+      indexName: '',
+      hits: {"per_page":10},
+      labels: {"input_placeholder":"Search for Posts","hits_empty":"We didn't find any results for the search: ${query}","hits_stats":"${hits} results found in ${time} ms"}
+    }
+  };
+</script>
+
+
+
+  <link rel="canonical" href="git@github.com:littletomatodonkey/littletomatodonkey.github.io.git/2018/11/09/2018-11-09-Generative Adversarial Nets论文解读/">
+
+
+
+
+
+  <title>Generative Adversarial Nets论文解读 | donkey's blog</title>
+  
+
+
+
+
+
+
+
+
+</head>
+
+<body itemscope="" itemtype="http://schema.org/WebPage" lang="zh-Hans">
+
+  
+  
+    
+  
+
+  <div class="container sidebar-position-left page-post-detail">
+    <div class="headband"></div>
+
+    <header id="header" class="header" itemscope="" itemtype="http://schema.org/WPHeader">
+      <div class="header-inner"><div class="site-brand-wrapper">
+  <div class="site-meta ">
+    
+
+    <div class="custom-logo-site-title">
+      <a href="/" class="brand" rel="start">
+        <span class="logo-line-before"><i></i></span>
+        <span class="site-title">donkey's blog</span>
+        <span class="logo-line-after"><i></i></span>
+      </a>
+    </div>
+      
+        <p class="site-subtitle">to be BIG</p>
+      
+  </div>
+
+  <div class="site-nav-toggle">
+    <button>
+      <span class="btn-bar"></span>
+      <span class="btn-bar"></span>
+      <span class="btn-bar"></span>
+    </button>
+  </div>
+</div>
+
+<nav class="site-nav">
+  
+
+  
+    <ul id="menu" class="menu">
+      
+        
+        <li class="menu-item menu-item-home">
+          <a href="/" rel="section">
+            
+              <i class="menu-item-icon fa fa-fw fa-home"></i> <br>
+            
+            首页
+          </a>
+        </li>
+      
+        
+        <li class="menu-item menu-item-about">
+          <a href="/about/" rel="section">
+            
+              <i class="menu-item-icon fa fa-fw fa-user"></i> <br>
+            
+            关于
+          </a>
+        </li>
+      
+        
+        <li class="menu-item menu-item-tags">
+          <a href="/tags/" rel="section">
+            
+              <i class="menu-item-icon fa fa-fw fa-tags"></i> <br>
+            
+            标签
+          </a>
+        </li>
+      
+        
+        <li class="menu-item menu-item-archives">
+          <a href="/archives/" rel="section">
+            
+              <i class="menu-item-icon fa fa-fw fa-archive"></i> <br>
+            
+            归档
+          </a>
+        </li>
+      
+
+      
+    </ul>
+  
+
+  
+</nav>
+
+
+
+ </div>
+    </header>
+
+    <main id="main" class="main">
+      <div class="main-inner">
+        <div class="content-wrap">
+          <div id="content" class="content">
+            
+
+  <div id="posts" class="posts-expand">
+    
+
+  
+
+  
+  
+  
+
+  <article class="post post-type-normal" itemscope="" itemtype="http://schema.org/Article">
+  
+  
+  
+  <div class="post-block">
+    <link itemprop="mainEntityOfPage" href="git@github.com:littletomatodonkey/littletomatodonkey.github.io.git/2018/11/09/2018-11-09-Generative Adversarial Nets论文解读/">
+
+    <span hidden itemprop="author" itemscope="" itemtype="http://schema.org/Person">
+      <meta itemprop="name" content="donkey">
+      <meta itemprop="description" content="">
+      <meta itemprop="image" content="/avatar/home-self.jpg">
+    </span>
+
+    <span hidden itemprop="publisher" itemscope="" itemtype="http://schema.org/Organization">
+      <meta itemprop="name" content="donkey's blog">
+    </span>
+
+    
+      <header class="post-header">
+
+        
+        
+          <h1 class="post-title" itemprop="name headline">Generative Adversarial Nets论文解读</h1>
+        
+
+        <div class="post-meta">
+          <span class="post-time">
+            
+              <span class="post-meta-item-icon">
+                <i class="fa fa-calendar-o"></i>
+              </span>
+              
+                <span class="post-meta-item-text">发表于</span>
+              
+              <time title="创建于" itemprop="dateCreated datePublished" datetime="2018-11-09T10:00:00+08:00">
+                2018-11-09
+              </time>
+            
+
+            
+
+            
+          </span>
+
+          
+
+          
+            
+          
+
+          
+          
+
+          
+
+          
+
+          
+
+        </div>
+      </header>
+    
+
+    
+    
+    
+    <div class="post-body" itemprop="articleBody">
+
+      
+      
+
+      
+        <h2 id="abstract"><a href="#abstract" class="headerlink" title="abstract"></a>abstract</h2><ul>
+<li>论文基于对抗过程提出了估计生成模型的新框架，主要的做法就是：同时训练2个网络：<code>G网络</code>和<code>D网络</code>，<code>G网络</code>主要是通过学习获取信息分布，使用隐空间的随机变量生成接近于真实的数据，即使得<code>D网络</code>将生成的数据识别为真实的训练数据；而<code>D网络</code>主要是通过学习，尽可能地区分开真实的训练数据与生成的虚假数据。<code>G网络</code>和<code>D网络</code>都是可微的，因此可以使用BP进行学习。</li>
+</ul>
+<h2 id="introduction"><a href="#introduction" class="headerlink" title="introduction"></a>introduction</h2><ul>
+<li>之前在判别式模型方面已经有很多的研究，比如说分类等任务，但是生成模型由于其最大似然估计和相关策略设置都很复杂，因此目前研究较少，本文则是提出了一种新的生成模型，避免了之前的这些问题。</li>
+<li>提出的对抗网络中，D网络是通过学习，判断一个样本是由<code>模型分布（fake）</code>还是有<code>数据分布（real）</code>生成的。G网络则是生成fake samples，使得D网络尽可能混淆真实与虚假数据。</li>
+<li>论文提出的对抗网络不需要使用markov链，只需要使用BP即可，再结合dropout等tricks。</li>
+</ul>
+<h2 id="related-work"><a href="#related-work" class="headerlink" title="related work"></a>related work</h2><ul>
+<li>在之前，大部分在<code>deep generative model</code>上的工作都是希望能够得到一个参数化的概率分布，可以通过最大似然估计进行学习，比较成功的模型有<code>deep Boltzmann machine</code>等。</li>
+<li>之前比较类似的工作是VAE，即使用encoder将训练数据映射到高斯分布中，再使用decoder将其变换到原始的训练数据，从而实现对数据的参数化分布表示。</li>
+</ul>
+<h2 id="adversarial-nets"><a href="#adversarial-nets" class="headerlink" title="adversarial nets"></a>adversarial nets</h2><ul>
+<li>这里对GAN进行一个数学的表示，以MLP举例。定义噪声变量$p_z(z)$，表示generator的分布，可以通过映射关系，将噪声映射到对应的<code>data space</code>，这个映射可以表示为$G(z,\theta _g)$，MLP的参数为$\theta _g$，$G$是可微的（可学习的）。同时定义$D(x,\theta _d)$，输出一个值，$D(x)$表示x来自真实数据而非$p_g$的概率。因此主要的工作就是训练$D$，尽可能使得训练样本和G生成的样品都被赋予正确的label。最终的优化目标是：</li>
+</ul>
+<p>$$\mathop {\min }\limits_G {\kern 3pt} \mathop {\max }\limits_D {\kern 3pt} V(D,G) = {\;{\rm E}<em>{x \sim {p</em>{data}}(x)}\;}[logD(x)] + {\;{\rm E}_{z \sim {p_x}(z)}\;}[log(1 - D(G(z)))]$$</p>
+<p>属于一个最小最大化的问题，在训练的时候无法先训练好D，再去训练G，因此论文中每训练k steps的D网络，再训练1 step的G网络。具体的训练过程如下：</p>
+<p><img src="/img/post/20181109-GAN训练流程.png" alt="20181109-GAN训练流程.png"></p>
+<p>在这里需要注意的是，因为需要最大化D，因此我们使用的是梯度上升法。最终$p_{data}(x)=p_g(x)$，$D(x) = \frac{1}{2}$，在训练的过程中，G和data的分布变化如下</p>
+<p><img src="/img/post/20181109-GAN训练可视化过程.png" alt="20181109-GAN训练可视化过程.png"></p>
+<h3 id="Global-Optimality-of-p-g-p-data"><a href="#Global-Optimality-of-p-g-p-data" class="headerlink" title="Global Optimality of $p_g = p_{data}$"></a>Global Optimality of $p_g = p_{data}$</h3><ul>
+<li>对于固定的G，D的最优解为<br>$$ D_G^*(x) = \frac {p_{data}(x)} {p_g(x) + p_{data}(x)} $$</li>
+</ul>
+<p>具体的证明可以看论文原文，主要就是类似于求$alog(x)+blog(1-x)$的最优解。</p>
+<h3 id="Convergence-of-Algorithm-1"><a href="#Convergence-of-Algorithm-1" class="headerlink" title="Convergence of Algorithm 1"></a>Convergence of Algorithm 1</h3><ul>
+<li>如果G和D都有足够的容量，则在每次迭代过程中，D都会到达其最优解，之后在更新G的时候，G都会进行优化，使得$p_g$向$p_{data}$收敛。</li>
+</ul>
+<h2 id="Experiments"><a href="#Experiments" class="headerlink" title="Experiments"></a>Experiments</h2><ul>
+<li>作者在mnist、TFD、cifar-10数据集上进行了实验。对生成的结果基于<code>Parzen window</code>的似然估计进行评估，在mnist上，相对之前的DBN、stacked CAE等方法，效果更好一些。</li>
+</ul>
+<h2 id="Advantages-and-disadvantages"><a href="#Advantages-and-disadvantages" class="headerlink" title="Advantages and disadvantages"></a>Advantages and disadvantages</h2><ul>
+<li>disadvantages：没有获得对$p_g(x)$的显性表示，D也必须和G同时训练，共同优化参数，如果只训练其中的一个， 无法获得很好的效果。</li>
+<li>advantages：不再需要markov chains，在训练的时候，直接使用BP即可，并且可以很容易地在模型中嵌入很多其他的函数或者变换。</li>
+</ul>
+<h2 id="conclusion-and-future-work"><a href="#conclusion-and-future-work" class="headerlink" title="conclusion and future work"></a>conclusion and future work</h2><h3 id="future-work"><a href="#future-work" class="headerlink" title="future work"></a>future work</h3><ul>
+<li>CGAN，即根据给定的条件和随机分布，生成特定的数据。</li>
+<li>通过训练一个给定x，预测z的辅助网络，用于样本之间的相似度检测。</li>
+<li>可以训练一个shared model，给定任意子条件和随机分布，生成该条件对应的样本。</li>
+<li>半监督学习：当训练数据有限时，可以使用discriminator的特征或者G网络来提升分类器的性能，。</li>
+<li>在训练的过程中，如果可以确定一个更好的z的分布，则训练速度和模型性能都会大大提升。</li>
+</ul>
+<h3 id="conclusion"><a href="#conclusion" class="headerlink" title="conclusion"></a>conclusion</h3><ul>
+<li>一张图总结一下生成模型以及本文的对抗模型，证明了GAN的光明前景。</li>
+</ul>
+<p><img src="/img/post/20181109-生成模型的比较.png" alt="20181109-生成模型的比较.png"></p>
+
+      
+    </div>
+    
+    
+    
+
+    
+
+    
+
+    
+
+    <footer class="post-footer">
+      
+        <div class="post-tags">
+          
+            <a href="/tags/论文/" rel="tag"># 论文</a>
+          
+            <a href="/tags/GAN/" rel="tag"># GAN</a>
+          
+        </div>
+      
+
+      
+      
+      
+
+      
+        <div class="post-nav">
+          <div class="post-nav-next post-nav-item">
+            
+              <a href="/2018/11/04/2018-11-04-gan-mnist代码解读/" rel="next" title="gan-mnist代码解读">
+                <i class="fa fa-chevron-left"></i> gan-mnist代码解读
+              </a>
+            
+          </div>
+
+          <span class="post-nav-divider"></span>
+
+          <div class="post-nav-prev post-nav-item">
+            
+              <a href="/2018/11/10/2018-11-10-Conditional Generative Adversarial Nets论文解读/" rel="prev" title="Conditional Generative Adversarial Nets论文解读">
+                Conditional Generative Adversarial Nets论文解读 <i class="fa fa-chevron-right"></i>
+              </a>
+            
+          </div>
+        </div>
+      
+
+      
+      
+    </footer>
+  </div>
+  
+  
+  
+  </article>
+
+
+
+    <div class="post-spread">
+      
+    </div>
+  </div>
+
+
+          </div>
+          
+
+
+          
+
+  
+
+
+
+        </div>
+        
+          
+  
+  <div class="sidebar-toggle">
+    <div class="sidebar-toggle-line-wrap">
+      <span class="sidebar-toggle-line sidebar-toggle-line-first"></span>
+      <span class="sidebar-toggle-line sidebar-toggle-line-middle"></span>
+      <span class="sidebar-toggle-line sidebar-toggle-line-last"></span>
+    </div>
+  </div>
+
+  <aside id="sidebar" class="sidebar">
+    
+    <div class="sidebar-inner">
+
+      
+
+      
+        <ul class="sidebar-nav motion-element">
+          <li class="sidebar-nav-toc sidebar-nav-active" data-target="post-toc-wrap">
+            文章目录
+          </li>
+          <li class="sidebar-nav-overview" data-target="site-overview-wrap">
+            站点概览
+          </li>
+        </ul>
+      
+
+      <section class="site-overview-wrap sidebar-panel">
+        <div class="site-overview">
+          <div class="site-author motion-element" itemprop="author" itemscope="" itemtype="http://schema.org/Person">
+            
+              <img class="site-author-image" itemprop="image" src="/avatar/home-self.jpg" alt="donkey">
+            
+              <p class="site-author-name" itemprop="name">donkey</p>
+              <p class="site-description motion-element" itemprop="description">want to be an engineer</p>
+          </div>
+
+          <nav class="site-state motion-element">
+
+            
+              <div class="site-state-item site-state-posts">
+              
+                <a href="/archives/">
+              
+                  <span class="site-state-item-count">41</span>
+                  <span class="site-state-item-name">日志</span>
+                </a>
+              </div>
+            
+
+            
+
+            
+              
+              
+              <div class="site-state-item site-state-tags">
+                <a href="/tags/index.html">
+                  <span class="site-state-item-count">21</span>
+                  <span class="site-state-item-name">标签</span>
+                </a>
+              </div>
+            
+
+          </nav>
+
+          
+
+          
+            <div class="links-of-author motion-element">
+                
+                  <span class="links-of-author-item">
+                    <a href="https://github.com/littletomatodonkey" target="_blank" title="GitHub">
+                      
+                        <i class="fa fa-fw fa-github"></i>GitHub</a>
+                  </span>
+                
+                  <span class="links-of-author-item">
+                    <a href="https://blog.csdn.net/u012526003" target="_blank" title="CSDN">
+                      
+                        <i class="fa fa-fw fa-crosshairs"></i>CSDN</a>
+                  </span>
+                
+            </div>
+          
+
+          
+          
+
+          
+          
+
+          
+
+        </div>
+      </section>
+
+      
+      <!--noindex-->
+        <section class="post-toc-wrap motion-element sidebar-panel sidebar-panel-active">
+          <div class="post-toc">
+
+            
+              
+            
+
+            
+              <div class="post-toc-content"><ol class="nav"><li class="nav-item nav-level-2"><a class="nav-link" href="#abstract"><span class="nav-number">1.</span> <span class="nav-text">abstract</span></a></li><li class="nav-item nav-level-2"><a class="nav-link" href="#introduction"><span class="nav-number">2.</span> <span class="nav-text">introduction</span></a></li><li class="nav-item nav-level-2"><a class="nav-link" href="#related-work"><span class="nav-number">3.</span> <span class="nav-text">related work</span></a></li><li class="nav-item nav-level-2"><a class="nav-link" href="#adversarial-nets"><span class="nav-number">4.</span> <span class="nav-text">adversarial nets</span></a><ol class="nav-child"><li class="nav-item nav-level-3"><a class="nav-link" href="#Global-Optimality-of-p-g-p-data"><span class="nav-number">4.1.</span> <span class="nav-text">Global Optimality of $p_g = p_{data}$</span></a></li><li class="nav-item nav-level-3"><a class="nav-link" href="#Convergence-of-Algorithm-1"><span class="nav-number">4.2.</span> <span class="nav-text">Convergence of Algorithm 1</span></a></li></ol></li><li class="nav-item nav-level-2"><a class="nav-link" href="#Experiments"><span class="nav-number">5.</span> <span class="nav-text">Experiments</span></a></li><li class="nav-item nav-level-2"><a class="nav-link" href="#Advantages-and-disadvantages"><span class="nav-number">6.</span> <span class="nav-text">Advantages and disadvantages</span></a></li><li class="nav-item nav-level-2"><a class="nav-link" href="#conclusion-and-future-work"><span class="nav-number">7.</span> <span class="nav-text">conclusion and future work</span></a><ol class="nav-child"><li class="nav-item nav-level-3"><a class="nav-link" href="#future-work"><span class="nav-number">7.1.</span> <span class="nav-text">future work</span></a></li><li class="nav-item nav-level-3"><a class="nav-link" href="#conclusion"><span class="nav-number">7.2.</span> <span class="nav-text">conclusion</span></a></li></ol></li></ol></div>
+            
+
+          </div>
+        </section>
+      <!--/noindex-->
+      
+
+      
+
+    </div>
+  </aside>
+
+
+        
+      </div>
+    </main>
+
+    <footer id="footer" class="footer">
+      <div class="footer-inner">
+        <div class="copyright">&copy; <span itemprop="copyrightYear">2018</span>
+  <span class="with-love">
+    <i class="fa fa-user"></i>
+  </span>
+  <span class="author" itemprop="copyrightHolder">donkey</span>
+
+  
+</div>
+
+
+  <div class="powered-by">由 <a class="theme-link" target="_blank" href="https://hexo.io">Hexo</a> 强力驱动</div>
+
+
+
+  <span class="post-meta-divider">|</span>
+
+
+
+  <div class="theme-info">主题 &mdash; <a class="theme-link" target="_blank" href="https://github.com/iissnan/hexo-theme-next">NexT.Muse</a> v5.1.4</div>
+
+
+
+
+        
+
+
+
+
+
+
+
+        
+      </div>
+    </footer>
+
+    
+      <div class="back-to-top">
+        <i class="fa fa-arrow-up"></i>
+        
+      </div>
+    
+
+    
+
+  </div>
+
+  
+
+<script type="text/javascript">
+  if (Object.prototype.toString.call(window.Promise) !== '[object Function]') {
+    window.Promise = null;
+  }
+</script>
+
+
+
+
+
+
+
+
+
+  
+
+
+
+
+
+
+
+
+
+
+
+
+  
+  
+    <script type="text/javascript" src="/lib/jquery/index.js?v=2.1.3"></script>
+  
+
+  
+  
+    <script type="text/javascript" src="/lib/fastclick/lib/fastclick.min.js?v=1.0.6"></script>
+  
+
+  
+  
+    <script type="text/javascript" src="/lib/jquery_lazyload/jquery.lazyload.js?v=1.9.7"></script>
+  
+
+  
+  
+    <script type="text/javascript" src="/lib/velocity/velocity.min.js?v=1.2.1"></script>
+  
+
+  
+  
+    <script type="text/javascript" src="/lib/velocity/velocity.ui.min.js?v=1.2.1"></script>
+  
+
+  
+  
+    <script type="text/javascript" src="/lib/fancybox/source/jquery.fancybox.pack.js?v=2.1.5"></script>
+  
+
+
+  
+
+
+  <script type="text/javascript" src="/js/src/utils.js?v=5.1.4"></script>
+
+  <script type="text/javascript" src="/js/src/motion.js?v=5.1.4"></script>
+
+
+
+  
+  
+
+  
+  <script type="text/javascript" src="/js/src/scrollspy.js?v=5.1.4"></script>
+<script type="text/javascript" src="/js/src/post-details.js?v=5.1.4"></script>
+
+
+
+  
+
+
+  <script type="text/javascript" src="/js/src/bootstrap.js?v=5.1.4"></script>
+
+
+
+  
+
+
+  
+
+
+
+
+	
+
+
+
+
+
+  
+
+
+
+
+
+  
+
+
+
+
+
+
+
+
+
+
+
+
+  
+
+
+
+
+
+  
+
+  
+
+  
+
+  
+  
+
+  
+  
+    <script type="text/x-mathjax-config">
+      MathJax.Hub.Config({
+        tex2jax: {
+          inlineMath: [ ['$','$'], ["\\(","\\)"]  ],
+          processEscapes: true,
+          skipTags: ['script', 'noscript', 'style', 'textarea', 'pre', 'code']
+        }
+      });
+    </script>
+
+    <script type="text/x-mathjax-config">
+      MathJax.Hub.Queue(function() {
+        var all = MathJax.Hub.getAllJax(), i;
+        for (i=0; i < all.length; i += 1) {
+          all[i].SourceElement().parentNode.className += ' has-jax';
+        }
+      });
+    </script>
+    <script type="text/javascript" src="//cdn.bootcss.com/mathjax/2.7.1/latest.js?config=TeX-AMS-MML_HTMLorMML"></script>
+  
+
+
+  
+
+  
+
+</body>
+</html>
