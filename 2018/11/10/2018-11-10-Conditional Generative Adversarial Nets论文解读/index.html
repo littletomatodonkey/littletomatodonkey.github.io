@@ -89,7 +89,7 @@
 <meta property="og:locale" content="zh-Hans">
 <meta property="og:image" content="/img/post/20181109-CGAN-流程图.png">
 <meta property="og:image" content="/img/post/20181109-CGAN-mnist.png">
-<meta property="og:updated_time" content="2018-11-10T14:26:37.429Z">
+<meta property="og:updated_time" content="2018-11-10T14:43:42.008Z">
 <meta name="twitter:card" content="summary">
 <meta name="twitter:title" content="Conditional Generative Adversarial Nets论文解读">
 <meta name="twitter:description" content="abstract 本文在之前GAN论文中的future work中其中已经提到了，主要是给定条件y，结合随机分布，可以生成符合条件y的样本。 论文中基于CGAN，基于mnist，提出了一个可以基于给定label生成特定数字的模型；同时CGAN可以用于multi-model model的学习，论文中给出了一个示例，模型可以给出训练标签中没有出现过的标签。  introduction 在之前的unco">
@@ -348,7 +348,7 @@
 </ul>
 <p><img src="/img/post/20181109-CGAN-流程图.png" alt="20181109-CGAN-流程图.png"></p>
 <p>与之前GAN的目标函数稍有不同，CGAN的目标函数如下，主要就是引入了条件y。</p>
-<p>$$\mathop {\min }\limits_G {\kern 3pt} \mathop {\max }\limits_D {\kern 3pt} V(D,G) = {\;{\rm E}<em>{x \sim {p</em>{data}\;}(x)}\;}[logD(x|y)] + {\;{\rm E}_{z \sim {p_x}(z)}\;}[log(1 - D(G(z|y)))]$$</p>
+<p>$$\mathop {\min }\limits_G {\kern 3pt} \mathop {\max }\limits_D {\kern 3pt} V(D,G) = E_{x \sim p_{data}(x) }[logD(x|y)] + {E_{z \sim {p_x}(z)}\;}[log(1 - D(G(z|y)))]$$</p>
 <h2 id="Experimental-Results"><a href="#Experimental-Results" class="headerlink" title="Experimental Results"></a>Experimental Results</h2><h3 id="Unimodal"><a href="#Unimodal" class="headerlink" title="Unimodal"></a>Unimodal</h3><ul>
 <li>将class label作为条件，结合单峰函数作为输入，在mnist中，class label是one-hot向量，单峰函数是1X100正态分布向量。关于hidden layer等具体信息可以看论文，最后得到的结果如下</li>
 </ul>
@@ -401,6 +401,10 @@
           <span class="post-nav-divider"></span>
 
           <div class="post-nav-prev post-nav-item">
+            
+              <a href="/2018/11/22/2018-11-22-视觉算法岗秋招总结/" rel="prev" title="视觉算法岗秋招总结">
+                视觉算法岗秋招总结 <i class="fa fa-chevron-right"></i>
+              </a>
             
           </div>
         </div>
@@ -479,7 +483,7 @@
               
                 <a href="/archives/">
               
-                  <span class="site-state-item-count">41</span>
+                  <span class="site-state-item-count">42</span>
                   <span class="site-state-item-name">日志</span>
                 </a>
               </div>
@@ -492,7 +496,7 @@
               
               <div class="site-state-item site-state-tags">
                 <a href="/tags/index.html">
-                  <span class="site-state-item-count">21</span>
+                  <span class="site-state-item-count">22</span>
                   <span class="site-state-item-name">标签</span>
                 </a>
               </div>

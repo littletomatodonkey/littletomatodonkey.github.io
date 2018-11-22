@@ -90,7 +90,7 @@
 <meta property="og:image" content="/img/post/20181109-GAN训练流程.png">
 <meta property="og:image" content="/img/post/20181109-GAN训练可视化过程.png">
 <meta property="og:image" content="/img/post/20181109-生成模型的比较.png">
-<meta property="og:updated_time" content="2018-11-10T14:25:38.390Z">
+<meta property="og:updated_time" content="2018-11-10T14:41:51.183Z">
 <meta name="twitter:card" content="summary">
 <meta name="twitter:title" content="Generative Adversarial Nets论文解读">
 <meta name="twitter:description" content="abstract 论文基于对抗过程提出了估计生成模型的新框架，主要的做法就是：同时训练2个网络：G网络和D网络，G网络主要是通过学习获取信息分布，使用隐空间的随机变量生成接近于真实的数据，即使得D网络将生成的数据识别为真实的训练数据；而D网络主要是通过学习，尽可能地区分开真实的训练数据与生成的虚假数据。G网络和D网络都是可微的，因此可以使用BP进行学习。  introduction 之前在判别式模">
@@ -339,7 +339,7 @@
 <h2 id="adversarial-nets"><a href="#adversarial-nets" class="headerlink" title="adversarial nets"></a>adversarial nets</h2><ul>
 <li>这里对GAN进行一个数学的表示，以MLP举例。定义噪声变量$p_z(z)$，表示generator的分布，可以通过映射关系，将噪声映射到对应的<code>data space</code>，这个映射可以表示为$G(z,\theta _g)$，MLP的参数为$\theta _g$，$G$是可微的（可学习的）。同时定义$D(x,\theta _d)$，输出一个值，$D(x)$表示x来自真实数据而非$p_g$的概率。因此主要的工作就是训练$D$，尽可能使得训练样本和G生成的样品都被赋予正确的label。最终的优化目标是：</li>
 </ul>
-<p>$$\mathop {\min }\limits_G {\kern 3pt} \mathop {\max }\limits_D {\kern 3pt} V(D,G) = {\;{\rm E}<em>{x \sim {p</em>{data}}(x)}\;}[logD(x)] + {\;{\rm E}_{z \sim {p_x}(z)}\;}[log(1 - D(G(z)))]$$</p>
+<p>$$\mathop {\min }\limits_G {\kern 3pt} \mathop {\max }\limits_D {\kern 3pt} V(D,G) = E_{x \sim p_{data}(x) }[logD(x)] + {E_{z \sim {p_x}(z)}\;}[log(1 - D(G(z)))]$$</p>
 <p>属于一个最小最大化的问题，在训练的时候无法先训练好D，再去训练G，因此论文中每训练k steps的D网络，再训练1 step的G网络。具体的训练过程如下：</p>
 <p><img src="/img/post/20181109-GAN训练流程.png" alt="20181109-GAN训练流程.png"></p>
 <p>在这里需要注意的是，因为需要最大化D，因此我们使用的是梯度上升法。最终$p_{data}(x)=p_g(x)$，$D(x) = \frac{1}{2}$，在训练的过程中，G和data的分布变化如下</p>
@@ -492,7 +492,7 @@
               
                 <a href="/archives/">
               
-                  <span class="site-state-item-count">41</span>
+                  <span class="site-state-item-count">42</span>
                   <span class="site-state-item-name">日志</span>
                 </a>
               </div>
@@ -505,7 +505,7 @@
               
               <div class="site-state-item site-state-tags">
                 <a href="/tags/index.html">
-                  <span class="site-state-item-count">21</span>
+                  <span class="site-state-item-count">22</span>
                   <span class="site-state-item-name">标签</span>
                 </a>
               </div>

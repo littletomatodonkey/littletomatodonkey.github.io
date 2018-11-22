@@ -1,0 +1,895 @@
+<!DOCTYPE html>
+
+
+
+  
+
+
+<html class="theme-next muse use-motion" lang="zh-Hans">
+<head><meta name="generator" content="Hexo 3.8.0">
+  <meta charset="UTF-8">
+<meta http-equiv="X-UA-Compatible" content="IE=edge">
+<meta name="viewport" content="width=device-width, initial-scale=1, maximum-scale=1">
+<meta name="theme-color" content="#222">
+
+
+
+
+
+
+
+
+
+<meta http-equiv="Cache-Control" content="no-transform">
+<meta http-equiv="Cache-Control" content="no-siteapp">
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+  
+  
+  <link href="/lib/fancybox/source/jquery.fancybox.css?v=2.1.5" rel="stylesheet" type="text/css">
+
+
+
+
+
+
+
+<link href="/lib/font-awesome/css/font-awesome.min.css?v=4.6.2" rel="stylesheet" type="text/css">
+
+<link href="/css/main.css?v=5.1.4" rel="stylesheet" type="text/css">
+
+
+  <link rel="apple-touch-icon" sizes="180x180" href="/images/apple-touch-icon-next.png?v=5.1.4">
+
+
+  <link rel="icon" type="image/png" sizes="32x32" href="/images/favicon-32x32-next.png?v=5.1.4">
+
+
+  <link rel="icon" type="image/png" sizes="16x16" href="/images/favicon-16x16-next.png?v=5.1.4">
+
+
+  <link rel="mask-icon" href="/images/logo.svg?v=5.1.4" color="#222">
+
+
+
+
+
+  <meta name="keywords" content="总结,">
+
+
+
+
+
+
+
+
+
+
+<meta name="description" content="前言 本人最开始对基于自动驾驶的计算机视觉十分感兴趣，因此希望在读研期间做自动驾驶感知算法研究相关的工作，但是无奈事与愿违去做了与之毫不相关的计算机仿真。今年秋招的时候，还是希望做一些计算机视觉相关的工作，因此找的工作大多是计算机视觉算法工程师。 在找实习和秋招的过程中，其实还面了很多其他的公司，但是有的印象不是特别深刻了，这里主要举了自己印象比较深的例子，仅代表个人体验和情况，仅供参考。  个人">
+<meta name="keywords" content="总结">
+<meta property="og:type" content="article">
+<meta property="og:title" content="视觉算法岗秋招总结">
+<meta property="og:url" content="git@github.com:littletomatodonkey/littletomatodonkey.github.io.git/2018/11/22/2018-11-22-视觉算法岗秋招总结/index.html">
+<meta property="og:site_name" content="donkey&#39;s blog">
+<meta property="og:description" content="前言 本人最开始对基于自动驾驶的计算机视觉十分感兴趣，因此希望在读研期间做自动驾驶感知算法研究相关的工作，但是无奈事与愿违去做了与之毫不相关的计算机仿真。今年秋招的时候，还是希望做一些计算机视觉相关的工作，因此找的工作大多是计算机视觉算法工程师。 在找实习和秋招的过程中，其实还面了很多其他的公司，但是有的印象不是特别深刻了，这里主要举了自己印象比较深的例子，仅代表个人体验和情况，仅供参考。  个人">
+<meta property="og:locale" content="zh-Hans">
+<meta property="og:updated_time" content="2018-11-22T16:15:14.800Z">
+<meta name="twitter:card" content="summary">
+<meta name="twitter:title" content="视觉算法岗秋招总结">
+<meta name="twitter:description" content="前言 本人最开始对基于自动驾驶的计算机视觉十分感兴趣，因此希望在读研期间做自动驾驶感知算法研究相关的工作，但是无奈事与愿违去做了与之毫不相关的计算机仿真。今年秋招的时候，还是希望做一些计算机视觉相关的工作，因此找的工作大多是计算机视觉算法工程师。 在找实习和秋招的过程中，其实还面了很多其他的公司，但是有的印象不是特别深刻了，这里主要举了自己印象比较深的例子，仅代表个人体验和情况，仅供参考。  个人">
+
+
+
+<script type="text/javascript" id="hexo.configurations">
+  var NexT = window.NexT || {};
+  var CONFIG = {
+    root: '/',
+    scheme: 'Muse',
+    version: '5.1.4',
+    sidebar: {"position":"left","display":"post","offset":12,"b2t":false,"scrollpercent":false,"onmobile":false},
+    fancybox: true,
+    tabs: true,
+    motion: {"enable":true,"async":false,"transition":{"post_block":"fadeIn","post_header":"slideDownIn","post_body":"slideDownIn","coll_header":"slideLeftIn","sidebar":"slideUpIn"}},
+    duoshuo: {
+      userId: '0',
+      author: '博主'
+    },
+    algolia: {
+      applicationID: '',
+      apiKey: '',
+      indexName: '',
+      hits: {"per_page":10},
+      labels: {"input_placeholder":"Search for Posts","hits_empty":"We didn't find any results for the search: ${query}","hits_stats":"${hits} results found in ${time} ms"}
+    }
+  };
+</script>
+
+
+
+  <link rel="canonical" href="git@github.com:littletomatodonkey/littletomatodonkey.github.io.git/2018/11/22/2018-11-22-视觉算法岗秋招总结/">
+
+
+
+
+
+  <title>视觉算法岗秋招总结 | donkey's blog</title>
+  
+
+
+
+
+
+
+
+
+</head>
+
+<body itemscope="" itemtype="http://schema.org/WebPage" lang="zh-Hans">
+
+  
+  
+    
+  
+
+  <div class="container sidebar-position-left page-post-detail">
+    <div class="headband"></div>
+
+    <header id="header" class="header" itemscope="" itemtype="http://schema.org/WPHeader">
+      <div class="header-inner"><div class="site-brand-wrapper">
+  <div class="site-meta ">
+    
+
+    <div class="custom-logo-site-title">
+      <a href="/" class="brand" rel="start">
+        <span class="logo-line-before"><i></i></span>
+        <span class="site-title">donkey's blog</span>
+        <span class="logo-line-after"><i></i></span>
+      </a>
+    </div>
+      
+        <p class="site-subtitle">to be BIG</p>
+      
+  </div>
+
+  <div class="site-nav-toggle">
+    <button>
+      <span class="btn-bar"></span>
+      <span class="btn-bar"></span>
+      <span class="btn-bar"></span>
+    </button>
+  </div>
+</div>
+
+<nav class="site-nav">
+  
+
+  
+    <ul id="menu" class="menu">
+      
+        
+        <li class="menu-item menu-item-home">
+          <a href="/" rel="section">
+            
+              <i class="menu-item-icon fa fa-fw fa-home"></i> <br>
+            
+            首页
+          </a>
+        </li>
+      
+        
+        <li class="menu-item menu-item-about">
+          <a href="/about/" rel="section">
+            
+              <i class="menu-item-icon fa fa-fw fa-user"></i> <br>
+            
+            关于
+          </a>
+        </li>
+      
+        
+        <li class="menu-item menu-item-tags">
+          <a href="/tags/" rel="section">
+            
+              <i class="menu-item-icon fa fa-fw fa-tags"></i> <br>
+            
+            标签
+          </a>
+        </li>
+      
+        
+        <li class="menu-item menu-item-archives">
+          <a href="/archives/" rel="section">
+            
+              <i class="menu-item-icon fa fa-fw fa-archive"></i> <br>
+            
+            归档
+          </a>
+        </li>
+      
+
+      
+    </ul>
+  
+
+  
+</nav>
+
+
+
+ </div>
+    </header>
+
+    <main id="main" class="main">
+      <div class="main-inner">
+        <div class="content-wrap">
+          <div id="content" class="content">
+            
+
+  <div id="posts" class="posts-expand">
+    
+
+  
+
+  
+  
+  
+
+  <article class="post post-type-normal" itemscope="" itemtype="http://schema.org/Article">
+  
+  
+  
+  <div class="post-block">
+    <link itemprop="mainEntityOfPage" href="git@github.com:littletomatodonkey/littletomatodonkey.github.io.git/2018/11/22/2018-11-22-视觉算法岗秋招总结/">
+
+    <span hidden itemprop="author" itemscope="" itemtype="http://schema.org/Person">
+      <meta itemprop="name" content="donkey">
+      <meta itemprop="description" content="">
+      <meta itemprop="image" content="/avatar/home-self.jpg">
+    </span>
+
+    <span hidden itemprop="publisher" itemscope="" itemtype="http://schema.org/Organization">
+      <meta itemprop="name" content="donkey's blog">
+    </span>
+
+    
+      <header class="post-header">
+
+        
+        
+          <h1 class="post-title" itemprop="name headline">视觉算法岗秋招总结</h1>
+        
+
+        <div class="post-meta">
+          <span class="post-time">
+            
+              <span class="post-meta-item-icon">
+                <i class="fa fa-calendar-o"></i>
+              </span>
+              
+                <span class="post-meta-item-text">发表于</span>
+              
+              <time title="创建于" itemprop="dateCreated datePublished" datetime="2018-11-22T10:00:00+08:00">
+                2018-11-22
+              </time>
+            
+
+            
+
+            
+          </span>
+
+          
+
+          
+            
+          
+
+          
+          
+
+          
+
+          
+
+          
+
+        </div>
+      </header>
+    
+
+    
+    
+    
+    <div class="post-body" itemprop="articleBody">
+
+      
+      
+
+      
+        <h2 id="前言"><a href="#前言" class="headerlink" title="前言"></a>前言</h2><ul>
+<li>本人最开始对基于自动驾驶的计算机视觉十分感兴趣，因此希望在读研期间做自动驾驶感知算法研究相关的工作，但是无奈事与愿违去做了与之毫不相关的计算机仿真。今年秋招的时候，还是希望做一些计算机视觉相关的工作，因此找的工作大多是<code>计算机视觉算法工程师</code>。</li>
+<li>在找实习和秋招的过程中，其实还面了很多其他的公司，但是有的印象不是特别深刻了，这里主要举了自己印象比较深的例子，仅代表个人体验和情况，仅供参考。</li>
+</ul>
+<h2 id="个人的准备与经验"><a href="#个人的准备与经验" class="headerlink" title="个人的准备与经验"></a>个人的准备与经验</h2><ul>
+<li>因为课题不是计算机视觉相关，因此我在3月份的时候就开始刷题和准备找实习了。</li>
+</ul>
+<h3 id="数据结构和算法"><a href="#数据结构和算法" class="headerlink" title="数据结构和算法"></a>数据结构和算法</h3><ul>
+<li>我主要是用C++的，因此强推<code>C++ primer</code>，工具一般的书，主要是全，可以随意查找，当时从头到尾浏览一遍也是必不可少的；此外，<code>Essential C++</code>、<code>Effective C++</code>、<code>More  Effective C++</code>都是很好的书籍，建议尽量都看一看。</li>
+<li>刷题的话，我主要是在LeetCode上刷题，最开始没有定语言，所以用C#、java和C++都刷过，但是后来基本确定了用C++（还是希望自己的想法能和硬件结合并落地），一开始基本上都是不会，就不断地看题解，去理解，后来就慢慢能习惯了（知道了题目的大概套路）。我建议在刷题的过程中，一开始毫无头绪的时候可以看题解，但是同一类型的看了一些之后，就需要自己去尝试解决，但是对于很难的问题，比如说可能半天或者一天都没解决，那可以看看题解（不然太耽误时间了…）。这方面的书籍的话，推荐<code>剑指offer</code>、<code>编程珠玑</code>，都是非常经典的书籍。</li>
+<li>看书的话，建议还是<code>算法导论</code>，看起来内容和公式都很多，但是不管看不看懂，个人认为还是需要有个大概的了解的，之后再刷题的时候遇到对应的算法，再去具体翻对应的章节，一遍看不懂就找博客看，然后再去看书上的描述，多看几遍一般没问题（我动态规划那一块好像看了10来遍…自己太菜了）。</li>
+</ul>
+<h3 id="CV相关"><a href="#CV相关" class="headerlink" title="CV相关"></a>CV相关</h3><ul>
+<li>最开始我找的是机器学习算法工程师，所以<code>西瓜书</code>看了两遍（有些公式也是一直没搞懂），后来发现虽然转到了cv，但是像LR、SVM、RF这些很常用的机器学习算法在视觉中应用的也非常广泛，对于面试也很有帮助，包括李航老师的<code>统计学习方法</code>，因为比较精简，我在面试之前也基本都是翻一翻。</li>
+<li>CV方面的话，特别是CNN相关的，首推还是<code>花书</code>，很全面系统，虽然公式也是很多。</li>
+<li>CV从分类、检测、识别到分割、跟踪、场景理解任务，都有很多经典的论文，建议先看一下经典论文，对一些有源码的，建议跑一下源码，看一下具体的代码结构和实现细节，稍微有一些经验之后，可以尝试去复现一些比较经典的模型结构或者论文，一方面可以让自己增加对论文的理解，另一方面也可以更熟悉编程语言和工具。数据集一开始可能有的比较难下载，可以从<code>mnist</code>或者<code>cifar</code>入手，之后再去跑<code>Pascal VOC</code>或者<code>cityscapes</code>等数据集。当然，如果在自己的项目中可以找到一些结合的点，还是建议自己实践一下，给自己定个小目标，比如说发一篇论文或者专利等，这样一方面可以对整个流程更加熟悉，从问题分析与模型构建，再到数据采集和处理、模型编程实现、调试、优化，到最后的成文，感觉对<code>问题分析能力、代码能力和论文撰写能力</code>都会有很大的提升，同时给自己定个目标也可以不断push自己。</li>
+<li>关于工具和开发流程的话，建议还是选一套自己最熟悉和喜欢的，我个人对于开发的话，平时调试和快速实现时，用python和matlab比较多，到最后需要部署或者上线的话，一般还是会转成C++；对于编程工具的话，<code>jupyter notebook</code>、<code>sublime text</code>、<code>VS</code>这些还是用的比较多的；对于常用库的话，python一些常用的数值分析库、opencv、mxnet、tensorflow这些都是比较常用的；关于编程的平台，个人还是建议在linux下开展。</li>
+<li>关于机器学习和计算机视觉方面的书籍，其实感觉还是多翻翻，可能是自己不是科班的，总觉得缺点什么，秋招准备过程中翻了：<code>机器学习实战</code>、<code>python机器学习</code>、<code>tensorflow实战</code>、<code>视觉机器学习20讲</code>、<code>python计算机视觉编程</code>、<code>caffe深度学习</code>等，最后发现其实大多都很类似。</li>
+</ul>
+<h3 id="项目"><a href="#项目" class="headerlink" title="项目"></a>项目</h3><ul>
+<li>如果课题与工作方向相关，建议定个小目标，比如说完成某个任务，然后发一篇论文或者专利之类的；如果无关的话，建议可以去kaggle或者天池上找一些比赛做一下，但是重点在学习，自己做之后，再和别人的思路和方法做一些对比，丰富自己的项目经验。</li>
+</ul>
+<h2 id="实习面经"><a href="#实习面经" class="headerlink" title="实习面经"></a>实习面经</h2><h3 id="大疆"><a href="#大疆" class="headerlink" title="大疆"></a>大疆</h3><ul>
+<li>这是我最开始投的公司，投的是<code>机器学习算法工程师</code>，但是因为自己当时还没有怎么准备秋招，笔试就挂了，所以之后又补了大量关于深度学习和CV相关的基础知识，发现以前真的是看的太粗浅了，很多细节都忽略了。</li>
+</ul>
+<h3 id="阿里（一面挂）"><a href="#阿里（一面挂）" class="headerlink" title="阿里（一面挂）"></a>阿里（一面挂）</h3><ul>
+<li>阿里是当时找实习的时候投的，后来面试跪了，在秋招的时候笔试就没过2333。下面主要是实习的时候的面经。</li>
+<li>LR了解吗？说一下它的loss function，使用极大似然估计说明一下loss function。</li>
+<li>说一下自己的天池的项目，用到的随机森林，说一下工作原理，怎么选择分支的节点的，loss function是什么，RF有哪些超参数需要调节，怎么选择RF中的样本特征，超参数怎么调节的，怎么将LSTM/RNN与RF中得到的特征进行结合的</li>
+<li>还有没有其他改进预测效果的思路</li>
+<li>结构化道路提取的过程中，怎么结合多种机器学习方法的？怎么处理图像噪声干扰的？</li>
+<li>体验：感觉很在意细节，主要还是希望面试者对做过的东西非常熟悉吧，当时我也很清楚自己没有达到他们的要求。。。</li>
+</ul>
+<h3 id="腾讯（一面挂）"><a href="#腾讯（一面挂）" class="headerlink" title="腾讯（一面挂）"></a>腾讯（一面挂）</h3><ul>
+<li>做一下自我简介(项目等)</li>
+<li>说一下结构化道路提取的整个过程，怎么将各种机器学习算法结合在一起的</li>
+<li>结构化道路提取时，图像噪声怎么去除的，同时怎么去除去除噪声的？有没有考虑使用边缘信息？</li>
+<li>写一道编程题：把一个二叉树按照中序遍历的方式转化为双链表。</li>
+<li>总结：这也是找实习的时候面试的，感觉项目方面回答的还不错，但是编程题没写出来，直接就挂了，后来秋招笔试也挂了。。</li>
+</ul>
+<h3 id="京东"><a href="#京东" class="headerlink" title="京东"></a>京东</h3><ul>
+<li>这也是找实习的时候面试的，连续面了2个半小时，猝不及防，也是挂了。</li>
+<li>感觉京东当时在C/C++基础方面问的比较多，面试官说项目比较缺人，希望面试通过的话可以立即入职输出。</li>
+</ul>
+<h4 id="一面"><a href="#一面" class="headerlink" title="一面"></a>一面</h4><ul>
+<li>自我介绍</li>
+<li>说一下C/C++中static的用法</li>
+<li>定义一个函数指针的数组</li>
+<li>做几道编程题：链表的顺序变换，贪心算法</li>
+</ul>
+<h4 id="二面"><a href="#二面" class="headerlink" title="二面"></a>二面</h4><ul>
+<li>说一下对机器学习的理解(宏观的理解)</li>
+<li>其实还有半监督学习，DL、RL等，（翻了我的博客）说一下对RL和auto-encoder的理解(我只是记过笔记，没有深入研究。。。)</li>
+<li>说一下你理解的随机森林</li>
+<li>推导一下LR的loss function</li>
+<li>bagging的全称是什么，除了SGD，还有哪些迭代优化的方法？(牛顿法之类的，我又没答上来。。。</li>
+</ul>
+<h4 id="三面"><a href="#三面" class="headerlink" title="三面"></a>三面</h4><ul>
+<li>介绍hashmap，在用户和开发人员之间怎么去定义接口。</li>
+<li>定义并实现链表的基本操作。</li>
+</ul>
+<h3 id="地平线"><a href="#地平线" class="headerlink" title="地平线"></a>地平线</h3><ul>
+<li>这是当时找实习的时候面的，后来给了转正offer，也算是秋招第一个offer吧，感激。</li>
+<li>推导KCF。</li>
+<li>推导SVM与BP，写一下LR的loss function。</li>
+<li>说一下自己对目标检测与跟踪这方面的理解，自己使用过哪些算法等。</li>
+<li>算法题：排序，找到数组中的重复数字。</li>
+</ul>
+<h2 id="秋招面经"><a href="#秋招面经" class="headerlink" title="秋招面经"></a>秋招面经</h2><h3 id="roadstar-ai"><a href="#roadstar-ai" class="headerlink" title="roadstar.ai"></a>roadstar.ai</h3><ul>
+<li>体验：问的问题很有深度，在写代码时，也会非常注重细节。</li>
+</ul>
+<h4 id="一面-1"><a href="#一面-1" class="headerlink" title="一面"></a>一面</h4><ul>
+<li>说一下KCF项目里面主要用的平台，有哪些硬件设备，自己做的这个部分的输入输出是什么，检测用的模型是什么。</li>
+<li>针对跟踪丢失的问题，目前有什么比较好的解决方案</li>
+<li>项目中多目标跟踪过程中主要算法流程和使用的方法，运动估计说一下。</li>
+<li>怎么去解决远场景中的物体的跟踪不准确、噪声较大的问题。</li>
+<li>多目标跟踪使用的算法平台。</li>
+</ul>
+<h4 id="二面-1"><a href="#二面-1" class="headerlink" title="二面"></a>二面</h4><ul>
+<li>说一下语义分割的key factor：我自己说了data augmentation、转置卷积、孔洞卷积、encoder-decoder，面试官说他做过这个，主要有以下几个key factor：data augmentation、batch size要设置得大一些（resize或者crop减少一张图像的大小）、OHEM（我自己用的focal loss，但是他说focal loss效果不明显）。</li>
+<li>说一下KCF</li>
+<li>说一下SVM、KKT条件。</li>
+<li>有什么想要了解的</li>
+</ul>
+<h4 id="三面四面"><a href="#三面四面" class="headerlink" title="三面四面"></a>三面四面</h4><ul>
+<li>这是两轮coding，主要也是dfs+剪枝相关的思路，包括双向链表类的实现、不使用虚函数实现多态等，感觉网上都找不到类似的例子。</li>
+</ul>
+<h3 id="依图科技"><a href="#依图科技" class="headerlink" title="依图科技"></a>依图科技</h3><ul>
+<li>体验：依图科技的面试真的很难。。。但是面试官给人的印象还是很好的。</li>
+</ul>
+<h4 id="一面-2"><a href="#一面-2" class="headerlink" title="一面"></a>一面</h4><ul>
+<li><p>主要是说项目相关的，因为面试官在cv方向做得稍微少一些，所以写了一道编程题，就是生成一个有规律的矩阵，如下图，就不做解释了。</p>
+<p>  1 2 6  7<br>  3 5 8  11<br>  4 9 10 12</p>
+</li>
+<li><p>分析了一个关于数论的题目，题目太长，有点记不太清了，反正最后没写出来。。</p>
+</li>
+<li>项目的话，因为面试官没做过，所以问了指标相关的问题，然而我的项目里面并没有groundtruth。。。。感觉之后这一轮很迷，我好多都没答上来，竟然还过了。。。</li>
+</ul>
+<h4 id="二面-2"><a href="#二面-2" class="headerlink" title="二面"></a>二面</h4><ul>
+<li>项目，主要是多目标跟踪的流程介绍。</li>
+<li>视频分割加速的原因和做法（单帧估计的跳变以及速度较慢）<br>8 写了2道编程题，有一道是找到一个树中的没有直接父子节点关系的一个集合，求满足这样条件的集合的节点和（每个节点都有一个值）的最大值，还有一道忘了。。。</li>
+</ul>
+<h4 id="三面-1"><a href="#三面-1" class="headerlink" title="三面"></a>三面</h4><ul>
+<li>手推一下kcf（还好提前看了一下。。。）</li>
+<li>说一下基于检测的多目标跟踪和kcf的一些异同点</li>
+<li>介绍一下其他的项目</li>
+<li>代码题：先说思路，再开始写，具体的题目给忘了。。。</li>
+<li>介绍一下自己做项目的时候主要用到的框架和开发环境等。</li>
+<li>C++容器和时间复杂度、继承和多态、虚函数。</li>
+<li>说一下自己感兴趣的方向。</li>
+</ul>
+<h3 id="百度"><a href="#百度" class="headerlink" title="百度"></a>百度</h3><h4 id="一面-3"><a href="#一面-3" class="headerlink" title="一面"></a>一面</h4><ul>
+<li>说一下目标检测的基本框架，为什么RPN是有用的，one stage与two stage的区别。</li>
+<li>编程：字符串解析，写了3道题，感觉主要是考察hashmap和C++的使用。</li>
+<li>语义分割常用模型，语义分割应该怎么做才能提升效果。</li>
+</ul>
+<h4 id="二面-3"><a href="#二面-3" class="headerlink" title="二面"></a>二面</h4><ul>
+<li>2道编程题，也是字符串解析，主要还是hashmap+细心即可。</li>
+<li>hashmap在设计和使用的过程中需要注意些什么。</li>
+<li>推导一下？卡尔曼滤波（项目中用到的）和SVM，说一下SVM中对偶问题和KKT条件。</li>
+</ul>
+<h4 id="三面-2"><a href="#三面-2" class="headerlink" title="三面"></a>三面</h4><ul>
+<li>这一面主要是说一下宏观的东西，从自动驾驶的方案到自己做过的一些项目，自己负责的主要部分，都说的比较多，感觉面试官主要还是想知道自己有没有负责过完整的项目。</li>
+</ul>
+<h3 id="美团"><a href="#美团" class="headerlink" title="美团"></a>美团</h3><h4 id="一面-4"><a href="#一面-4" class="headerlink" title="一面"></a>一面</h4><ul>
+<li>说一下语义分割的基本模型，然后写了2道算法题，感觉面试官对语义分割不太了解，可能他更偏向于自动驾驶的定位方向吧，所以没有问太多时间。</li>
+</ul>
+<h4 id="二面-4"><a href="#二面-4" class="headerlink" title="二面"></a>二面</h4><ul>
+<li>推导KCF，说一下匈牙利算法是怎么匹配的，写了1道编程题，数组相关的。</li>
+</ul>
+<h4 id="三面-3"><a href="#三面-3" class="headerlink" title="三面"></a>三面</h4><ul>
+<li>手写连通区域分析算法，写完之后问有没有改进方法，我没有答上来（之前觉得两遍扫描法是最优解来着）。</li>
+<li>说一下多目标跟踪在误匹配、跟丢等异常情况下的处理。</li>
+</ul>
+<h3 id="海康"><a href="#海康" class="headerlink" title="海康"></a>海康</h3><ul>
+<li>海康总共就一轮技术面试，没想到比较幸运，第二天又加面了一轮。</li>
+</ul>
+<h4 id="一面-5"><a href="#一面-5" class="headerlink" title="一面"></a>一面</h4><ul>
+<li>语义分割模型，说一下fcn、segnet、unet、deeplab。</li>
+<li>矩形IOU计算，任意旋转的矩形的IOU计算（这个当时没有想出来）。</li>
+</ul>
+<h4 id="加面"><a href="#加面" class="headerlink" title="加面"></a>加面</h4><ul>
+<li>主要就是偏宏观的东西，自己做过的项目现在重新做，有什么可以改进的地方，自己之前做过的没在简历上写的东西等。</li>
+</ul>
+<h3 id="虹软"><a href="#虹软" class="headerlink" title="虹软"></a>虹软</h3><h4 id="一面-6"><a href="#一面-6" class="headerlink" title="一面"></a>一面</h4><ul>
+<li>各种逻辑题和代码题，代码主要是堆栈之类的使用。</li>
+</ul>
+<h4 id="二面-5"><a href="#二面-5" class="headerlink" title="二面"></a>二面</h4><ul>
+<li>推导SVM。</li>
+<li>说一下RCNN流派物体检测，训练方法以及一些细节。</li>
+<li>deeplab系列都介绍一下。</li>
+<li>多目标跟踪中针对异常情况的解决方案。</li>
+<li>项目中多线程的模块设计方案。</li>
+</ul>
+<h3 id="图森"><a href="#图森" class="headerlink" title="图森"></a>图森</h3><ul>
+<li>这个之前写过一个总结：<a href="https://blog.csdn.net/u012526003/article/details/82888742" target="_blank" rel="noopener">https://blog.csdn.net/u012526003/article/details/82888742</a></li>
+</ul>
+<h2 id="总结"><a href="#总结" class="headerlink" title="总结"></a>总结</h2><ul>
+<li>做过的东西一定要非常清楚，从公式到优缺点，到改进方案等。</li>
+<li>简历很重要，一定要花心思去做，可以找靠谱的师兄师姐帮忙把关。</li>
+<li>千万不能浮躁，很多算法我第一遍没看懂，后来多看几遍好像也都差不多理解了（当然也都是一些比较常用的算法）。</li>
+<li>自己最心仪的公司一定不要贸然去面试，一定要做好充足的准备，可以先拿不太想去的公司练练手（虽然好像有些不厚道）。</li>
+<li>基础知识很重要，基本知识的公式推导和概念一定要知道，常用的模型及其优缺点要了解。</li>
+<li>建议在准备秋招的时候多看看一些新的比较好的论文，对一些前沿性的工作要有一些了解，有些面试官如果对你很感兴趣，会问的比较多，在简历上的东西已经十分熟悉的情况下（保证深度），自己的知识体系也要尽量广一些。</li>
+</ul>
+
+      
+    </div>
+    
+    
+    
+
+    
+
+    
+
+    
+
+    <footer class="post-footer">
+      
+        <div class="post-tags">
+          
+            <a href="/tags/总结/" rel="tag"># 总结</a>
+          
+        </div>
+      
+
+      
+      
+      
+
+      
+        <div class="post-nav">
+          <div class="post-nav-next post-nav-item">
+            
+              <a href="/2018/11/10/2018-11-10-Conditional Generative Adversarial Nets论文解读/" rel="next" title="Conditional Generative Adversarial Nets论文解读">
+                <i class="fa fa-chevron-left"></i> Conditional Generative Adversarial Nets论文解读
+              </a>
+            
+          </div>
+
+          <span class="post-nav-divider"></span>
+
+          <div class="post-nav-prev post-nav-item">
+            
+          </div>
+        </div>
+      
+
+      
+      
+    </footer>
+  </div>
+  
+  
+  
+  </article>
+
+
+
+    <div class="post-spread">
+      
+    </div>
+  </div>
+
+
+          </div>
+          
+
+
+          
+
+  
+
+
+
+        </div>
+        
+          
+  
+  <div class="sidebar-toggle">
+    <div class="sidebar-toggle-line-wrap">
+      <span class="sidebar-toggle-line sidebar-toggle-line-first"></span>
+      <span class="sidebar-toggle-line sidebar-toggle-line-middle"></span>
+      <span class="sidebar-toggle-line sidebar-toggle-line-last"></span>
+    </div>
+  </div>
+
+  <aside id="sidebar" class="sidebar">
+    
+    <div class="sidebar-inner">
+
+      
+
+      
+        <ul class="sidebar-nav motion-element">
+          <li class="sidebar-nav-toc sidebar-nav-active" data-target="post-toc-wrap">
+            文章目录
+          </li>
+          <li class="sidebar-nav-overview" data-target="site-overview-wrap">
+            站点概览
+          </li>
+        </ul>
+      
+
+      <section class="site-overview-wrap sidebar-panel">
+        <div class="site-overview">
+          <div class="site-author motion-element" itemprop="author" itemscope="" itemtype="http://schema.org/Person">
+            
+              <img class="site-author-image" itemprop="image" src="/avatar/home-self.jpg" alt="donkey">
+            
+              <p class="site-author-name" itemprop="name">donkey</p>
+              <p class="site-description motion-element" itemprop="description">want to be an engineer</p>
+          </div>
+
+          <nav class="site-state motion-element">
+
+            
+              <div class="site-state-item site-state-posts">
+              
+                <a href="/archives/">
+              
+                  <span class="site-state-item-count">42</span>
+                  <span class="site-state-item-name">日志</span>
+                </a>
+              </div>
+            
+
+            
+
+            
+              
+              
+              <div class="site-state-item site-state-tags">
+                <a href="/tags/index.html">
+                  <span class="site-state-item-count">22</span>
+                  <span class="site-state-item-name">标签</span>
+                </a>
+              </div>
+            
+
+          </nav>
+
+          
+
+          
+            <div class="links-of-author motion-element">
+                
+                  <span class="links-of-author-item">
+                    <a href="https://github.com/littletomatodonkey" target="_blank" title="GitHub">
+                      
+                        <i class="fa fa-fw fa-github"></i>GitHub</a>
+                  </span>
+                
+                  <span class="links-of-author-item">
+                    <a href="https://blog.csdn.net/u012526003" target="_blank" title="CSDN">
+                      
+                        <i class="fa fa-fw fa-crosshairs"></i>CSDN</a>
+                  </span>
+                
+            </div>
+          
+
+          
+          
+
+          
+          
+
+          
+
+        </div>
+      </section>
+
+      
+      <!--noindex-->
+        <section class="post-toc-wrap motion-element sidebar-panel sidebar-panel-active">
+          <div class="post-toc">
+
+            
+              
+            
+
+            
+              <div class="post-toc-content"><ol class="nav"><li class="nav-item nav-level-2"><a class="nav-link" href="#前言"><span class="nav-number">1.</span> <span class="nav-text">前言</span></a></li><li class="nav-item nav-level-2"><a class="nav-link" href="#个人的准备与经验"><span class="nav-number">2.</span> <span class="nav-text">个人的准备与经验</span></a><ol class="nav-child"><li class="nav-item nav-level-3"><a class="nav-link" href="#数据结构和算法"><span class="nav-number">2.1.</span> <span class="nav-text">数据结构和算法</span></a></li><li class="nav-item nav-level-3"><a class="nav-link" href="#CV相关"><span class="nav-number">2.2.</span> <span class="nav-text">CV相关</span></a></li><li class="nav-item nav-level-3"><a class="nav-link" href="#项目"><span class="nav-number">2.3.</span> <span class="nav-text">项目</span></a></li></ol></li><li class="nav-item nav-level-2"><a class="nav-link" href="#实习面经"><span class="nav-number">3.</span> <span class="nav-text">实习面经</span></a><ol class="nav-child"><li class="nav-item nav-level-3"><a class="nav-link" href="#大疆"><span class="nav-number">3.1.</span> <span class="nav-text">大疆</span></a></li><li class="nav-item nav-level-3"><a class="nav-link" href="#阿里（一面挂）"><span class="nav-number">3.2.</span> <span class="nav-text">阿里（一面挂）</span></a></li><li class="nav-item nav-level-3"><a class="nav-link" href="#腾讯（一面挂）"><span class="nav-number">3.3.</span> <span class="nav-text">腾讯（一面挂）</span></a></li><li class="nav-item nav-level-3"><a class="nav-link" href="#京东"><span class="nav-number">3.4.</span> <span class="nav-text">京东</span></a><ol class="nav-child"><li class="nav-item nav-level-4"><a class="nav-link" href="#一面"><span class="nav-number">3.4.1.</span> <span class="nav-text">一面</span></a></li><li class="nav-item nav-level-4"><a class="nav-link" href="#二面"><span class="nav-number">3.4.2.</span> <span class="nav-text">二面</span></a></li><li class="nav-item nav-level-4"><a class="nav-link" href="#三面"><span class="nav-number">3.4.3.</span> <span class="nav-text">三面</span></a></li></ol></li><li class="nav-item nav-level-3"><a class="nav-link" href="#地平线"><span class="nav-number">3.5.</span> <span class="nav-text">地平线</span></a></li></ol></li><li class="nav-item nav-level-2"><a class="nav-link" href="#秋招面经"><span class="nav-number">4.</span> <span class="nav-text">秋招面经</span></a><ol class="nav-child"><li class="nav-item nav-level-3"><a class="nav-link" href="#roadstar-ai"><span class="nav-number">4.1.</span> <span class="nav-text">roadstar.ai</span></a><ol class="nav-child"><li class="nav-item nav-level-4"><a class="nav-link" href="#一面-1"><span class="nav-number">4.1.1.</span> <span class="nav-text">一面</span></a></li><li class="nav-item nav-level-4"><a class="nav-link" href="#二面-1"><span class="nav-number">4.1.2.</span> <span class="nav-text">二面</span></a></li><li class="nav-item nav-level-4"><a class="nav-link" href="#三面四面"><span class="nav-number">4.1.3.</span> <span class="nav-text">三面四面</span></a></li></ol></li><li class="nav-item nav-level-3"><a class="nav-link" href="#依图科技"><span class="nav-number">4.2.</span> <span class="nav-text">依图科技</span></a><ol class="nav-child"><li class="nav-item nav-level-4"><a class="nav-link" href="#一面-2"><span class="nav-number">4.2.1.</span> <span class="nav-text">一面</span></a></li><li class="nav-item nav-level-4"><a class="nav-link" href="#二面-2"><span class="nav-number">4.2.2.</span> <span class="nav-text">二面</span></a></li><li class="nav-item nav-level-4"><a class="nav-link" href="#三面-1"><span class="nav-number">4.2.3.</span> <span class="nav-text">三面</span></a></li></ol></li><li class="nav-item nav-level-3"><a class="nav-link" href="#百度"><span class="nav-number">4.3.</span> <span class="nav-text">百度</span></a><ol class="nav-child"><li class="nav-item nav-level-4"><a class="nav-link" href="#一面-3"><span class="nav-number">4.3.1.</span> <span class="nav-text">一面</span></a></li><li class="nav-item nav-level-4"><a class="nav-link" href="#二面-3"><span class="nav-number">4.3.2.</span> <span class="nav-text">二面</span></a></li><li class="nav-item nav-level-4"><a class="nav-link" href="#三面-2"><span class="nav-number">4.3.3.</span> <span class="nav-text">三面</span></a></li></ol></li><li class="nav-item nav-level-3"><a class="nav-link" href="#美团"><span class="nav-number">4.4.</span> <span class="nav-text">美团</span></a><ol class="nav-child"><li class="nav-item nav-level-4"><a class="nav-link" href="#一面-4"><span class="nav-number">4.4.1.</span> <span class="nav-text">一面</span></a></li><li class="nav-item nav-level-4"><a class="nav-link" href="#二面-4"><span class="nav-number">4.4.2.</span> <span class="nav-text">二面</span></a></li><li class="nav-item nav-level-4"><a class="nav-link" href="#三面-3"><span class="nav-number">4.4.3.</span> <span class="nav-text">三面</span></a></li></ol></li><li class="nav-item nav-level-3"><a class="nav-link" href="#海康"><span class="nav-number">4.5.</span> <span class="nav-text">海康</span></a><ol class="nav-child"><li class="nav-item nav-level-4"><a class="nav-link" href="#一面-5"><span class="nav-number">4.5.1.</span> <span class="nav-text">一面</span></a></li><li class="nav-item nav-level-4"><a class="nav-link" href="#加面"><span class="nav-number">4.5.2.</span> <span class="nav-text">加面</span></a></li></ol></li><li class="nav-item nav-level-3"><a class="nav-link" href="#虹软"><span class="nav-number">4.6.</span> <span class="nav-text">虹软</span></a><ol class="nav-child"><li class="nav-item nav-level-4"><a class="nav-link" href="#一面-6"><span class="nav-number">4.6.1.</span> <span class="nav-text">一面</span></a></li><li class="nav-item nav-level-4"><a class="nav-link" href="#二面-5"><span class="nav-number">4.6.2.</span> <span class="nav-text">二面</span></a></li></ol></li><li class="nav-item nav-level-3"><a class="nav-link" href="#图森"><span class="nav-number">4.7.</span> <span class="nav-text">图森</span></a></li></ol></li><li class="nav-item nav-level-2"><a class="nav-link" href="#总结"><span class="nav-number">5.</span> <span class="nav-text">总结</span></a></li></ol></div>
+            
+
+          </div>
+        </section>
+      <!--/noindex-->
+      
+
+      
+
+    </div>
+  </aside>
+
+
+        
+      </div>
+    </main>
+
+    <footer id="footer" class="footer">
+      <div class="footer-inner">
+        <div class="copyright">&copy; <span itemprop="copyrightYear">2018</span>
+  <span class="with-love">
+    <i class="fa fa-user"></i>
+  </span>
+  <span class="author" itemprop="copyrightHolder">donkey</span>
+
+  
+</div>
+
+
+  <div class="powered-by">由 <a class="theme-link" target="_blank" href="https://hexo.io">Hexo</a> 强力驱动</div>
+
+
+
+  <span class="post-meta-divider">|</span>
+
+
+
+  <div class="theme-info">主题 &mdash; <a class="theme-link" target="_blank" href="https://github.com/iissnan/hexo-theme-next">NexT.Muse</a> v5.1.4</div>
+
+
+
+
+        
+
+
+
+
+
+
+
+        
+      </div>
+    </footer>
+
+    
+      <div class="back-to-top">
+        <i class="fa fa-arrow-up"></i>
+        
+      </div>
+    
+
+    
+
+  </div>
+
+  
+
+<script type="text/javascript">
+  if (Object.prototype.toString.call(window.Promise) !== '[object Function]') {
+    window.Promise = null;
+  }
+</script>
+
+
+
+
+
+
+
+
+
+  
+
+
+
+
+
+
+
+
+
+
+
+
+  
+  
+    <script type="text/javascript" src="/lib/jquery/index.js?v=2.1.3"></script>
+  
+
+  
+  
+    <script type="text/javascript" src="/lib/fastclick/lib/fastclick.min.js?v=1.0.6"></script>
+  
+
+  
+  
+    <script type="text/javascript" src="/lib/jquery_lazyload/jquery.lazyload.js?v=1.9.7"></script>
+  
+
+  
+  
+    <script type="text/javascript" src="/lib/velocity/velocity.min.js?v=1.2.1"></script>
+  
+
+  
+  
+    <script type="text/javascript" src="/lib/velocity/velocity.ui.min.js?v=1.2.1"></script>
+  
+
+  
+  
+    <script type="text/javascript" src="/lib/fancybox/source/jquery.fancybox.pack.js?v=2.1.5"></script>
+  
+
+
+  
+
+
+  <script type="text/javascript" src="/js/src/utils.js?v=5.1.4"></script>
+
+  <script type="text/javascript" src="/js/src/motion.js?v=5.1.4"></script>
+
+
+
+  
+  
+
+  
+  <script type="text/javascript" src="/js/src/scrollspy.js?v=5.1.4"></script>
+<script type="text/javascript" src="/js/src/post-details.js?v=5.1.4"></script>
+
+
+
+  
+
+
+  <script type="text/javascript" src="/js/src/bootstrap.js?v=5.1.4"></script>
+
+
+
+  
+
+
+  
+
+
+
+
+	
+
+
+
+
+
+  
+
+
+
+
+
+  
+
+
+
+
+
+
+
+
+
+
+
+
+  
+
+
+
+
+
+  
+
+  
+
+  
+
+  
+  
+
+  
+  
+    <script type="text/x-mathjax-config">
+      MathJax.Hub.Config({
+        tex2jax: {
+          inlineMath: [ ['$','$'], ["\\(","\\)"]  ],
+          processEscapes: true,
+          skipTags: ['script', 'noscript', 'style', 'textarea', 'pre', 'code']
+        }
+      });
+    </script>
+
+    <script type="text/x-mathjax-config">
+      MathJax.Hub.Queue(function() {
+        var all = MathJax.Hub.getAllJax(), i;
+        for (i=0; i < all.length; i += 1) {
+          all[i].SourceElement().parentNode.className += ' has-jax';
+        }
+      });
+    </script>
+    <script type="text/javascript" src="//cdn.bootcss.com/mathjax/2.7.1/latest.js?config=TeX-AMS-MML_HTMLorMML"></script>
+  
+
+
+  
+
+  
+
+</body>
+</html>
