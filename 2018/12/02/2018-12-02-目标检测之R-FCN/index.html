@@ -1,0 +1,802 @@
+<!DOCTYPE html>
+
+
+
+  
+
+
+<html class="theme-next muse use-motion" lang="zh-Hans">
+<head><meta name="generator" content="Hexo 3.8.0">
+  <meta charset="UTF-8">
+<meta http-equiv="X-UA-Compatible" content="IE=edge">
+<meta name="viewport" content="width=device-width, initial-scale=1, maximum-scale=1">
+<meta name="theme-color" content="#222">
+
+
+
+
+
+
+
+
+
+<meta http-equiv="Cache-Control" content="no-transform">
+<meta http-equiv="Cache-Control" content="no-siteapp">
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+  
+  
+  <link href="/lib/fancybox/source/jquery.fancybox.css?v=2.1.5" rel="stylesheet" type="text/css">
+
+
+
+
+
+
+
+<link href="/lib/font-awesome/css/font-awesome.min.css?v=4.6.2" rel="stylesheet" type="text/css">
+
+<link href="/css/main.css?v=5.1.4" rel="stylesheet" type="text/css">
+
+
+  <link rel="apple-touch-icon" sizes="180x180" href="/images/apple-touch-icon-next.png?v=5.1.4">
+
+
+  <link rel="icon" type="image/png" sizes="32x32" href="/images/favicon-32x32-next.png?v=5.1.4">
+
+
+  <link rel="icon" type="image/png" sizes="16x16" href="/images/favicon-16x16-next.png?v=5.1.4">
+
+
+  <link rel="mask-icon" href="/images/logo.svg?v=5.1.4" color="#222">
+
+
+
+
+
+  <meta name="keywords" content="论文,detection,">
+
+
+
+
+
+
+
+
+
+
+<meta name="description" content="abstract 论文地址：http://cn.arxiv.org/abs/1605.06409 论文提出了一种高效准确的基于全卷积神经网络的目标检测方案。 之前的fastRCNN，fasterRCNN等网路在每个roi上都会使用一个耗时的subnetwork用于后续的分类和检测，本文的方法在几乎所有计算中都实现了网络参数的共享。论文中提出了position-sensitive score map">
+<meta name="keywords" content="论文,detection">
+<meta property="og:type" content="article">
+<meta property="og:title" content="目标检测之R-FCN">
+<meta property="og:url" content="git@github.com:littletomatodonkey/littletomatodonkey.github.io.git/2018/12/02/2018-12-02-目标检测之R-FCN/index.html">
+<meta property="og:site_name" content="donkey&#39;s blog">
+<meta property="og:description" content="abstract 论文地址：http://cn.arxiv.org/abs/1605.06409 论文提出了一种高效准确的基于全卷积神经网络的目标检测方案。 之前的fastRCNN，fasterRCNN等网路在每个roi上都会使用一个耗时的subnetwork用于后续的分类和检测，本文的方法在几乎所有计算中都实现了网络参数的共享。论文中提出了position-sensitive score map">
+<meta property="og:locale" content="zh-Hans">
+<meta property="og:image" content="/img/post/20181202-RFCN-key-idea.png">
+<meta property="og:image" content="/img/post/20181202-RFCN-architecture.png">
+<meta property="og:image" content="/img/post/20181202-RFCN-vis.png">
+<meta property="og:image" content="/img/post/20181202-RFCN-voc.png">
+<meta property="og:image" content="/img/post/20181202-RFCN-coco.png">
+<meta property="og:updated_time" content="2018-12-02T05:41:55.448Z">
+<meta name="twitter:card" content="summary">
+<meta name="twitter:title" content="目标检测之R-FCN">
+<meta name="twitter:description" content="abstract 论文地址：http://cn.arxiv.org/abs/1605.06409 论文提出了一种高效准确的基于全卷积神经网络的目标检测方案。 之前的fastRCNN，fasterRCNN等网路在每个roi上都会使用一个耗时的subnetwork用于后续的分类和检测，本文的方法在几乎所有计算中都实现了网络参数的共享。论文中提出了position-sensitive score map">
+<meta name="twitter:image" content="/img/post/20181202-RFCN-key-idea.png">
+
+
+
+<script type="text/javascript" id="hexo.configurations">
+  var NexT = window.NexT || {};
+  var CONFIG = {
+    root: '/',
+    scheme: 'Muse',
+    version: '5.1.4',
+    sidebar: {"position":"left","display":"post","offset":12,"b2t":false,"scrollpercent":false,"onmobile":false},
+    fancybox: true,
+    tabs: true,
+    motion: {"enable":true,"async":false,"transition":{"post_block":"fadeIn","post_header":"slideDownIn","post_body":"slideDownIn","coll_header":"slideLeftIn","sidebar":"slideUpIn"}},
+    duoshuo: {
+      userId: '0',
+      author: '博主'
+    },
+    algolia: {
+      applicationID: '',
+      apiKey: '',
+      indexName: '',
+      hits: {"per_page":10},
+      labels: {"input_placeholder":"Search for Posts","hits_empty":"We didn't find any results for the search: ${query}","hits_stats":"${hits} results found in ${time} ms"}
+    }
+  };
+</script>
+
+
+
+  <link rel="canonical" href="git@github.com:littletomatodonkey/littletomatodonkey.github.io.git/2018/12/02/2018-12-02-目标检测之R-FCN/">
+
+
+
+
+
+  <title>目标检测之R-FCN | donkey's blog</title>
+  
+
+
+
+
+
+
+
+
+</head>
+
+<body itemscope="" itemtype="http://schema.org/WebPage" lang="zh-Hans">
+
+  
+  
+    
+  
+
+  <div class="container sidebar-position-left page-post-detail">
+    <div class="headband"></div>
+
+    <header id="header" class="header" itemscope="" itemtype="http://schema.org/WPHeader">
+      <div class="header-inner"><div class="site-brand-wrapper">
+  <div class="site-meta ">
+    
+
+    <div class="custom-logo-site-title">
+      <a href="/" class="brand" rel="start">
+        <span class="logo-line-before"><i></i></span>
+        <span class="site-title">donkey's blog</span>
+        <span class="logo-line-after"><i></i></span>
+      </a>
+    </div>
+      
+        <p class="site-subtitle">to be BIG</p>
+      
+  </div>
+
+  <div class="site-nav-toggle">
+    <button>
+      <span class="btn-bar"></span>
+      <span class="btn-bar"></span>
+      <span class="btn-bar"></span>
+    </button>
+  </div>
+</div>
+
+<nav class="site-nav">
+  
+
+  
+    <ul id="menu" class="menu">
+      
+        
+        <li class="menu-item menu-item-home">
+          <a href="/" rel="section">
+            
+              <i class="menu-item-icon fa fa-fw fa-home"></i> <br>
+            
+            首页
+          </a>
+        </li>
+      
+        
+        <li class="menu-item menu-item-about">
+          <a href="/about/" rel="section">
+            
+              <i class="menu-item-icon fa fa-fw fa-user"></i> <br>
+            
+            关于
+          </a>
+        </li>
+      
+        
+        <li class="menu-item menu-item-tags">
+          <a href="/tags/" rel="section">
+            
+              <i class="menu-item-icon fa fa-fw fa-tags"></i> <br>
+            
+            标签
+          </a>
+        </li>
+      
+        
+        <li class="menu-item menu-item-archives">
+          <a href="/archives/" rel="section">
+            
+              <i class="menu-item-icon fa fa-fw fa-archive"></i> <br>
+            
+            归档
+          </a>
+        </li>
+      
+
+      
+    </ul>
+  
+
+  
+</nav>
+
+
+
+ </div>
+    </header>
+
+    <main id="main" class="main">
+      <div class="main-inner">
+        <div class="content-wrap">
+          <div id="content" class="content">
+            
+
+  <div id="posts" class="posts-expand">
+    
+
+  
+
+  
+  
+  
+
+  <article class="post post-type-normal" itemscope="" itemtype="http://schema.org/Article">
+  
+  
+  
+  <div class="post-block">
+    <link itemprop="mainEntityOfPage" href="git@github.com:littletomatodonkey/littletomatodonkey.github.io.git/2018/12/02/2018-12-02-目标检测之R-FCN/">
+
+    <span hidden itemprop="author" itemscope="" itemtype="http://schema.org/Person">
+      <meta itemprop="name" content="donkey">
+      <meta itemprop="description" content="">
+      <meta itemprop="image" content="/avatar/home-self.jpg">
+    </span>
+
+    <span hidden itemprop="publisher" itemscope="" itemtype="http://schema.org/Organization">
+      <meta itemprop="name" content="donkey's blog">
+    </span>
+
+    
+      <header class="post-header">
+
+        
+        
+          <h1 class="post-title" itemprop="name headline">目标检测之R-FCN</h1>
+        
+
+        <div class="post-meta">
+          <span class="post-time">
+            
+              <span class="post-meta-item-icon">
+                <i class="fa fa-calendar-o"></i>
+              </span>
+              
+                <span class="post-meta-item-text">发表于</span>
+              
+              <time title="创建于" itemprop="dateCreated datePublished" datetime="2018-12-02T10:00:00+08:00">
+                2018-12-02
+              </time>
+            
+
+            
+
+            
+          </span>
+
+          
+
+          
+            
+          
+
+          
+          
+
+          
+
+          
+
+          
+
+        </div>
+      </header>
+    
+
+    
+    
+    
+    <div class="post-body" itemprop="articleBody">
+
+      
+      
+
+      
+        <h2 id="abstract"><a href="#abstract" class="headerlink" title="abstract"></a>abstract</h2><ul>
+<li>论文地址：<a href="http://cn.arxiv.org/abs/1605.06409" target="_blank" rel="noopener">http://cn.arxiv.org/abs/1605.06409</a></li>
+<li>论文提出了一种高效准确的基于全卷积神经网络的目标检测方案。</li>
+<li>之前的fastRCNN，fasterRCNN等网路在每个roi上都会使用一个耗时的subnetwork用于后续的分类和检测，本文的方法在几乎所有计算中都实现了网络参数的共享。论文中提出了<code>position-sensitive score maps</code>，用于解决分类问题中的平移不变性与检测问题中的平移变换性的矛盾。</li>
+<li>论文的方法可以使用目标分类的backbone用于特征提取，测试结果证明论文方法比fasterRCNN快<code>2.5~20</code>倍。</li>
+</ul>
+<h2 id="introduction"><a href="#introduction" class="headerlink" title="introduction"></a>introduction</h2><ul>
+<li>之前基于深度学习的目标检测方案一般都包括2个subnetwork<ul>
+<li>shared fully convolutional subnetwork，用于计算特征，这部分与后续的任务(检测、分类等)是独立的。</li>
+<li>roi-wise subnetwork，对每个roi进行处理，这一部分没有共享计算（即使roi之间有重叠的部分，也会重复计算roi上面对应部分的卷积）。在分类任务中，通常是<code>spatial pooling layer+fc layer</code>；在目标检测任务中，一般被换成了<code>roi pooling+fc layer</code>。</li>
+</ul>
+</li>
+<li>检测模型的性能主要是由<code>分类精度</code>和<code>定位精度</code>来确定的，由于网络层数很多，分类精度一般都很高，但是<code>roi subnetwork</code>后面的fc layer不具有平移变换性，这导致之前检测模型的定位精度较差。为了解决这个问题，resnet中<code>roi pooling layer</code>被强行加到2个cnn layer set之间，从而使得<code>roi subnetwork</code>也有定位精度，这个提升了模型的精度，但是roi之间仍然没有能够实现共享计算，十分耗时。</li>
+<li>作者提出了一个假设：<code>更深层次的网络在分类任务中对平移不敏感</code>，在resnet中，roi subnetwork降低了模型的平移不变性(分类信息被破坏了)，而后面的CNN layer就不再具有平移不变性了(定位精度会高一些)，但是每个roi还是单独计算的，并没有实现信息的共享。</li>
+<li>下图是本文方法的<code>key idea</code>，主要就是引入了<code>positive-sensitive score maps</code>的概念，在得到shared feature map之后，首先进行卷积，得到所有的<code>positive-sensitive score maps</code>，之后针对每个roi进行pooling，得到<code>C+1</code>个channel的$k \times k$的feature map，经过vote之后，对于每个roi都得到$1 \times 1 \times (C+1)$的结果，softmax即可得到每个类别的概率。</li>
+</ul>
+<p><img src="/img/post/20181202-RFCN-key-idea.png" alt="20181202-RFCN key idea.png"></p>
+<h2 id="R-FCN"><a href="#R-FCN" class="headerlink" title="R-FCN"></a>R-FCN</h2><h3 id="overview"><a href="#overview" class="headerlink" title="overview"></a>overview</h3><ul>
+<li>RFCN的architecture如下。</li>
+</ul>
+<p><img src="/img/post/20181202-RFCN-architecture.png" alt="20181202-RFCN architecture.png"></p>
+<ul>
+<li>RFCN最后是一个<code>position-sensitive RoI pooling layer</code>，它会聚集最后一个CNN layer的输出($k \times k\times (C+1)$ channel的那个)，然后得到一个score。使用<code>selective pooling</code>的方法，即对于特定的类别，每个$k \times k$的bin都只对这个$k \times k$个score map中的一个进行pooling（top left的话，就使用top left对应的layer进行pooling）。</li>
+</ul>
+<h3 id="Backbone-architecture"><a href="#Backbone-architecture" class="headerlink" title="Backbone architecture"></a>Backbone architecture</h3><ul>
+<li>作者主要使用了resnet-101作者backbone，其他的网络结构也是可行的。使用resnet在ImageNet上的预训练模型进行初始化，由于最后一层是2014-d的feature map，使用$1X1$的卷积进行降维，至$kXkX(C+1)$个channel（即后面用到的PS score map），参数是随机初始化。</li>
+</ul>
+<h3 id="Position-sensitive-score-maps-amp-Position-sensitive-RoI-pooling"><a href="#Position-sensitive-score-maps-amp-Position-sensitive-RoI-pooling" class="headerlink" title="Position-sensitive score maps &amp; Position-sensitive RoI pooling"></a>Position-sensitive score maps &amp; Position-sensitive RoI pooling</h3><ul>
+<li>对于一个$w \times h$的roi来说，pooling成$k \times k$大小之后，每个bin的size是$(w/k) \times (h/k)$。对于$(i,j)$-th bin，<code>PS roipooling</code>的计算方法如下</li>
+</ul>
+<p>$${r_c}(i,j|\Theta ) = \sum\limits_{(x,y) \in bin(i,j)} {z_{i,j,c}(x + {x_0},y + {y_0}|\Theta )/n}$$</p>
+<p>$(i,j)$-th bin中包含的元素的范围是</p>
+<p>$$\left\lfloor {i\frac w k} \right\rfloor  \le x &lt; \left\lceil {(i + 1)\frac w k} \right\rceil$$ and<br>$$\left\lfloor {i\frac h k} \right\rfloor  \le y &lt; \left\lceil {(i + 1)\frac h k} \right\rceil$$</p>
+<p>即$k \times k$的pooling result上的不同位置都是由之前<code>PS score map</code>上的不同位置进行pooling得到（使用了average pooling，但是max pooling也是可以的）。<strong>这也就是positive-sensitive</strong>的由来。</p>
+<p>之后再对$C+1$个channel的$k \times k$的feature map做vote，在这里直接对feature map取平均，得到$1 \times 1\times (C+1)$的输出，经过softmax之后，即特定roi对应的所属类别的概率。</p>
+<ul>
+<li>此外也需要对RPN得到的roi进行<code>bbox regression</code>，与<code>PS roi pooling</code>类似，首先使用$4k^2$-d的kernel进行卷积(4是因为需要<code>xywh</code>4中信息)，然后再使用<code>average voting</code>得到最终的<code>4d vector</code>，即<code>bbox regression</code>的参数。</li>
+<li>主要的特点就是：所有的CNN都是在<code>PS score map</code>之前，之后再roi subnetwork中没有任何需要学习的参数。<h3 id="training"><a href="#training" class="headerlink" title="training"></a>training</h3></li>
+<li>使用pretrained RPN，端到端的训练RFCN，主要是基于classification error+bbox regression error。</li>
+<li>在训练的时候，也可以直接使用OHEM，因为共享的roi计算对于困难样本挖掘来说几乎不耗费时间。</li>
+<li>因为共享了roi部分的计算，因此<code>proposal</code>的个数对网络的计算耗时并不是太影响（fasterRCNN中，每个roi之后还加了一个fc layer，proposal个数对计算耗时影响很大）。</li>
+</ul>
+<h3 id="visualization"><a href="#visualization" class="headerlink" title="visualization"></a>visualization</h3><ul>
+<li>RFCN在inference的过程中，可视化如下</li>
+</ul>
+<p><img src="/img/post/20181202-RFCN-vis.png" alt="20181202-RFCN vis.png"></p>
+<p>如果proposal与gt相差太多的话，voting之后是不会被识别为前景的特定物体的。</p>
+<h2 id="experiments"><a href="#experiments" class="headerlink" title="experiments"></a>experiments</h2><ul>
+<li>与fasterRCNN在Pascal VOC上的对比结果如下</li>
+</ul>
+<p><img src="/img/post/20181202-RFCN-voc.png" alt="20181202-RFCN-experiment.png"></p>
+<p>可以看出，在训练时间，测试时间以及精度方面，RFCN都是更加优秀的；当然在精度方面比<code>Faster R-CNN +++</code>(使用iterative bbox regression、context与multi scale testing)要稍微差一些。</p>
+<ul>
+<li>在coco上的检测结果如下</li>
+</ul>
+<p><img src="/img/post/20181202-RFCN-coco.png" alt="20181202-RFCN-experiment.png"></p>
+<h2 id="Conclusion-and-Future-Work"><a href="#Conclusion-and-Future-Work" class="headerlink" title="Conclusion and Future Work"></a>Conclusion and Future Work</h2><ul>
+<li>主要就是提出了RFCN这种新的目标检测框架。</li>
+<li>本文的模型还保持着相对简单的模型结构，目前语义分割和目标检测方面有很多新的网络模块出现，之后可以将这些相结合，进一步改善模型性能。</li>
+</ul>
+
+      
+    </div>
+    
+    
+    
+
+    
+
+    
+
+    
+
+    <footer class="post-footer">
+      
+        <div class="post-tags">
+          
+            <a href="/tags/论文/" rel="tag"># 论文</a>
+          
+            <a href="/tags/detection/" rel="tag"># detection</a>
+          
+        </div>
+      
+
+      
+      
+      
+
+      
+        <div class="post-nav">
+          <div class="post-nav-next post-nav-item">
+            
+              <a href="/2018/11/22/2018-11-22-视觉算法岗秋招总结/" rel="next" title="视觉算法岗秋招总结">
+                <i class="fa fa-chevron-left"></i> 视觉算法岗秋招总结
+              </a>
+            
+          </div>
+
+          <span class="post-nav-divider"></span>
+
+          <div class="post-nav-prev post-nav-item">
+            
+              <a href="/2018/12/02/2018-12-02-Deformable ConvNets/" rel="prev" title="Deformable ConvNets">
+                Deformable ConvNets <i class="fa fa-chevron-right"></i>
+              </a>
+            
+          </div>
+        </div>
+      
+
+      
+      
+    </footer>
+  </div>
+  
+  
+  
+  </article>
+
+
+
+    <div class="post-spread">
+      
+    </div>
+  </div>
+
+
+          </div>
+          
+
+
+          
+
+  
+
+
+
+        </div>
+        
+          
+  
+  <div class="sidebar-toggle">
+    <div class="sidebar-toggle-line-wrap">
+      <span class="sidebar-toggle-line sidebar-toggle-line-first"></span>
+      <span class="sidebar-toggle-line sidebar-toggle-line-middle"></span>
+      <span class="sidebar-toggle-line sidebar-toggle-line-last"></span>
+    </div>
+  </div>
+
+  <aside id="sidebar" class="sidebar">
+    
+    <div class="sidebar-inner">
+
+      
+
+      
+        <ul class="sidebar-nav motion-element">
+          <li class="sidebar-nav-toc sidebar-nav-active" data-target="post-toc-wrap">
+            文章目录
+          </li>
+          <li class="sidebar-nav-overview" data-target="site-overview-wrap">
+            站点概览
+          </li>
+        </ul>
+      
+
+      <section class="site-overview-wrap sidebar-panel">
+        <div class="site-overview">
+          <div class="site-author motion-element" itemprop="author" itemscope="" itemtype="http://schema.org/Person">
+            
+              <img class="site-author-image" itemprop="image" src="/avatar/home-self.jpg" alt="donkey">
+            
+              <p class="site-author-name" itemprop="name">donkey</p>
+              <p class="site-description motion-element" itemprop="description">want to be an engineer</p>
+          </div>
+
+          <nav class="site-state motion-element">
+
+            
+              <div class="site-state-item site-state-posts">
+              
+                <a href="/archives/">
+              
+                  <span class="site-state-item-count">45</span>
+                  <span class="site-state-item-name">日志</span>
+                </a>
+              </div>
+            
+
+            
+
+            
+              
+              
+              <div class="site-state-item site-state-tags">
+                <a href="/tags/index.html">
+                  <span class="site-state-item-count">23</span>
+                  <span class="site-state-item-name">标签</span>
+                </a>
+              </div>
+            
+
+          </nav>
+
+          
+
+          
+            <div class="links-of-author motion-element">
+                
+                  <span class="links-of-author-item">
+                    <a href="https://github.com/littletomatodonkey" target="_blank" title="GitHub">
+                      
+                        <i class="fa fa-fw fa-github"></i>GitHub</a>
+                  </span>
+                
+                  <span class="links-of-author-item">
+                    <a href="https://blog.csdn.net/u012526003" target="_blank" title="CSDN">
+                      
+                        <i class="fa fa-fw fa-crosshairs"></i>CSDN</a>
+                  </span>
+                
+            </div>
+          
+
+          
+          
+
+          
+          
+
+          
+
+        </div>
+      </section>
+
+      
+      <!--noindex-->
+        <section class="post-toc-wrap motion-element sidebar-panel sidebar-panel-active">
+          <div class="post-toc">
+
+            
+              
+            
+
+            
+              <div class="post-toc-content"><ol class="nav"><li class="nav-item nav-level-2"><a class="nav-link" href="#abstract"><span class="nav-number">1.</span> <span class="nav-text">abstract</span></a></li><li class="nav-item nav-level-2"><a class="nav-link" href="#introduction"><span class="nav-number">2.</span> <span class="nav-text">introduction</span></a></li><li class="nav-item nav-level-2"><a class="nav-link" href="#R-FCN"><span class="nav-number">3.</span> <span class="nav-text">R-FCN</span></a><ol class="nav-child"><li class="nav-item nav-level-3"><a class="nav-link" href="#overview"><span class="nav-number">3.1.</span> <span class="nav-text">overview</span></a></li><li class="nav-item nav-level-3"><a class="nav-link" href="#Backbone-architecture"><span class="nav-number">3.2.</span> <span class="nav-text">Backbone architecture</span></a></li><li class="nav-item nav-level-3"><a class="nav-link" href="#Position-sensitive-score-maps-amp-Position-sensitive-RoI-pooling"><span class="nav-number">3.3.</span> <span class="nav-text">Position-sensitive score maps &amp; Position-sensitive RoI pooling</span></a></li><li class="nav-item nav-level-3"><a class="nav-link" href="#training"><span class="nav-number">3.4.</span> <span class="nav-text">training</span></a></li><li class="nav-item nav-level-3"><a class="nav-link" href="#visualization"><span class="nav-number">3.5.</span> <span class="nav-text">visualization</span></a></li></ol></li><li class="nav-item nav-level-2"><a class="nav-link" href="#experiments"><span class="nav-number">4.</span> <span class="nav-text">experiments</span></a></li><li class="nav-item nav-level-2"><a class="nav-link" href="#Conclusion-and-Future-Work"><span class="nav-number">5.</span> <span class="nav-text">Conclusion and Future Work</span></a></li></ol></div>
+            
+
+          </div>
+        </section>
+      <!--/noindex-->
+      
+
+      
+
+    </div>
+  </aside>
+
+
+        
+      </div>
+    </main>
+
+    <footer id="footer" class="footer">
+      <div class="footer-inner">
+        <div class="copyright">&copy; <span itemprop="copyrightYear">2018</span>
+  <span class="with-love">
+    <i class="fa fa-user"></i>
+  </span>
+  <span class="author" itemprop="copyrightHolder">donkey</span>
+
+  
+</div>
+
+
+  <div class="powered-by">由 <a class="theme-link" target="_blank" href="https://hexo.io">Hexo</a> 强力驱动</div>
+
+
+
+  <span class="post-meta-divider">|</span>
+
+
+
+  <div class="theme-info">主题 &mdash; <a class="theme-link" target="_blank" href="https://github.com/iissnan/hexo-theme-next">NexT.Muse</a> v5.1.4</div>
+
+
+
+
+        
+
+
+
+
+
+
+
+        
+      </div>
+    </footer>
+
+    
+      <div class="back-to-top">
+        <i class="fa fa-arrow-up"></i>
+        
+      </div>
+    
+
+    
+
+  </div>
+
+  
+
+<script type="text/javascript">
+  if (Object.prototype.toString.call(window.Promise) !== '[object Function]') {
+    window.Promise = null;
+  }
+</script>
+
+
+
+
+
+
+
+
+
+  
+
+
+
+
+
+
+
+
+
+
+
+
+  
+  
+    <script type="text/javascript" src="/lib/jquery/index.js?v=2.1.3"></script>
+  
+
+  
+  
+    <script type="text/javascript" src="/lib/fastclick/lib/fastclick.min.js?v=1.0.6"></script>
+  
+
+  
+  
+    <script type="text/javascript" src="/lib/jquery_lazyload/jquery.lazyload.js?v=1.9.7"></script>
+  
+
+  
+  
+    <script type="text/javascript" src="/lib/velocity/velocity.min.js?v=1.2.1"></script>
+  
+
+  
+  
+    <script type="text/javascript" src="/lib/velocity/velocity.ui.min.js?v=1.2.1"></script>
+  
+
+  
+  
+    <script type="text/javascript" src="/lib/fancybox/source/jquery.fancybox.pack.js?v=2.1.5"></script>
+  
+
+
+  
+
+
+  <script type="text/javascript" src="/js/src/utils.js?v=5.1.4"></script>
+
+  <script type="text/javascript" src="/js/src/motion.js?v=5.1.4"></script>
+
+
+
+  
+  
+
+  
+  <script type="text/javascript" src="/js/src/scrollspy.js?v=5.1.4"></script>
+<script type="text/javascript" src="/js/src/post-details.js?v=5.1.4"></script>
+
+
+
+  
+
+
+  <script type="text/javascript" src="/js/src/bootstrap.js?v=5.1.4"></script>
+
+
+
+  
+
+
+  
+
+
+
+
+	
+
+
+
+
+
+  
+
+
+
+
+
+  
+
+
+
+
+
+
+
+
+
+
+
+
+  
+
+
+
+
+
+  
+
+  
+
+  
+
+  
+  
+
+  
+  
+    <script type="text/x-mathjax-config">
+      MathJax.Hub.Config({
+        tex2jax: {
+          inlineMath: [ ['$','$'], ["\\(","\\)"]  ],
+          processEscapes: true,
+          skipTags: ['script', 'noscript', 'style', 'textarea', 'pre', 'code']
+        }
+      });
+    </script>
+
+    <script type="text/x-mathjax-config">
+      MathJax.Hub.Queue(function() {
+        var all = MathJax.Hub.getAllJax(), i;
+        for (i=0; i < all.length; i += 1) {
+          all[i].SourceElement().parentNode.className += ' has-jax';
+        }
+      });
+    </script>
+    <script type="text/javascript" src="//cdn.bootcss.com/mathjax/2.7.1/latest.js?config=TeX-AMS-MML_HTMLorMML"></script>
+  
+
+
+  
+
+  
+
+</body>
+</html>

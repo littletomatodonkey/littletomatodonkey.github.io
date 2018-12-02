@@ -1,0 +1,826 @@
+<!DOCTYPE html>
+
+
+
+  
+
+
+<html class="theme-next muse use-motion" lang="zh-Hans">
+<head><meta name="generator" content="Hexo 3.8.0">
+  <meta charset="UTF-8">
+<meta http-equiv="X-UA-Compatible" content="IE=edge">
+<meta name="viewport" content="width=device-width, initial-scale=1, maximum-scale=1">
+<meta name="theme-color" content="#222">
+
+
+
+
+
+
+
+
+
+<meta http-equiv="Cache-Control" content="no-transform">
+<meta http-equiv="Cache-Control" content="no-siteapp">
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+  
+  
+  <link href="/lib/fancybox/source/jquery.fancybox.css?v=2.1.5" rel="stylesheet" type="text/css">
+
+
+
+
+
+
+
+<link href="/lib/font-awesome/css/font-awesome.min.css?v=4.6.2" rel="stylesheet" type="text/css">
+
+<link href="/css/main.css?v=5.1.4" rel="stylesheet" type="text/css">
+
+
+  <link rel="apple-touch-icon" sizes="180x180" href="/images/apple-touch-icon-next.png?v=5.1.4">
+
+
+  <link rel="icon" type="image/png" sizes="32x32" href="/images/favicon-32x32-next.png?v=5.1.4">
+
+
+  <link rel="icon" type="image/png" sizes="16x16" href="/images/favicon-16x16-next.png?v=5.1.4">
+
+
+  <link rel="mask-icon" href="/images/logo.svg?v=5.1.4" color="#222">
+
+
+
+
+
+  <meta name="keywords" content="论文,语义分割,detection,">
+
+
+
+
+
+
+
+
+
+
+<meta name="description" content="abstract 论文地址：https://arxiv.org/abs/1703.06211 代码：https://github.com/msracver/Deformable-ConvNets 论文中提出了2个模块，用于提升CNN的transformation modeling capability，称之为deformable convolution与deformable roi pooling">
+<meta name="keywords" content="论文,语义分割,detection">
+<meta property="og:type" content="article">
+<meta property="og:title" content="Deformable ConvNets">
+<meta property="og:url" content="git@github.com:littletomatodonkey/littletomatodonkey.github.io.git/2018/12/02/2018-12-02-Deformable ConvNets/index.html">
+<meta property="og:site_name" content="donkey&#39;s blog">
+<meta property="og:description" content="abstract 论文地址：https://arxiv.org/abs/1703.06211 代码：https://github.com/msracver/Deformable-ConvNets 论文中提出了2个模块，用于提升CNN的transformation modeling capability，称之为deformable convolution与deformable roi pooling">
+<meta property="og:locale" content="zh-Hans">
+<meta property="og:image" content="/img/post/20181202-deform-卷积采样的不同形式.png">
+<meta property="og:image" content="/img/post/20181202-deform-deformable-convolution.png">
+<meta property="og:image" content="/img/post/20181202-deform-deformable-pooling.png">
+<meta property="og:image" content="/img/post/20181202-deform-感受野.png">
+<meta property="og:image" content="/img/post/20181202-deform-sample-location.png">
+<meta property="og:image" content="/img/post/20181202-deform-conv实验效果.png">
+<meta property="og:image" content="/img/post/20181202-deform-dilation-metric.png">
+<meta property="og:image" content="/img/post/20181202-deform-exp-module.png">
+<meta property="og:image" content="/img/post/20181202-deform-runtime.png">
+<meta property="og:updated_time" content="2018-12-02T08:14:40.091Z">
+<meta name="twitter:card" content="summary">
+<meta name="twitter:title" content="Deformable ConvNets">
+<meta name="twitter:description" content="abstract 论文地址：https://arxiv.org/abs/1703.06211 代码：https://github.com/msracver/Deformable-ConvNets 论文中提出了2个模块，用于提升CNN的transformation modeling capability，称之为deformable convolution与deformable roi pooling">
+<meta name="twitter:image" content="/img/post/20181202-deform-卷积采样的不同形式.png">
+
+
+
+<script type="text/javascript" id="hexo.configurations">
+  var NexT = window.NexT || {};
+  var CONFIG = {
+    root: '/',
+    scheme: 'Muse',
+    version: '5.1.4',
+    sidebar: {"position":"left","display":"post","offset":12,"b2t":false,"scrollpercent":false,"onmobile":false},
+    fancybox: true,
+    tabs: true,
+    motion: {"enable":true,"async":false,"transition":{"post_block":"fadeIn","post_header":"slideDownIn","post_body":"slideDownIn","coll_header":"slideLeftIn","sidebar":"slideUpIn"}},
+    duoshuo: {
+      userId: '0',
+      author: '博主'
+    },
+    algolia: {
+      applicationID: '',
+      apiKey: '',
+      indexName: '',
+      hits: {"per_page":10},
+      labels: {"input_placeholder":"Search for Posts","hits_empty":"We didn't find any results for the search: ${query}","hits_stats":"${hits} results found in ${time} ms"}
+    }
+  };
+</script>
+
+
+
+  <link rel="canonical" href="git@github.com:littletomatodonkey/littletomatodonkey.github.io.git/2018/12/02/2018-12-02-Deformable ConvNets/">
+
+
+
+
+
+  <title>Deformable ConvNets | donkey's blog</title>
+  
+
+
+
+
+
+
+
+
+</head>
+
+<body itemscope="" itemtype="http://schema.org/WebPage" lang="zh-Hans">
+
+  
+  
+    
+  
+
+  <div class="container sidebar-position-left page-post-detail">
+    <div class="headband"></div>
+
+    <header id="header" class="header" itemscope="" itemtype="http://schema.org/WPHeader">
+      <div class="header-inner"><div class="site-brand-wrapper">
+  <div class="site-meta ">
+    
+
+    <div class="custom-logo-site-title">
+      <a href="/" class="brand" rel="start">
+        <span class="logo-line-before"><i></i></span>
+        <span class="site-title">donkey's blog</span>
+        <span class="logo-line-after"><i></i></span>
+      </a>
+    </div>
+      
+        <p class="site-subtitle">to be BIG</p>
+      
+  </div>
+
+  <div class="site-nav-toggle">
+    <button>
+      <span class="btn-bar"></span>
+      <span class="btn-bar"></span>
+      <span class="btn-bar"></span>
+    </button>
+  </div>
+</div>
+
+<nav class="site-nav">
+  
+
+  
+    <ul id="menu" class="menu">
+      
+        
+        <li class="menu-item menu-item-home">
+          <a href="/" rel="section">
+            
+              <i class="menu-item-icon fa fa-fw fa-home"></i> <br>
+            
+            首页
+          </a>
+        </li>
+      
+        
+        <li class="menu-item menu-item-about">
+          <a href="/about/" rel="section">
+            
+              <i class="menu-item-icon fa fa-fw fa-user"></i> <br>
+            
+            关于
+          </a>
+        </li>
+      
+        
+        <li class="menu-item menu-item-tags">
+          <a href="/tags/" rel="section">
+            
+              <i class="menu-item-icon fa fa-fw fa-tags"></i> <br>
+            
+            标签
+          </a>
+        </li>
+      
+        
+        <li class="menu-item menu-item-archives">
+          <a href="/archives/" rel="section">
+            
+              <i class="menu-item-icon fa fa-fw fa-archive"></i> <br>
+            
+            归档
+          </a>
+        </li>
+      
+
+      
+    </ul>
+  
+
+  
+</nav>
+
+
+
+ </div>
+    </header>
+
+    <main id="main" class="main">
+      <div class="main-inner">
+        <div class="content-wrap">
+          <div id="content" class="content">
+            
+
+  <div id="posts" class="posts-expand">
+    
+
+  
+
+  
+  
+  
+
+  <article class="post post-type-normal" itemscope="" itemtype="http://schema.org/Article">
+  
+  
+  
+  <div class="post-block">
+    <link itemprop="mainEntityOfPage" href="git@github.com:littletomatodonkey/littletomatodonkey.github.io.git/2018/12/02/2018-12-02-Deformable ConvNets/">
+
+    <span hidden itemprop="author" itemscope="" itemtype="http://schema.org/Person">
+      <meta itemprop="name" content="donkey">
+      <meta itemprop="description" content="">
+      <meta itemprop="image" content="/avatar/home-self.jpg">
+    </span>
+
+    <span hidden itemprop="publisher" itemscope="" itemtype="http://schema.org/Organization">
+      <meta itemprop="name" content="donkey's blog">
+    </span>
+
+    
+      <header class="post-header">
+
+        
+        
+          <h1 class="post-title" itemprop="name headline">Deformable ConvNets</h1>
+        
+
+        <div class="post-meta">
+          <span class="post-time">
+            
+              <span class="post-meta-item-icon">
+                <i class="fa fa-calendar-o"></i>
+              </span>
+              
+                <span class="post-meta-item-text">发表于</span>
+              
+              <time title="创建于" itemprop="dateCreated datePublished" datetime="2018-12-02T11:00:00+08:00">
+                2018-12-02
+              </time>
+            
+
+            
+
+            
+          </span>
+
+          
+
+          
+            
+          
+
+          
+          
+
+          
+
+          
+
+          
+
+        </div>
+      </header>
+    
+
+    
+    
+    
+    <div class="post-body" itemprop="articleBody">
+
+      
+      
+
+      
+        <h2 id="abstract"><a href="#abstract" class="headerlink" title="abstract"></a>abstract</h2><ul>
+<li>论文地址：<a href="https://arxiv.org/abs/1703.06211" target="_blank" rel="noopener">https://arxiv.org/abs/1703.06211</a></li>
+<li>代码：<a href="https://github.com/msracver/Deformable-ConvNets" target="_blank" rel="noopener">https://github.com/msracver/Deformable-ConvNets</a></li>
+<li>论文中提出了2个模块，用于提升CNN的<code>transformation modeling capability</code>，称之为<code>deformable convolution</code>与<code>deformable roi pooling</code>，这都是希望能够增强CNN的空间采样能力，使得网络可以关注feature map中更加重要的部分。</li>
+<li>介绍的新的模块可以很容易地被用于其他的网络结构中，也可以使用BP进行学习。</li>
+<li>论文中第一次展示了：学习CNN中的<code>dense spatial transformation</code>对于复杂的视觉任务是很有帮助的。</li>
+</ul>
+<h2 id="introduction"><a href="#introduction" class="headerlink" title="introduction"></a>introduction</h2><ul>
+<li>物体识别任务中，主要的挑战就是怎么去解决由于<code>scale、pose、viewpoint、part deformation</code>等原因导致的识别困难的问题。有2种主要的方法：<ul>
+<li>使用这些变化，对训练数据进行增强，使得网路对这些变换更加鲁棒。但是使用数据增强的方法都是使用已知的变换进行的，因此如果在新的数据集上出现了其他的变换，则模型无法处理这种情况。</li>
+<li>使用具有变换不变性的特征与算法，比如说SIFT或者基于滑动窗口的检测算法等。但是这种人工设计的特征和算法对于复杂任务也是非常困难的。</li>
+</ul>
+</li>
+<li>CNN的特征提取主要是基于卷积核实现，传统的卷积核有比较明显的局限性，因为他只能采集到固定的局部信息，而且卷积核的形状都是固定的，因此难以适用于形状变化较大的物体。此外，在high-level layer中，所有kernel的respective field都是相同的，这显然不符合不同物体的规律。</li>
+<li>本文提出了2个新的模块，用于解决上述问题，下图是卷积核在卷积的过程中使用不同的采样方法的可视化。</li>
+</ul>
+<p><img src="/img/post/20181202-deform-卷积采样的不同形式.png" alt="20181202-deform-卷积采样的不同形式.png"></p>
+<ul>
+<li>本文的方法与之前的<code>high level spirit with spatial
+transform networks</code>以及<code>deformable part models</code>都比较相似，都是内部变换参数，同时这种变换完全是从数据中学习得到的，无需手动设计特征。但是本文提出的方法很轻便，易于扩展到其他网络结构上，同时可以直接实现端到端的训练与预测。</li>
+</ul>
+<h2 id="Deformable-Convolutional-Networks"><a href="#Deformable-Convolutional-Networks" class="headerlink" title="Deformable Convolutional Networks"></a>Deformable Convolutional Networks</h2><ul>
+<li>feature map和CNN都是3D的(xyc)，本文中<code>deformable convolution and roipooling</code>都设置为2D空间上的操作。即同一个网络层中所有通道上的<code>deformation</code>的。</li>
+</ul>
+<h3 id="Deformable-Convolution"><a href="#Deformable-Convolution" class="headerlink" title="Deformable Convolution"></a>Deformable Convolution</h3><ul>
+<li>传统的CNN中，假设卷积的grid $\Re$为</li>
+</ul>
+<p>$$\Re = {(-1,-1),(-1,0),…,(1,1)}$$</p>
+<p>假设$\Re$集合中的元素个数为其中$N$。卷积的计算方式为</p>
+<p>$$y({p_0}) = \sum\limits_{p_n \in \Re } {w(p_n) \cdot x(p_0 + p_n)}$$</p>
+<p>deformable convolution中，每个位置都有一个微小的变化，卷积可以表示为</p>
+<p>$$y({p_0}) = \sum\limits_{p_n \in \Re } {w(p_n) \cdot x(p_0 + p_n + \Delta p_n)}$$</p>
+<p>其中$\Delta p_n$是微小的变化，因此在计算该位置的输入时，使用<code>双线性插值</code>进行计算。deformable convolution可视化如下。</p>
+<p><img src="/img/post/20181202-deform-deformable-convolution.png" alt="20181202-deform-deformable-convolution.png"></p>
+<ul>
+<li>经过卷积的到的<code>offset map</code>的通道数是$2N$个，size与原始的feature map size相同，这就可以保证在每个不同的位置进行卷积的时候，都有一个offset，因为每个offset都是由$\Delta x$与$\Delta y$组成的。</li>
+</ul>
+<h3 id="Deformable-RoI-Pooling"><a href="#Deformable-RoI-Pooling" class="headerlink" title="Deformable RoI Pooling"></a>Deformable RoI Pooling</h3><ul>
+<li><code>deformable roipooling</code>与<code>deformable PS roipooling</code>可视化如下。</li>
+</ul>
+<p><img src="/img/post/20181202-deform-deformable-pooling.png" alt="20181202-deform-deformable-pooling.png"></p>
+<p>在<code>deformable roipooling</code>时，首先根据input feature map生成pooling feature msp，经过fc layer得到<code>normalized offsets</code> $\Delta \hat p_{i,j}$(每个pooling feature map上的点都生成这样一个normalized offset)，之后再转化成offset，使用下面的公式进行转换(乘以roi的宽高以及一个超参数$\gamma$)，主要是为了避免roi size对offset的影响。</p>
+<p>$$\Delta p_{i,j} = \gamma \cdot \Delta \hat p_{i,j} \circ (w,h)$$</p>
+<p>在<code>deformable PS roipooling</code>中，使用conv生成$k \times k \times 2(C+1)$个channel的offset。</p>
+<h3 id="Deformable-ConvNets"><a href="#Deformable-ConvNets" class="headerlink" title="Deformable ConvNets"></a>Deformable ConvNets</h3><ul>
+<li>其实与之前的网络结构都是相似的，只是多了需要学习offset layer的参数，这些参数在初始时刻全被设置为0。</li>
+<li>本文中，在feature extraction backbone的最后几层加了deformable convolution，最后实验发现层数为3时，效果较好。</li>
+<li>在具体的任务上，作者针对分割和检测任务都做了实验</li>
+</ul>
+<h2 id="Understanding-Deformable-ConvNets"><a href="#Understanding-Deformable-ConvNets" class="headerlink" title="Understanding Deformable ConvNets"></a>Understanding Deformable ConvNets</h2><ul>
+<li>deformable convolution的感受野可视化如下所示</li>
+</ul>
+<p><img src="/img/post/20181202-deform-感受野.png" alt="20181202-deform-感受野.png"></p>
+<p>可以看出，<code>deformable convolution</code>的一大优势就是可以使用学习的方式，对convolution kernel的形状进行修改，从而使得网络对物体变形、尺寸变化等问题能够有更好的性能。在实际的任务中，<code>deformable convnets</code>学习到的采样点如下所示。</p>
+<p><img src="/img/post/20181202-deform-sample-location.png" alt="20181202-deform-sample-location.png"></p>
+<ul>
+<li>论文中提到了一些当前针对目标检测的比较流行的方案，有兴趣的话读者可以作为综述看一下。</li>
+</ul>
+<h2 id="experiments"><a href="#experiments" class="headerlink" title="experiments"></a>experiments</h2><ul>
+<li><code>deformable convolution</code>在语义分割与目标检测任务中的性能表现如下。</li>
+</ul>
+<p><img src="/img/post/20181202-deform-conv实验效果.png" alt="20181202-deform-conv实验效果.png"></p>
+<h3 id="Evaluation-of-Deformable-Convolution"><a href="#Evaluation-of-Deformable-Convolution" class="headerlink" title="Evaluation of Deformable Convolution"></a>Evaluation of Deformable Convolution</h3><ul>
+<li>定义一种度量方式，称为<code>effective dilation for a deformable convolution filter</code>，表示所有filter中两个相邻采样点的距离的平均值。这可以大致表示filter的respective field size。结果如下</li>
+</ul>
+<p><img src="/img/post/20181202-deform-dilation-metric.png" alt="20181202-deform-dilation-metric.png"></p>
+<p>可以看出deformable filter的感受野大小与物体的大小是相关的，这也说明了论文中deformable convolution的有效性。</p>
+<h3 id="Evaluation-of-Deformable-RoI-Pooling"><a href="#Evaluation-of-Deformable-RoI-Pooling" class="headerlink" title="Evaluation of Deformable RoI Pooling"></a>Evaluation of Deformable RoI Pooling</h3><ul>
+<li>roi pooling在fasterRCNN中应用比较多，论文基于fasterRCNN的<code>roipooling</code>与RFCN的<code>PS roipooling</code>都做了实验，改进结果对比如下所示。</li>
+</ul>
+<p><img src="/img/post/20181202-deform-exp-module.png" alt="20181202-deform-exp-module.png"></p>
+<h3 id="model-complexity-and-runtime"><a href="#model-complexity-and-runtime" class="headerlink" title="model complexity and runtime"></a>model complexity and runtime</h3><ul>
+<li>改进后模型的参数运行时间对比如下所示，可以看出在几乎不增加参数量与运行时间的情况下，论文的方法带来了较大的性能提升。</li>
+</ul>
+<p><img src="/img/post/20181202-deform-runtime.png" alt="20181202-deform-runtime.png"></p>
+<h2 id="conclusion"><a href="#conclusion" class="headerlink" title="conclusion"></a>conclusion</h2><ul>
+<li>论文竟然没有conclusion，震惊。</li>
+</ul>
+
+      
+    </div>
+    
+    
+    
+
+    
+
+    
+
+    
+
+    <footer class="post-footer">
+      
+        <div class="post-tags">
+          
+            <a href="/tags/论文/" rel="tag"># 论文</a>
+          
+            <a href="/tags/语义分割/" rel="tag"># 语义分割</a>
+          
+            <a href="/tags/detection/" rel="tag"># detection</a>
+          
+        </div>
+      
+
+      
+      
+      
+
+      
+        <div class="post-nav">
+          <div class="post-nav-next post-nav-item">
+            
+              <a href="/2018/12/02/2018-12-02-目标检测之R-FCN/" rel="next" title="目标检测之R-FCN">
+                <i class="fa fa-chevron-left"></i> 目标检测之R-FCN
+              </a>
+            
+          </div>
+
+          <span class="post-nav-divider"></span>
+
+          <div class="post-nav-prev post-nav-item">
+            
+              <a href="/2018/12/02/2018-12-02-Deformable ConvNets V2/" rel="prev" title="Deformable ConvNets V2">
+                Deformable ConvNets V2 <i class="fa fa-chevron-right"></i>
+              </a>
+            
+          </div>
+        </div>
+      
+
+      
+      
+    </footer>
+  </div>
+  
+  
+  
+  </article>
+
+
+
+    <div class="post-spread">
+      
+    </div>
+  </div>
+
+
+          </div>
+          
+
+
+          
+
+  
+
+
+
+        </div>
+        
+          
+  
+  <div class="sidebar-toggle">
+    <div class="sidebar-toggle-line-wrap">
+      <span class="sidebar-toggle-line sidebar-toggle-line-first"></span>
+      <span class="sidebar-toggle-line sidebar-toggle-line-middle"></span>
+      <span class="sidebar-toggle-line sidebar-toggle-line-last"></span>
+    </div>
+  </div>
+
+  <aside id="sidebar" class="sidebar">
+    
+    <div class="sidebar-inner">
+
+      
+
+      
+        <ul class="sidebar-nav motion-element">
+          <li class="sidebar-nav-toc sidebar-nav-active" data-target="post-toc-wrap">
+            文章目录
+          </li>
+          <li class="sidebar-nav-overview" data-target="site-overview-wrap">
+            站点概览
+          </li>
+        </ul>
+      
+
+      <section class="site-overview-wrap sidebar-panel">
+        <div class="site-overview">
+          <div class="site-author motion-element" itemprop="author" itemscope="" itemtype="http://schema.org/Person">
+            
+              <img class="site-author-image" itemprop="image" src="/avatar/home-self.jpg" alt="donkey">
+            
+              <p class="site-author-name" itemprop="name">donkey</p>
+              <p class="site-description motion-element" itemprop="description">want to be an engineer</p>
+          </div>
+
+          <nav class="site-state motion-element">
+
+            
+              <div class="site-state-item site-state-posts">
+              
+                <a href="/archives/">
+              
+                  <span class="site-state-item-count">45</span>
+                  <span class="site-state-item-name">日志</span>
+                </a>
+              </div>
+            
+
+            
+
+            
+              
+              
+              <div class="site-state-item site-state-tags">
+                <a href="/tags/index.html">
+                  <span class="site-state-item-count">23</span>
+                  <span class="site-state-item-name">标签</span>
+                </a>
+              </div>
+            
+
+          </nav>
+
+          
+
+          
+            <div class="links-of-author motion-element">
+                
+                  <span class="links-of-author-item">
+                    <a href="https://github.com/littletomatodonkey" target="_blank" title="GitHub">
+                      
+                        <i class="fa fa-fw fa-github"></i>GitHub</a>
+                  </span>
+                
+                  <span class="links-of-author-item">
+                    <a href="https://blog.csdn.net/u012526003" target="_blank" title="CSDN">
+                      
+                        <i class="fa fa-fw fa-crosshairs"></i>CSDN</a>
+                  </span>
+                
+            </div>
+          
+
+          
+          
+
+          
+          
+
+          
+
+        </div>
+      </section>
+
+      
+      <!--noindex-->
+        <section class="post-toc-wrap motion-element sidebar-panel sidebar-panel-active">
+          <div class="post-toc">
+
+            
+              
+            
+
+            
+              <div class="post-toc-content"><ol class="nav"><li class="nav-item nav-level-2"><a class="nav-link" href="#abstract"><span class="nav-number">1.</span> <span class="nav-text">abstract</span></a></li><li class="nav-item nav-level-2"><a class="nav-link" href="#introduction"><span class="nav-number">2.</span> <span class="nav-text">introduction</span></a></li><li class="nav-item nav-level-2"><a class="nav-link" href="#Deformable-Convolutional-Networks"><span class="nav-number">3.</span> <span class="nav-text">Deformable Convolutional Networks</span></a><ol class="nav-child"><li class="nav-item nav-level-3"><a class="nav-link" href="#Deformable-Convolution"><span class="nav-number">3.1.</span> <span class="nav-text">Deformable Convolution</span></a></li><li class="nav-item nav-level-3"><a class="nav-link" href="#Deformable-RoI-Pooling"><span class="nav-number">3.2.</span> <span class="nav-text">Deformable RoI Pooling</span></a></li><li class="nav-item nav-level-3"><a class="nav-link" href="#Deformable-ConvNets"><span class="nav-number">3.3.</span> <span class="nav-text">Deformable ConvNets</span></a></li></ol></li><li class="nav-item nav-level-2"><a class="nav-link" href="#Understanding-Deformable-ConvNets"><span class="nav-number">4.</span> <span class="nav-text">Understanding Deformable ConvNets</span></a></li><li class="nav-item nav-level-2"><a class="nav-link" href="#experiments"><span class="nav-number">5.</span> <span class="nav-text">experiments</span></a><ol class="nav-child"><li class="nav-item nav-level-3"><a class="nav-link" href="#Evaluation-of-Deformable-Convolution"><span class="nav-number">5.1.</span> <span class="nav-text">Evaluation of Deformable Convolution</span></a></li><li class="nav-item nav-level-3"><a class="nav-link" href="#Evaluation-of-Deformable-RoI-Pooling"><span class="nav-number">5.2.</span> <span class="nav-text">Evaluation of Deformable RoI Pooling</span></a></li><li class="nav-item nav-level-3"><a class="nav-link" href="#model-complexity-and-runtime"><span class="nav-number">5.3.</span> <span class="nav-text">model complexity and runtime</span></a></li></ol></li><li class="nav-item nav-level-2"><a class="nav-link" href="#conclusion"><span class="nav-number">6.</span> <span class="nav-text">conclusion</span></a></li></ol></div>
+            
+
+          </div>
+        </section>
+      <!--/noindex-->
+      
+
+      
+
+    </div>
+  </aside>
+
+
+        
+      </div>
+    </main>
+
+    <footer id="footer" class="footer">
+      <div class="footer-inner">
+        <div class="copyright">&copy; <span itemprop="copyrightYear">2018</span>
+  <span class="with-love">
+    <i class="fa fa-user"></i>
+  </span>
+  <span class="author" itemprop="copyrightHolder">donkey</span>
+
+  
+</div>
+
+
+  <div class="powered-by">由 <a class="theme-link" target="_blank" href="https://hexo.io">Hexo</a> 强力驱动</div>
+
+
+
+  <span class="post-meta-divider">|</span>
+
+
+
+  <div class="theme-info">主题 &mdash; <a class="theme-link" target="_blank" href="https://github.com/iissnan/hexo-theme-next">NexT.Muse</a> v5.1.4</div>
+
+
+
+
+        
+
+
+
+
+
+
+
+        
+      </div>
+    </footer>
+
+    
+      <div class="back-to-top">
+        <i class="fa fa-arrow-up"></i>
+        
+      </div>
+    
+
+    
+
+  </div>
+
+  
+
+<script type="text/javascript">
+  if (Object.prototype.toString.call(window.Promise) !== '[object Function]') {
+    window.Promise = null;
+  }
+</script>
+
+
+
+
+
+
+
+
+
+  
+
+
+
+
+
+
+
+
+
+
+
+
+  
+  
+    <script type="text/javascript" src="/lib/jquery/index.js?v=2.1.3"></script>
+  
+
+  
+  
+    <script type="text/javascript" src="/lib/fastclick/lib/fastclick.min.js?v=1.0.6"></script>
+  
+
+  
+  
+    <script type="text/javascript" src="/lib/jquery_lazyload/jquery.lazyload.js?v=1.9.7"></script>
+  
+
+  
+  
+    <script type="text/javascript" src="/lib/velocity/velocity.min.js?v=1.2.1"></script>
+  
+
+  
+  
+    <script type="text/javascript" src="/lib/velocity/velocity.ui.min.js?v=1.2.1"></script>
+  
+
+  
+  
+    <script type="text/javascript" src="/lib/fancybox/source/jquery.fancybox.pack.js?v=2.1.5"></script>
+  
+
+
+  
+
+
+  <script type="text/javascript" src="/js/src/utils.js?v=5.1.4"></script>
+
+  <script type="text/javascript" src="/js/src/motion.js?v=5.1.4"></script>
+
+
+
+  
+  
+
+  
+  <script type="text/javascript" src="/js/src/scrollspy.js?v=5.1.4"></script>
+<script type="text/javascript" src="/js/src/post-details.js?v=5.1.4"></script>
+
+
+
+  
+
+
+  <script type="text/javascript" src="/js/src/bootstrap.js?v=5.1.4"></script>
+
+
+
+  
+
+
+  
+
+
+
+
+	
+
+
+
+
+
+  
+
+
+
+
+
+  
+
+
+
+
+
+
+
+
+
+
+
+
+  
+
+
+
+
+
+  
+
+  
+
+  
+
+  
+  
+
+  
+  
+    <script type="text/x-mathjax-config">
+      MathJax.Hub.Config({
+        tex2jax: {
+          inlineMath: [ ['$','$'], ["\\(","\\)"]  ],
+          processEscapes: true,
+          skipTags: ['script', 'noscript', 'style', 'textarea', 'pre', 'code']
+        }
+      });
+    </script>
+
+    <script type="text/x-mathjax-config">
+      MathJax.Hub.Queue(function() {
+        var all = MathJax.Hub.getAllJax(), i;
+        for (i=0; i < all.length; i += 1) {
+          all[i].SourceElement().parentNode.className += ' has-jax';
+        }
+      });
+    </script>
+    <script type="text/javascript" src="//cdn.bootcss.com/mathjax/2.7.1/latest.js?config=TeX-AMS-MML_HTMLorMML"></script>
+  
+
+
+  
+
+  
+
+</body>
+</html>
