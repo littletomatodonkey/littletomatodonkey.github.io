@@ -91,7 +91,7 @@
 <meta property="og:image" content="/img/post/20181206-triplet-loss-tsne-before-training.png">
 <meta property="og:image" content="/img/post/20181206-triplet-loss-pca-after-training.png">
 <meta property="og:image" content="/img/post/20181206-triplet-loss-tsne-after-training.png">
-<meta property="og:updated_time" content="2018-12-06T13:50:43.853Z">
+<meta property="og:updated_time" content="2018-12-06T13:53:32.839Z">
 <meta name="twitter:card" content="summary">
 <meta name="twitter:title" content="mnist embedding using triplet loss">
 <meta name="twitter:description" content="简介 triplet loss是三元组损失，用于区分差异较小的样本，一般可以用于标签样本较少的数据集中。给定三个样本，anchor，positive，negative sample，希望通过训练，使得anchor与positive的距离很大，而与negative的距离很小，loss function形式如下  $$L = \sum\limits_{i = 1}^N {\max (\left| {f">
@@ -417,7 +417,7 @@
     return rate
 </code></pre></li>
 </ul>
-<h2 id="train"><a href="#train" class="headerlink" title="train"></a>train</h2><ul>
+<h3 id="train"><a href="#train" class="headerlink" title="train"></a>train</h3><ul>
 <li><p>主要就是导入数据，生成triplet training data，之后使用sgd进行BP迭代训练即可。</p>
 <pre><code>ctx = mx.gpu()
 batch_size = 1024
@@ -703,7 +703,7 @@ with SummaryWriter(logdir=&apos;./logs&apos;) as sw:
             
 
             
-              <div class="post-toc-content"><ol class="nav"><li class="nav-item nav-level-2"><a class="nav-link" href="#简介"><span class="nav-number">1.</span> <span class="nav-text">简介</span></a></li><li class="nav-item nav-level-2"><a class="nav-link" href="#参考链接"><span class="nav-number">2.</span> <span class="nav-text">参考链接</span></a></li><li class="nav-item nav-level-2"><a class="nav-link" href="#代码讲解"><span class="nav-number">3.</span> <span class="nav-text">代码讲解</span></a><ol class="nav-child"><li class="nav-item nav-level-3"><a class="nav-link" href="#Dataset定义"><span class="nav-number">3.1.</span> <span class="nav-text">Dataset定义</span></a></li><li class="nav-item nav-level-3"><a class="nav-link" href="#evaluation"><span class="nav-number">3.2.</span> <span class="nav-text">evaluation</span></a></li></ol></li><li class="nav-item nav-level-2"><a class="nav-link" href="#train"><span class="nav-number">4.</span> <span class="nav-text">train</span></a><ol class="nav-child"><li class="nav-item nav-level-3"><a class="nav-link" href="#visualization"><span class="nav-number">4.1.</span> <span class="nav-text">visualization</span></a></li></ol></li><li class="nav-item nav-level-2"><a class="nav-link" href="#结果"><span class="nav-number">5.</span> <span class="nav-text">结果</span></a></li></ol></div>
+              <div class="post-toc-content"><ol class="nav"><li class="nav-item nav-level-2"><a class="nav-link" href="#简介"><span class="nav-number">1.</span> <span class="nav-text">简介</span></a></li><li class="nav-item nav-level-2"><a class="nav-link" href="#参考链接"><span class="nav-number">2.</span> <span class="nav-text">参考链接</span></a></li><li class="nav-item nav-level-2"><a class="nav-link" href="#代码讲解"><span class="nav-number">3.</span> <span class="nav-text">代码讲解</span></a><ol class="nav-child"><li class="nav-item nav-level-3"><a class="nav-link" href="#Dataset定义"><span class="nav-number">3.1.</span> <span class="nav-text">Dataset定义</span></a></li><li class="nav-item nav-level-3"><a class="nav-link" href="#evaluation"><span class="nav-number">3.2.</span> <span class="nav-text">evaluation</span></a></li><li class="nav-item nav-level-3"><a class="nav-link" href="#train"><span class="nav-number">3.3.</span> <span class="nav-text">train</span></a></li><li class="nav-item nav-level-3"><a class="nav-link" href="#visualization"><span class="nav-number">3.4.</span> <span class="nav-text">visualization</span></a></li></ol></li><li class="nav-item nav-level-2"><a class="nav-link" href="#结果"><span class="nav-number">4.</span> <span class="nav-text">结果</span></a></li></ol></div>
             
 
           </div>
