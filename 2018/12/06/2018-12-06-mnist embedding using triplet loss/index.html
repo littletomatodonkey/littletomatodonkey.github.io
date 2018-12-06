@@ -1,0 +1,946 @@
+<!DOCTYPE html>
+
+
+
+  
+
+
+<html class="theme-next muse use-motion" lang="zh-Hans">
+<head><meta name="generator" content="Hexo 3.8.0">
+  <meta charset="UTF-8">
+<meta http-equiv="X-UA-Compatible" content="IE=edge">
+<meta name="viewport" content="width=device-width, initial-scale=1, maximum-scale=1">
+<meta name="theme-color" content="#222">
+
+
+
+
+
+
+
+
+
+<meta http-equiv="Cache-Control" content="no-transform">
+<meta http-equiv="Cache-Control" content="no-siteapp">
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+  
+  
+  <link href="/lib/fancybox/source/jquery.fancybox.css?v=2.1.5" rel="stylesheet" type="text/css">
+
+
+
+
+
+
+
+<link href="/lib/font-awesome/css/font-awesome.min.css?v=4.6.2" rel="stylesheet" type="text/css">
+
+<link href="/css/main.css?v=5.1.4" rel="stylesheet" type="text/css">
+
+
+  <link rel="apple-touch-icon" sizes="180x180" href="/images/apple-touch-icon-next.png?v=5.1.4">
+
+
+  <link rel="icon" type="image/png" sizes="32x32" href="/images/favicon-32x32-next.png?v=5.1.4">
+
+
+  <link rel="icon" type="image/png" sizes="16x16" href="/images/favicon-16x16-next.png?v=5.1.4">
+
+
+  <link rel="mask-icon" href="/images/logo.svg?v=5.1.4" color="#222">
+
+
+
+
+
+  <meta name="keywords" content="code,triplet loss,">
+
+
+
+
+
+
+
+
+
+
+<meta name="description" content="简介 triplet loss是三元组损失，用于区分差异较小的样本，一般可以用于标签样本较少的数据集中。给定三个样本，anchor，positive，negative sample，希望通过训练，使得anchor与positive的距离很大，而与negative的距离很小，loss function形式如下  $$L = \sum\limits_{i = 1}^N {\max (\left| {f">
+<meta name="keywords" content="code,triplet loss">
+<meta property="og:type" content="article">
+<meta property="og:title" content="mnist embedding using triplet loss">
+<meta property="og:url" content="git@github.com:littletomatodonkey/littletomatodonkey.github.io.git/2018/12/06/2018-12-06-mnist embedding using triplet loss/index.html">
+<meta property="og:site_name" content="donkey&#39;s blog">
+<meta property="og:description" content="简介 triplet loss是三元组损失，用于区分差异较小的样本，一般可以用于标签样本较少的数据集中。给定三个样本，anchor，positive，negative sample，希望通过训练，使得anchor与positive的距离很大，而与negative的距离很小，loss function形式如下  $$L = \sum\limits_{i = 1}^N {\max (\left| {f">
+<meta property="og:locale" content="zh-Hans">
+<meta property="og:image" content="/img/post/20181206-triplet-loss-pca-before-training.png">
+<meta property="og:image" content="/img/post/20181206-triplet-loss-tsne-before-training.png">
+<meta property="og:image" content="/img/post/20181206-triplet-loss-pca-after-training.png">
+<meta property="og:image" content="/img/post/20181206-triplet-loss-tsne-after-training.png">
+<meta property="og:updated_time" content="2018-12-06T13:50:43.853Z">
+<meta name="twitter:card" content="summary">
+<meta name="twitter:title" content="mnist embedding using triplet loss">
+<meta name="twitter:description" content="简介 triplet loss是三元组损失，用于区分差异较小的样本，一般可以用于标签样本较少的数据集中。给定三个样本，anchor，positive，negative sample，希望通过训练，使得anchor与positive的距离很大，而与negative的距离很小，loss function形式如下  $$L = \sum\limits_{i = 1}^N {\max (\left| {f">
+<meta name="twitter:image" content="/img/post/20181206-triplet-loss-pca-before-training.png">
+
+
+
+<script type="text/javascript" id="hexo.configurations">
+  var NexT = window.NexT || {};
+  var CONFIG = {
+    root: '/',
+    scheme: 'Muse',
+    version: '5.1.4',
+    sidebar: {"position":"left","display":"post","offset":12,"b2t":false,"scrollpercent":false,"onmobile":false},
+    fancybox: true,
+    tabs: true,
+    motion: {"enable":true,"async":false,"transition":{"post_block":"fadeIn","post_header":"slideDownIn","post_body":"slideDownIn","coll_header":"slideLeftIn","sidebar":"slideUpIn"}},
+    duoshuo: {
+      userId: '0',
+      author: '博主'
+    },
+    algolia: {
+      applicationID: '',
+      apiKey: '',
+      indexName: '',
+      hits: {"per_page":10},
+      labels: {"input_placeholder":"Search for Posts","hits_empty":"We didn't find any results for the search: ${query}","hits_stats":"${hits} results found in ${time} ms"}
+    }
+  };
+</script>
+
+
+
+  <link rel="canonical" href="git@github.com:littletomatodonkey/littletomatodonkey.github.io.git/2018/12/06/2018-12-06-mnist embedding using triplet loss/">
+
+
+
+
+
+  <title>mnist embedding using triplet loss | donkey's blog</title>
+  
+
+
+
+
+
+
+
+
+</head>
+
+<body itemscope="" itemtype="http://schema.org/WebPage" lang="zh-Hans">
+
+  
+  
+    
+  
+
+  <div class="container sidebar-position-left page-post-detail">
+    <div class="headband"></div>
+
+    <header id="header" class="header" itemscope="" itemtype="http://schema.org/WPHeader">
+      <div class="header-inner"><div class="site-brand-wrapper">
+  <div class="site-meta ">
+    
+
+    <div class="custom-logo-site-title">
+      <a href="/" class="brand" rel="start">
+        <span class="logo-line-before"><i></i></span>
+        <span class="site-title">donkey's blog</span>
+        <span class="logo-line-after"><i></i></span>
+      </a>
+    </div>
+      
+        <p class="site-subtitle">to be BIG</p>
+      
+  </div>
+
+  <div class="site-nav-toggle">
+    <button>
+      <span class="btn-bar"></span>
+      <span class="btn-bar"></span>
+      <span class="btn-bar"></span>
+    </button>
+  </div>
+</div>
+
+<nav class="site-nav">
+  
+
+  
+    <ul id="menu" class="menu">
+      
+        
+        <li class="menu-item menu-item-home">
+          <a href="/" rel="section">
+            
+              <i class="menu-item-icon fa fa-fw fa-home"></i> <br>
+            
+            首页
+          </a>
+        </li>
+      
+        
+        <li class="menu-item menu-item-about">
+          <a href="/about/" rel="section">
+            
+              <i class="menu-item-icon fa fa-fw fa-user"></i> <br>
+            
+            关于
+          </a>
+        </li>
+      
+        
+        <li class="menu-item menu-item-tags">
+          <a href="/tags/" rel="section">
+            
+              <i class="menu-item-icon fa fa-fw fa-tags"></i> <br>
+            
+            标签
+          </a>
+        </li>
+      
+        
+        <li class="menu-item menu-item-archives">
+          <a href="/archives/" rel="section">
+            
+              <i class="menu-item-icon fa fa-fw fa-archive"></i> <br>
+            
+            归档
+          </a>
+        </li>
+      
+
+      
+    </ul>
+  
+
+  
+</nav>
+
+
+
+ </div>
+    </header>
+
+    <main id="main" class="main">
+      <div class="main-inner">
+        <div class="content-wrap">
+          <div id="content" class="content">
+            
+
+  <div id="posts" class="posts-expand">
+    
+
+  
+
+  
+  
+  
+
+  <article class="post post-type-normal" itemscope="" itemtype="http://schema.org/Article">
+  
+  
+  
+  <div class="post-block">
+    <link itemprop="mainEntityOfPage" href="git@github.com:littletomatodonkey/littletomatodonkey.github.io.git/2018/12/06/2018-12-06-mnist embedding using triplet loss/">
+
+    <span hidden itemprop="author" itemscope="" itemtype="http://schema.org/Person">
+      <meta itemprop="name" content="donkey">
+      <meta itemprop="description" content="">
+      <meta itemprop="image" content="/avatar/home-self.jpg">
+    </span>
+
+    <span hidden itemprop="publisher" itemscope="" itemtype="http://schema.org/Organization">
+      <meta itemprop="name" content="donkey's blog">
+    </span>
+
+    
+      <header class="post-header">
+
+        
+        
+          <h1 class="post-title" itemprop="name headline">mnist embedding using triplet loss</h1>
+        
+
+        <div class="post-meta">
+          <span class="post-time">
+            
+              <span class="post-meta-item-icon">
+                <i class="fa fa-calendar-o"></i>
+              </span>
+              
+                <span class="post-meta-item-text">发表于</span>
+              
+              <time title="创建于" itemprop="dateCreated datePublished" datetime="2018-12-06T10:00:00+08:00">
+                2018-12-06
+              </time>
+            
+
+            
+
+            
+          </span>
+
+          
+
+          
+            
+          
+
+          
+          
+
+          
+            <span class="post-meta-divider">|</span>
+            <span class="page-pv"><i class="fa fa-eye"></i>
+            <span class="busuanzi-value" id="busuanzi_value_page_pv"></span>
+            </span>
+          
+
+          
+
+          
+
+          
+
+        </div>
+      </header>
+    
+
+    
+    
+    
+    <div class="post-body" itemprop="articleBody">
+
+      
+      
+
+      
+        <h2 id="简介"><a href="#简介" class="headerlink" title="简介"></a>简介</h2><ul>
+<li><code>triplet loss</code>是三元组损失，用于区分差异较小的样本，一般可以用于标签样本较少的数据集中。给定三个样本，anchor，positive，negative sample，希望通过训练，使得anchor与positive的距离很大，而与negative的距离很小，<code>loss function</code>形式如下</li>
+</ul>
+<p>$$L = \sum\limits_{i = 1}^N {\max (\left| {f(x_i^a) - f(x_i^p)} \right|_2^2 - \left| {f(x_i^a) - f(x_i^n)} \right|_2^2 + \alpha ,0)}$$</p>
+<h2 id="参考链接"><a href="#参考链接" class="headerlink" title="参考链接"></a>参考链接</h2><ul>
+<li>在这里给出参考的一些链接，表示感谢。</li>
+<li>讲述mxboard可视化：<a href="https://medium.com/apache-mxnet/mxboard-mxnet-data-visualization-2eed6ae31d2c" target="_blank" rel="noopener">https://medium.com/apache-mxnet/mxboard-mxnet-data-visualization-2eed6ae31d2c</a></li>
+<li>本文参考的代码：<a href="https://github.com/SpikeKing/triplet-loss-gluon" target="_blank" rel="noopener">https://github.com/SpikeKing/triplet-loss-gluon</a></li>
+<li>本文修改后代码：<a href="https://github.com/littletomatodonkey/mnist_triplet_loss" target="_blank" rel="noopener">https://github.com/littletomatodonkey/mnist_triplet_loss</a></li>
+</ul>
+<h2 id="代码讲解"><a href="#代码讲解" class="headerlink" title="代码讲解"></a>代码讲解</h2><ul>
+<li>mxnet中直接封装了triplet loss，可以直接使用，代码主要参考了:<a href="https://github.com/SpikeKing/triplet-loss-gluon" target="_blank" rel="noopener">https://github.com/SpikeKing/triplet-loss-gluon</a>中的内容，我对其做了一些修改，修改后的代码上传到自己的github上了：<a href="https://github.com/littletomatodonkey/mnist_triplet_loss" target="_blank" rel="noopener">https://github.com/littletomatodonkey/mnist_triplet_loss</a></li>
+</ul>
+<h3 id="Dataset定义"><a href="#Dataset定义" class="headerlink" title="Dataset定义"></a>Dataset定义</h3><ul>
+<li><p>主要就是定义一个pair的数组，每个单元包含了anchor、positive与negative sample，这里需要注意的是，anchor与positive sample的label需要是相同的，而anchor与negative sample的label不能使相同的。</p>
+<pre><code>class TripletDataset(gluon.data.dataset.Dataset):
+    def __init__(self, rd, rl, transform=None):
+        self.__rd = rd  # 原始数据
+        self.__rl = rl  # 原始标签
+        self._data = None
+        self._label = None
+        self._transform = transform
+        self._get_data()
+
+    def __getitem__(self, idx):
+        if self._transform is not None:
+            return self._transform(self._data[idx], self._label[idx])
+        return self._data[idx], self._label[idx]
+
+    def __len__(self):
+        return len(self._label)
+
+    def _get_data(self):
+        label_list = np.unique(self.__rl)
+        digit_indices = [np.where(self.__rl == i)[0] for i in label_list]
+        tl_pairs = self.create_pairs(self.__rd, digit_indices, len(label_list))
+        self._data = tl_pairs
+        self._label = np.ones(tl_pairs.shape[0])
+
+    @staticmethod
+    def create_pairs(x, digit_indices, num_classes):
+        x = x.asnumpy()  # 转换数据格式
+        pairs = []
+        n = min([len(digit_indices[d]) for d in range(num_classes)]) - 1  # 最小类别数
+        for d in range(num_classes):
+            for i in range(n):
+                np.random.shuffle(digit_indices[d])
+                z1, z2 = digit_indices[d][i], digit_indices[d][i + 1]
+                inc = random.randrange(1, num_classes)
+                dn = (d + inc) % num_classes
+                z3 = digit_indices[dn][i]
+                pairs += [[x[z1], x[z2], x[z3]]]
+        return np.asarray(pairs)
+</code></pre></li>
+</ul>
+<h3 id="evaluation"><a href="#evaluation" class="headerlink" title="evaluation"></a>evaluation</h3><ul>
+<li><p>该部分计算准确率，对于特定的tuple sample，满足其loss=0的时候，则说明这个tuple的区分是正确的，计算函数如下</p>
+<pre><code>def evaluate_net(model, test_data, ctx=mx.cpu() ):
+    triplet_loss = gluon.loss.TripletLoss(margin=0)
+    sum_correct = 0.0
+    sum_all = 0
+    rate = 0.0
+    for i, (data, _) in enumerate(test_data):
+        data = data.as_in_context(ctx)
+
+        anc_ins, pos_ins, neg_ins = data[:, 0], data[:, 1], data[:, 2]
+
+        inter1 = model(anc_ins)  # 训练的时候组合
+        inter2 = model(pos_ins)
+        inter3 = model(neg_ins)
+#         print( inter1.shape )
+        loss = triplet_loss(inter1, inter2, inter3)
+
+        loss = loss.asnumpy()
+        n_all = loss.shape[0]
+        n_correct = np.sum(np.where(loss == 0, 1, 0))
+
+        sum_correct += n_correct
+        sum_all += n_all
+    rate = sum_correct / sum_all
+
+#     print(&apos;accuracy : %.4f (%s / %s)&apos; % (rate, sum_correct, sum_all))
+    return rate
+</code></pre></li>
+</ul>
+<h2 id="train"><a href="#train" class="headerlink" title="train"></a>train</h2><ul>
+<li><p>主要就是导入数据，生成triplet training data，之后使用sgd进行BP迭代训练即可。</p>
+<pre><code>ctx = mx.gpu()
+batch_size = 1024
+random.seed(47)
+mnist_data_dir = &apos;../dataset/mnist&apos;
+
+mnist_train = gluon.data.vision.MNIST(train=True, root=mnist_data_dir)  # load train data
+tr_data = mnist_train._data.reshape((-1, 28 * 28)) 
+tr_label = mnist_train._label  # 标签
+
+mnist_test = gluon.data.vision.MNIST(train=False, root=mnist_data_dir)  # load test data
+te_data = mnist_test._data.reshape((-1, 28 * 28))
+te_label = mnist_test._label
+
+def transform(data_, label_):
+    return data_.astype(np.float32) / 255., label_.astype(np.float32)
+
+train_data = gluon.data.DataLoader(
+    TripletDataset(rd=tr_data, rl=tr_label, transform=transform),
+    batch_size, shuffle=True)
+
+test_data = gluon.data.DataLoader(
+    TripletDataset(rd=te_data, rl=te_label, transform=transform),
+    batch_size, shuffle=True)
+
+base_net = gluon.nn.Sequential()
+with base_net.name_scope():
+    base_net.add(gluon.nn.Dense(256, activation=&apos;relu&apos;))
+    base_net.add(gluon.nn.Dense(128, activation=&apos;relu&apos;))
+
+base_net.collect_params().initialize(mx.init.Uniform(scale=0.1), ctx=ctx, force_reinit=True)
+
+triplet_loss = gluon.loss.TripletLoss()  # TripletLoss损失函数
+trainer_triplet = gluon.Trainer(base_net.collect_params(), &apos;sgd&apos;, {&apos;learning_rate&apos;: 0.03})
+
+for epoch in range(100):
+    curr_loss = 0.0
+    for i, (data, _) in enumerate(train_data):
+        data = data.as_in_context(ctx)
+        anc_ins, pos_ins, neg_ins = data[:, 0], data[:, 1], data[:, 2]
+        with autograd.record():
+            inter1 = base_net(anc_ins)
+            inter2 = base_net(pos_ins)
+            inter3 = base_net(neg_ins)
+            loss = triplet_loss(inter1, inter2, inter3)  # Triplet Loss
+        loss.backward()
+        trainer_triplet.step(batch_size)
+        curr_loss = mx.nd.mean(loss).asscalar()
+        # print(&apos;Epoch: %s, Batch: %s, Triplet Loss: %s&apos; % (epoch, i, curr_loss))
+    if epoch % 10 == 0:
+        val_acc = evaluate_net(base_net, test_data, ctx=ctx)
+        print(&apos;Epoch: %s, Triplet Loss: %s, validation accuracy : %f&apos; % (epoch, curr_loss, val_acc))
+</code></pre></li>
+</ul>
+<h3 id="visualization"><a href="#visualization" class="headerlink" title="visualization"></a>visualization</h3><ul>
+<li>可以使用mxboard进行方便地可视化，但是这个是需要使用tensorboard的，因此需要首先安装tensorflow与tensorboard的（因为只需要做日志记录，因此如果不需要使用tf跑深度学习代码的话，可以直接安装cpu版本的tensorflow即可）</li>
+<li><p>保存结果到日志的代码如下，这里只显示了1000个sample。</p>
+<pre><code>trans_te_data, trans_te_label = transform(te_data, te_label)
+trans_te_data = trans_te_data[0:1000]
+trans_te_label = trans_te_label[0:1000]
+trans_te_label = mx.nd.array( trans_te_label )
+# tb_projector(trans_te_data.asnumpy(), trans_te_label, os.path.join(ROOT_DIR, &apos;logs&apos;, &apos;origin&apos;))
+# 如果需要看初始时刻的embedding情况，可以强制初始化
+# base_net.collect_params().initialize(mx.init.Uniform(scale=0.1), ctx=ctx, force_reinit=True)
+trans_te_res = base_net(trans_te_data.as_in_context( context=ctx ))
+
+# 转换成4D数据 NCHW
+trans_te_data = trans_te_data.reshape( (-1,28,28))
+trans_te_data = mx.nd.expand_dims( trans_te_data, axis=(1) )
+
+label_str = [str(int(idx)) for idx in trans_te_label.asnumpy()]
+
+with SummaryWriter(logdir=&apos;./logs&apos;) as sw:
+    sw.add_image(tag=&apos;mnists&apos;, image=trans_te_data)
+    sw.add_embedding(tag=&apos;mnist_codes&apos;, embedding=trans_te_res, images=trans_te_data, labels=label_str)
+</code></pre></li>
+</ul>
+<h2 id="结果"><a href="#结果" class="headerlink" title="结果"></a>结果</h2><ul>
+<li><p>下面显示一些使用mxboard可视化出来的图像。</p>
+</li>
+<li><p>初始时刻，模型得到的embedding参数，使用PCA可视化的图像。</p>
+</li>
+</ul>
+<p><img src="/img/post/20181206-triplet-loss-pca-before-training.png" alt="image"></p>
+<ul>
+<li>初始时刻，模型得到的embedding参数，使用t-SNE可视化的图像。</li>
+</ul>
+<p><img src="/img/post/20181206-triplet-loss-tsne-before-training.png" alt="image"></p>
+<ul>
+<li>训练一段时间后，模型得到的embedding参数，使用PCA可视化的图像。</li>
+</ul>
+<p><img src="/img/post/20181206-triplet-loss-pca-after-training.png" alt="image"></p>
+<ul>
+<li>训练一段时间后，模型得到的embedding参数，使用t-SNE可视化的图像。</li>
+</ul>
+<p><img src="/img/post/20181206-triplet-loss-tsne-after-training.png" alt="image"></p>
+<ul>
+<li>可以得到以下结论<ul>
+<li>训练之后，不同类别的样本在空间中的可分程度更大，这说明triplet loss可以用于图像检索等任务中，一方面用于降维(本文中的28X28图像被降成了128维)，另一方面可以使得不相似样本之间的距离更大。</li>
+<li>相对于PCA，t-SNE在降维可视化过程中的效果更好。</li>
+<li>在训练之后，PCA的主成分的表征能力增强了（可以看前三个主成分占所有主成分的百分比，由27%左右提升到了45%左右）。</li>
+</ul>
+</li>
+</ul>
+
+      
+    </div>
+    
+    
+    
+
+    
+
+    
+
+    
+
+    <footer class="post-footer">
+      
+        <div class="post-tags">
+          
+            <a href="/tags/code/" rel="tag"># code</a>
+          
+            <a href="/tags/triplet-loss/" rel="tag"># triplet loss</a>
+          
+        </div>
+      
+
+      
+      
+      
+
+      
+        <div class="post-nav">
+          <div class="post-nav-next post-nav-item">
+            
+              <a href="/2018/12/02/2018-12-02-Deformable ConvNets V2/" rel="next" title="Deformable ConvNets V2">
+                <i class="fa fa-chevron-left"></i> Deformable ConvNets V2
+              </a>
+            
+          </div>
+
+          <span class="post-nav-divider"></span>
+
+          <div class="post-nav-prev post-nav-item">
+            
+          </div>
+        </div>
+      
+
+      
+      
+    </footer>
+  </div>
+  
+  
+  
+  </article>
+
+
+
+    <div class="post-spread">
+      
+    </div>
+  </div>
+
+
+          </div>
+          
+
+
+          
+
+  
+
+
+
+        </div>
+        
+          
+  
+  <div class="sidebar-toggle">
+    <div class="sidebar-toggle-line-wrap">
+      <span class="sidebar-toggle-line sidebar-toggle-line-first"></span>
+      <span class="sidebar-toggle-line sidebar-toggle-line-middle"></span>
+      <span class="sidebar-toggle-line sidebar-toggle-line-last"></span>
+    </div>
+  </div>
+
+  <aside id="sidebar" class="sidebar">
+    
+    <div class="sidebar-inner">
+
+      
+
+      
+        <ul class="sidebar-nav motion-element">
+          <li class="sidebar-nav-toc sidebar-nav-active" data-target="post-toc-wrap">
+            文章目录
+          </li>
+          <li class="sidebar-nav-overview" data-target="site-overview-wrap">
+            站点概览
+          </li>
+        </ul>
+      
+
+      <section class="site-overview-wrap sidebar-panel">
+        <div class="site-overview">
+          <div class="site-author motion-element" itemprop="author" itemscope="" itemtype="http://schema.org/Person">
+            
+              <img class="site-author-image" itemprop="image" src="/avatar/home-self.jpg" alt="donkey">
+            
+              <p class="site-author-name" itemprop="name">donkey</p>
+              <p class="site-description motion-element" itemprop="description">want to be an engineer</p>
+          </div>
+
+          <nav class="site-state motion-element">
+
+            
+              <div class="site-state-item site-state-posts">
+              
+                <a href="/archives/">
+              
+                  <span class="site-state-item-count">46</span>
+                  <span class="site-state-item-name">日志</span>
+                </a>
+              </div>
+            
+
+            
+
+            
+              
+              
+              <div class="site-state-item site-state-tags">
+                <a href="/tags/index.html">
+                  <span class="site-state-item-count">22</span>
+                  <span class="site-state-item-name">标签</span>
+                </a>
+              </div>
+            
+
+          </nav>
+
+          
+
+          
+            <div class="links-of-author motion-element">
+                
+                  <span class="links-of-author-item">
+                    <a href="https://github.com/littletomatodonkey" target="_blank" title="GitHub">
+                      
+                        <i class="fa fa-fw fa-github"></i>GitHub</a>
+                  </span>
+                
+                  <span class="links-of-author-item">
+                    <a href="https://blog.csdn.net/u012526003" target="_blank" title="CSDN">
+                      
+                        <i class="fa fa-fw fa-crosshairs"></i>CSDN</a>
+                  </span>
+                
+            </div>
+          
+
+          
+          
+
+          
+          
+
+          
+
+        </div>
+      </section>
+
+      
+      <!--noindex-->
+        <section class="post-toc-wrap motion-element sidebar-panel sidebar-panel-active">
+          <div class="post-toc">
+
+            
+              
+            
+
+            
+              <div class="post-toc-content"><ol class="nav"><li class="nav-item nav-level-2"><a class="nav-link" href="#简介"><span class="nav-number">1.</span> <span class="nav-text">简介</span></a></li><li class="nav-item nav-level-2"><a class="nav-link" href="#参考链接"><span class="nav-number">2.</span> <span class="nav-text">参考链接</span></a></li><li class="nav-item nav-level-2"><a class="nav-link" href="#代码讲解"><span class="nav-number">3.</span> <span class="nav-text">代码讲解</span></a><ol class="nav-child"><li class="nav-item nav-level-3"><a class="nav-link" href="#Dataset定义"><span class="nav-number">3.1.</span> <span class="nav-text">Dataset定义</span></a></li><li class="nav-item nav-level-3"><a class="nav-link" href="#evaluation"><span class="nav-number">3.2.</span> <span class="nav-text">evaluation</span></a></li></ol></li><li class="nav-item nav-level-2"><a class="nav-link" href="#train"><span class="nav-number">4.</span> <span class="nav-text">train</span></a><ol class="nav-child"><li class="nav-item nav-level-3"><a class="nav-link" href="#visualization"><span class="nav-number">4.1.</span> <span class="nav-text">visualization</span></a></li></ol></li><li class="nav-item nav-level-2"><a class="nav-link" href="#结果"><span class="nav-number">5.</span> <span class="nav-text">结果</span></a></li></ol></div>
+            
+
+          </div>
+        </section>
+      <!--/noindex-->
+      
+
+      
+
+    </div>
+  </aside>
+
+
+        
+      </div>
+    </main>
+
+    <footer id="footer" class="footer">
+      <div class="footer-inner">
+        
+<div class="copyright">&copy; <span itemprop="copyrightYear">2018</span>
+  <span class="with-love">
+    <i class="fa fa-user"></i>
+  </span>
+  <span class="author" itemprop="copyrightHolder">donkey</span>
+
+  
+
+
+</div>
+
+
+  <div class="powered-by">由 <a class="theme-link" target="_blank" href="https://hexo.io">Hexo</a> 强力驱动</div>
+
+
+
+  <span class="post-meta-divider">|</span>
+
+
+
+  <div class="theme-info">主题 &mdash; <a class="theme-link" target="_blank" href="https://github.com/iissnan/hexo-theme-next">NexT.Muse</a> v5.1.4</div>
+
+
+
+
+        
+<div class="busuanzi-count">
+  <script async src="https://busuanzi.ibruce.info/busuanzi/2.3/busuanzi.pure.mini.js"></script>
+
+  
+
+  
+</div>
+
+
+
+
+
+
+
+
+        
+      </div>
+    </footer>
+
+    
+      <div class="back-to-top">
+        <i class="fa fa-arrow-up"></i>
+        
+      </div>
+    
+
+    
+
+  </div>
+
+  
+
+<script type="text/javascript">
+  if (Object.prototype.toString.call(window.Promise) !== '[object Function]') {
+    window.Promise = null;
+  }
+</script>
+
+
+
+
+
+
+
+
+
+  
+
+
+
+
+
+
+
+
+
+
+
+
+  
+  
+    <script type="text/javascript" src="/lib/jquery/index.js?v=2.1.3"></script>
+  
+
+  
+  
+    <script type="text/javascript" src="/lib/fastclick/lib/fastclick.min.js?v=1.0.6"></script>
+  
+
+  
+  
+    <script type="text/javascript" src="/lib/jquery_lazyload/jquery.lazyload.js?v=1.9.7"></script>
+  
+
+  
+  
+    <script type="text/javascript" src="/lib/velocity/velocity.min.js?v=1.2.1"></script>
+  
+
+  
+  
+    <script type="text/javascript" src="/lib/velocity/velocity.ui.min.js?v=1.2.1"></script>
+  
+
+  
+  
+    <script type="text/javascript" src="/lib/fancybox/source/jquery.fancybox.pack.js?v=2.1.5"></script>
+  
+
+
+  
+
+
+  <script type="text/javascript" src="/js/src/utils.js?v=5.1.4"></script>
+
+  <script type="text/javascript" src="/js/src/motion.js?v=5.1.4"></script>
+
+
+
+  
+  
+
+  
+  <script type="text/javascript" src="/js/src/scrollspy.js?v=5.1.4"></script>
+<script type="text/javascript" src="/js/src/post-details.js?v=5.1.4"></script>
+
+
+
+  
+
+
+  <script type="text/javascript" src="/js/src/bootstrap.js?v=5.1.4"></script>
+
+
+
+  
+
+
+  
+
+
+
+
+	
+
+
+
+
+
+  
+
+
+
+
+
+  
+
+
+
+
+
+
+
+
+
+
+
+
+  
+
+
+
+
+
+  
+
+  
+
+  
+
+  
+  
+
+  
+  
+    <script type="text/x-mathjax-config">
+      MathJax.Hub.Config({
+        tex2jax: {
+          inlineMath: [ ['$','$'], ["\\(","\\)"]  ],
+          processEscapes: true,
+          skipTags: ['script', 'noscript', 'style', 'textarea', 'pre', 'code']
+        }
+      });
+    </script>
+
+    <script type="text/x-mathjax-config">
+      MathJax.Hub.Queue(function() {
+        var all = MathJax.Hub.getAllJax(), i;
+        for (i=0; i < all.length; i += 1) {
+          all[i].SourceElement().parentNode.className += ' has-jax';
+        }
+      });
+    </script>
+    <script type="text/javascript" src="//cdn.bootcss.com/mathjax/2.7.1/latest.js?config=TeX-AMS-MML_HTMLorMML"></script>
+  
+
+
+  
+
+  
+
+
+</body>
+</html>
