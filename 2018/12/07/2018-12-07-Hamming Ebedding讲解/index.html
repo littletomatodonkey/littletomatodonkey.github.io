@@ -1,0 +1,856 @@
+<!DOCTYPE html>
+
+
+
+  
+
+
+<html class="theme-next muse use-motion" lang="zh-Hans">
+<head><meta name="generator" content="Hexo 3.8.0">
+  <meta charset="UTF-8">
+<meta http-equiv="X-UA-Compatible" content="IE=edge">
+<meta name="viewport" content="width=device-width, initial-scale=1, maximum-scale=1">
+<meta name="theme-color" content="#222">
+
+
+
+
+
+
+
+
+
+<meta http-equiv="Cache-Control" content="no-transform">
+<meta http-equiv="Cache-Control" content="no-siteapp">
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+  
+  
+  <link href="/lib/fancybox/source/jquery.fancybox.css?v=2.1.5" rel="stylesheet" type="text/css">
+
+
+
+
+
+
+
+<link href="/lib/font-awesome/css/font-awesome.min.css?v=4.6.2" rel="stylesheet" type="text/css">
+
+<link href="/css/main.css?v=5.1.4" rel="stylesheet" type="text/css">
+
+
+  <link rel="apple-touch-icon" sizes="180x180" href="/images/apple-touch-icon-next.png?v=5.1.4">
+
+
+  <link rel="icon" type="image/png" sizes="32x32" href="/images/favicon-32x32-next.png?v=5.1.4">
+
+
+  <link rel="icon" type="image/png" sizes="16x16" href="/images/favicon-16x16-next.png?v=5.1.4">
+
+
+  <link rel="mask-icon" href="/images/logo.svg?v=5.1.4" color="#222">
+
+
+
+
+
+  <meta name="keywords" content="论文,image retrieval,Hamming Embedding,">
+
+
+
+
+
+
+
+
+
+
+<meta name="description" content="简介 Hamming Embedding是在论文：Hamming embedding and weak geometric consistency for large scale image search中提出，该论文主要是提出了Hamming embedding，用于解决codebook size大小都会导致检索质量较差的问题；提出了weak geometric consistency(WGC)">
+<meta name="keywords" content="论文,image retrieval,Hamming Embedding">
+<meta property="og:type" content="article">
+<meta property="og:title" content="Hamming Embedding讲解">
+<meta property="og:url" content="git@github.com:littletomatodonkey/littletomatodonkey.github.io.git/2018/12/07/2018-12-07-Hamming Ebedding讲解/index.html">
+<meta property="og:site_name" content="donkey&#39;s blog">
+<meta property="og:description" content="简介 Hamming Embedding是在论文：Hamming embedding and weak geometric consistency for large scale image search中提出，该论文主要是提出了Hamming embedding，用于解决codebook size大小都会导致检索质量较差的问题；提出了weak geometric consistency(WGC)">
+<meta property="og:locale" content="zh-Hans">
+<meta property="og:image" content="/img/post/20181207-he-k-impact.png">
+<meta property="og:image" content="/img/post/20181207-he-filter-impact.png">
+<meta property="og:updated_time" content="2018-12-07T08:45:35.976Z">
+<meta name="twitter:card" content="summary">
+<meta name="twitter:title" content="Hamming Embedding讲解">
+<meta name="twitter:description" content="简介 Hamming Embedding是在论文：Hamming embedding and weak geometric consistency for large scale image search中提出，该论文主要是提出了Hamming embedding，用于解决codebook size大小都会导致检索质量较差的问题；提出了weak geometric consistency(WGC)">
+<meta name="twitter:image" content="/img/post/20181207-he-k-impact.png">
+
+
+
+<script type="text/javascript" id="hexo.configurations">
+  var NexT = window.NexT || {};
+  var CONFIG = {
+    root: '/',
+    scheme: 'Muse',
+    version: '5.1.4',
+    sidebar: {"position":"left","display":"post","offset":12,"b2t":false,"scrollpercent":false,"onmobile":false},
+    fancybox: true,
+    tabs: true,
+    motion: {"enable":true,"async":false,"transition":{"post_block":"fadeIn","post_header":"slideDownIn","post_body":"slideDownIn","coll_header":"slideLeftIn","sidebar":"slideUpIn"}},
+    duoshuo: {
+      userId: '0',
+      author: '博主'
+    },
+    algolia: {
+      applicationID: '',
+      apiKey: '',
+      indexName: '',
+      hits: {"per_page":10},
+      labels: {"input_placeholder":"Search for Posts","hits_empty":"We didn't find any results for the search: ${query}","hits_stats":"${hits} results found in ${time} ms"}
+    }
+  };
+</script>
+
+
+
+  <link rel="canonical" href="git@github.com:littletomatodonkey/littletomatodonkey.github.io.git/2018/12/07/2018-12-07-Hamming Ebedding讲解/">
+
+
+
+
+
+  <title>Hamming Embedding讲解 | donkey's blog</title>
+  
+
+
+
+
+
+
+
+
+</head>
+
+<body itemscope="" itemtype="http://schema.org/WebPage" lang="zh-Hans">
+
+  
+  
+    
+  
+
+  <div class="container sidebar-position-left page-post-detail">
+    <div class="headband"></div>
+
+    <header id="header" class="header" itemscope="" itemtype="http://schema.org/WPHeader">
+      <div class="header-inner"><div class="site-brand-wrapper">
+  <div class="site-meta ">
+    
+
+    <div class="custom-logo-site-title">
+      <a href="/" class="brand" rel="start">
+        <span class="logo-line-before"><i></i></span>
+        <span class="site-title">donkey's blog</span>
+        <span class="logo-line-after"><i></i></span>
+      </a>
+    </div>
+      
+        <p class="site-subtitle">to be BIG</p>
+      
+  </div>
+
+  <div class="site-nav-toggle">
+    <button>
+      <span class="btn-bar"></span>
+      <span class="btn-bar"></span>
+      <span class="btn-bar"></span>
+    </button>
+  </div>
+</div>
+
+<nav class="site-nav">
+  
+
+  
+    <ul id="menu" class="menu">
+      
+        
+        <li class="menu-item menu-item-home">
+          <a href="/" rel="section">
+            
+              <i class="menu-item-icon fa fa-fw fa-home"></i> <br>
+            
+            首页
+          </a>
+        </li>
+      
+        
+        <li class="menu-item menu-item-about">
+          <a href="/about/" rel="section">
+            
+              <i class="menu-item-icon fa fa-fw fa-user"></i> <br>
+            
+            关于
+          </a>
+        </li>
+      
+        
+        <li class="menu-item menu-item-tags">
+          <a href="/tags/" rel="section">
+            
+              <i class="menu-item-icon fa fa-fw fa-tags"></i> <br>
+            
+            标签
+          </a>
+        </li>
+      
+        
+        <li class="menu-item menu-item-archives">
+          <a href="/archives/" rel="section">
+            
+              <i class="menu-item-icon fa fa-fw fa-archive"></i> <br>
+            
+            归档
+          </a>
+        </li>
+      
+
+      
+    </ul>
+  
+
+  
+</nav>
+
+
+
+ </div>
+    </header>
+
+    <main id="main" class="main">
+      <div class="main-inner">
+        <div class="content-wrap">
+          <div id="content" class="content">
+            
+
+  <div id="posts" class="posts-expand">
+    
+
+  
+
+  
+  
+  
+
+  <article class="post post-type-normal" itemscope="" itemtype="http://schema.org/Article">
+  
+  
+  
+  <div class="post-block">
+    <link itemprop="mainEntityOfPage" href="git@github.com:littletomatodonkey/littletomatodonkey.github.io.git/2018/12/07/2018-12-07-Hamming Ebedding讲解/">
+
+    <span hidden itemprop="author" itemscope="" itemtype="http://schema.org/Person">
+      <meta itemprop="name" content="donkey">
+      <meta itemprop="description" content="">
+      <meta itemprop="image" content="/avatar/home-self.jpg">
+    </span>
+
+    <span hidden itemprop="publisher" itemscope="" itemtype="http://schema.org/Organization">
+      <meta itemprop="name" content="donkey's blog">
+    </span>
+
+    
+      <header class="post-header">
+
+        
+        
+          <h1 class="post-title" itemprop="name headline">Hamming Embedding讲解</h1>
+        
+
+        <div class="post-meta">
+          <span class="post-time">
+            
+              <span class="post-meta-item-icon">
+                <i class="fa fa-calendar-o"></i>
+              </span>
+              
+                <span class="post-meta-item-text">发表于</span>
+              
+              <time title="创建于" itemprop="dateCreated datePublished" datetime="2018-12-07T10:00:00+08:00">
+                2018-12-07
+              </time>
+            
+
+            
+
+            
+          </span>
+
+          
+
+          
+            
+          
+
+          
+          
+
+          
+            <span class="post-meta-divider">|</span>
+            <span class="page-pv"><i class="fa fa-eye"></i>
+            <span class="busuanzi-value" id="busuanzi_value_page_pv"></span>
+            </span>
+          
+
+          
+
+          
+
+          
+
+        </div>
+      </header>
+    
+
+    
+    
+    
+    <div class="post-body" itemprop="articleBody">
+
+      
+      
+
+      
+        <h2 id="简介"><a href="#简介" class="headerlink" title="简介"></a>简介</h2><ul>
+<li>Hamming Embedding是在论文：<a href="http://lear.inrialpes.fr/pubs/2008/JDS08/jegou_hewgc08.pdf" target="_blank" rel="noopener">Hamming embedding and weak geometric consistency for large scale image search</a>中提出，该论文主要是提出了<code>Hamming embedding</code>，用于解决codebook size大小都会导致检索质量较差的问题；提出了<code>weak geometric consistency(WGC)</code>，使得检索对特征的缩放和旋转更加鲁棒。</li>
+<li>在这篇博客中，主要介绍<code>hamming Embedding</code>，不对WGC进行介绍。同时也会介绍图像检索中一些常用的知识点，如<code>tf-idf</code>, <code>BoF model</code>等。</li>
+</ul>
+<h2 id="补充知识"><a href="#补充知识" class="headerlink" title="补充知识"></a>补充知识</h2><h3 id="TF-IDF-term-frequency–inverse-document-frequency"><a href="#TF-IDF-term-frequency–inverse-document-frequency" class="headerlink" title="TF-IDF(term frequency–inverse document frequency)"></a>TF-IDF(term frequency–inverse document frequency)</h3><ul>
+<li>tf-idf是一种用于信息检索与数据挖掘的常用加权技术，用以评估一字词对于一个文件集或一个语料库中的其中一份文件的重要程度。</li>
+<li>一般来说，一个词在一个文档中出现的频率越高(在该文档中所有词中所占比例)，或者这个词在特定场景(文档)下出现的频率越高，则说明这个词对是越关键的。</li>
+<li>tf-idf的计算主要有2个步骤</li>
+</ul>
+<h4 id="计算词频-tf"><a href="#计算词频-tf" class="headerlink" title="计算词频(tf)"></a>计算词频(tf)</h4><ul>
+<li>词频为在词在该文档中出现的总次数，为了防止文档词数对词频造成影响，一般会除以该文档的总词数。</li>
+</ul>
+<h4 id="计算逆文档频率-idf"><a href="#计算逆文档频率-idf" class="headerlink" title="计算逆文档频率(idf)"></a>计算逆文档频率(idf)</h4><ul>
+<li>因为有的很常用的词汇在每个文档中都会出现，因此不能将其作为关键词，idf计算为</li>
+</ul>
+<p>$$idf = log \frac {N} {N_c + 1}$$</p>
+<p>其中$N$为语料库中所有文档的数量，$N_c$为包含该词的文档的数量，1是为了防止0除现象。按照之前的理解，如果该词只在特定文档中出现，则说明它可以被视为关键词。</p>
+<h4 id="计算tf-idf"><a href="#计算tf-idf" class="headerlink" title="计算tf-idf"></a>计算tf-idf</h4><ul>
+<li>将tf与idf相乘即可得到<code>tf-idf</code>。</li>
+<li>计算tf-idf之后，可以进行排序，找到对应的关键字，这也是其应用之一。</li>
+</ul>
+<h3 id="Bag-of-feature-model"><a href="#Bag-of-feature-model" class="headerlink" title="Bag-of-feature model"></a>Bag-of-feature model</h3><ul>
+<li>在文本分析中，有<code>bag-of-word model</code>，即首先构建一个基于单词的bag，之后每句话都可以用基于该bag中的word的频度进行表征，举例如下：</li>
+</ul>
+<blockquote>
+<p>   假设一个dictionary为D:{1:”well”, 2:”accurate”, 3:”fast”, 4:”as”, 5:”and”, 6:”model”, 7:”is”, 8:”The”, 9:”a”}<br>    对于一句话S:”The model is fast as well as accurate.”<br>    S用D可以表示为[1,1,1,2,0,1,1,1,0]。</p>
+</blockquote>
+<ul>
+<li>每个数值都表示D中对应位置word在S中出现的次数，从而可以将文本用向量进行表示，便于计算机处理，如果两个句子对应的向量表示的距离很小，则可以认为它们的相似度很高。</li>
+<li>如果要扩展到图像任务中，则可以引入<code>bag-of-feature model</code>，与之前的区别只是将word换成了feature。</li>
+<li>基于BOF的<code>image representation</code>主要有以下两个步骤。</li>
+</ul>
+<h4 id="feature-representation"><a href="#feature-representation" class="headerlink" title="feature representation"></a>feature representation</h4><ul>
+<li>给定一个图像，对于每个图像，我们都可以提取大量特征点，同时由特征点得到大量特征向量，可以使用sift、surf、orb等方法(其中sift最常用)。从而构建了一个feature bag。</li>
+</ul>
+<h4 id="codebook-generation"><a href="#codebook-generation" class="headerlink" title="codebook generation"></a>codebook generation</h4><ul>
+<li>在生成大量feature之后，就需要根据这些feature生成大量codewords，从而构建整个codebook。一个codeword可以作为若干个相似的<code>feature vector</code>的表征。</li>
+<li>可以使用简单的<code>kmeans clustering</code>对所有的feature进行处理，假设聚类簇数为$K$，则codebook size就是$K$，聚类完成之后，所有聚类中心就是所有的codewords。</li>
+</ul>
+<h4 id="quantize-features"><a href="#quantize-features" class="headerlink" title="quantize features"></a>quantize features</h4><ul>
+<li>对于一幅新的图像，首先提取特征，假设个数为$N$，对于每一个特征，找到它在codebook中的<code>k近邻</code>，说明图像中可以用该codeword进行表示，对所有特征进行这样的操作后，类似于文本中，可以得到一个$1 \times K$的向量，记为$V$，表示该图像包含特定的codeword的数量，同时有$sum(V)=k \cdot N$。如果两个图像的image representation距离很小，则可以认为它们是相似的。</li>
+<li>上述表示中，有时候找到最近邻后，发现最近邻codeword与feature的距离仍然很大，即没有codeword与该feature对应，此时更适合的做法是使得该feature不对最后的<code>表征向量</code>做贡献，即$f(x,y)=0$。两种<code>匹配函数</code>分别表示如下。</li>
+</ul>
+<p>$$f_{kNN}(x,y) = \begin{cases}<br>1,\;if\;x\;is\;a\;kNN\;of\;y \\<br>0,\;otherwise<br>\end{cases} $$</p>
+<p>$$f_ \varepsilon (x,y) = \begin{cases}<br>1,\;if\;d(x,y) &lt; \varepsilon \\<br>0,\;otherwise<br>\end{cases} $$</p>
+<ul>
+<li>如果考虑到<code>tf-idf</code>，即越稀缺的word的比重应该越大，可以每个特征对结果的贡献由示性函数修改为下面的公式</li>
+</ul>
+<p>$$f_{tf - idf}(x,y) = (tf - idf(q(y)))^2 \delta _{q(x),q(y)}$$</p>
+<ul>
+<li><p>在得到图像的representation(score)之后，一般都会使用L1 norm或者L2 norm对待检索图像的score(那个$1 \times K$的图像)进行normalization。</p>
+</li>
+<li><p>相对于直接使用ANN进行匹配，BoF model最大的优势就是大大减少了计算内存要求。</p>
+</li>
+</ul>
+<h3 id="reference"><a href="#reference" class="headerlink" title="reference"></a>reference</h3><ul>
+<li><a href="https://en.wikipedia.org/wiki/Bag-of-words_model_in_computer_vision" target="_blank" rel="noopener">https://en.wikipedia.org/wiki/Bag-of-words_model_in_computer_vision</a></li>
+<li><a href="http://www.cs.unc.edu/~lazebnik/spring09/lec18_bag_of_features.pdf" target="_blank" rel="noopener">http://www.cs.unc.edu/~lazebnik/spring09/lec18_bag_of_features.pdf</a></li>
+</ul>
+<h2 id="Weakness-of-quantization-based-approaches"><a href="#Weakness-of-quantization-based-approaches" class="headerlink" title="Weakness of quantization-based approaches"></a>Weakness of quantization-based approaches</h2><ul>
+<li>上述BoF model的方法对codebook size很敏感(就是那个聚类的簇数$K$)。如果$K$很小，则模型对噪声比较鲁棒，即即使数据有部分噪声，也会得到比较鲁棒的结果，但是可能导致模型对相似图像的区分能力不高（codebook表征图像的能力很差）；但是如果$K$很大，则区分能力较大，但是可能会呆滞模型对噪声十分敏感。下图说明了这种情况。</li>
+</ul>
+<p><img src="/img/post/20181207-he-k-impact.png" alt="image"></p>
+<h2 id="Hamming-embedding-of-local-image-descriptors"><a href="#Hamming-embedding-of-local-image-descriptors" class="headerlink" title="Hamming embedding of local image descriptors"></a>Hamming embedding of local image descriptors</h2><ul>
+<li><code>Hamming embedding</code>是融合了$K$很小与$K$很大时模型的优势，使用$d_b$维的<code>binary signature</code>改善<code>quantized index</code> $q(x_i)$，得到$b(x_i) = (b_1(x_i), b_2(x_i), …, b_{d_b}(x_i))$。</li>
+<li>两个descriptor，$x$与$y$的hamming distance定义如下</li>
+</ul>
+<p>$$h(b(x),b(y)) = \sum\limits_{i = 1}^{d_b} [1 - \delta _{b_i(x),b_i(y)}]$$</p>
+<ul>
+<li>将descriptor从<code>Euclidean space</code>映射到<code>Hamming space</code>，就称为<code>Hamming Embedding</code>，对于<code>Euclidean space</code>中最近邻的2个descriptor，也需要保证它们在<code>Hamming space</code>中的距离是很小的。</li>
+<li><code>Hamming Embedding</code>包含2个过程。<ul>
+<li>offline learning：在数据集上进行学习，得到一组固定的向量。</li>
+<li>online：计算<code>binary signature</code>。</li>
+</ul>
+</li>
+</ul>
+<h3 id="offline"><a href="#offline" class="headerlink" title="offline"></a>offline</h3><ul>
+<li><p>生成$d_b \times d$的正交投影矩阵($d$是HE之前descriptor的维度，$d_b$是HE之后的维度)。首先生成一个符合高斯分布的$d\times d$的矩阵，对其进行QR分解，取矩阵Q的前$d_b$行，即得到我们需要的正交投影矩阵$P$。matlab实现方式如下</p>
+<pre><code>d = 64;
+db = 32;
+rnd_m = randn(d,db);
+[Q, ~] = qr( rnd_m );
+P = Q(1:db,:);
+</code></pre></li>
+<li><p>使用P将之前的descriptor $x_i$转化为$z_i$。$z_i$分配给最近的centroid $q(x_i)$，即之前聚类的结果(kmeans等)。</p>
+</li>
+<li>计算<code>projected descriptors</code>的中值，作为HE的阈值：找到属于$q_l$的所有映射后descriptor，对于每个component $h(1 \le h \le d_b)$，计算其中值，得到$\tau _{h,l}$，矩阵$\tau$就是<code>projected descriptors</code>的中值矩阵。</li>
+</ul>
+<h3 id="online"><a href="#online" class="headerlink" title="online"></a>online</h3><ul>
+<li>offline过程得到了$P(k \times d_b)$和$\tau (k \times d_b)$矩阵。对于给定的descriptor $x$，首先将其分配给最近的中心，假设为$q(x_i)$。</li>
+<li>将$x$使用P矩阵进行映射，得到$z$，$z = Px$。$z$是$1 \times d_b$维的向量。</li>
+<li>计算signature $b(x)$，计算方法如下：</li>
+</ul>
+<p>$$b_i(x) = \begin{cases}<br>1,\;if\;{z_i} &gt; \tau _{q(x),i}\\<br>0,\;otherwise<br>\end{cases} $$</p>
+<ul>
+<li>由上面的步骤，一个descriptor就可以通过$q(x)$与$b(x)$同时进行表征，定义<code>HE matching function</code>为</li>
+</ul>
+<p>$${f_{HE}}(x,y) = \begin{cases}<br>tf - idf(q(x)),\;if\;q(x) = q(y)\;and\;h(b(x),b(y)) \le h_t\\<br>0,\;otherwise<br>\end{cases} $$</p>
+<p>其中$h_t$是<code>fixed Hamming threshold</code>，满足$0 \le h_t \le d_b$。$h_t$需要足够大，保证x的<code>Euclidean NNs</code>都可以匹配上，同时又需要足够小，保证<code>Voronoi cell</code>中距离很远的点可以被过滤掉，下面的左图展示了$h_t$对检索率的影响，可以看出合适的$h_t$可以使得绝大部分的descriptor可以被过滤掉(HE方法可以过滤到绝大部分的descriptor，从而提升检索成功的概率)。右图显示了$d_b$对检索性能的影响，当然$d_b$越大，性能越好。</p>
+<p><img src="/img/post/20181207-he-filter-impact.png" alt="image"></p>
+
+      
+    </div>
+    
+    
+    
+
+    
+
+    
+
+    
+
+    <footer class="post-footer">
+      
+        <div class="post-tags">
+          
+            <a href="/tags/论文/" rel="tag"># 论文</a>
+          
+            <a href="/tags/image-retrieval/" rel="tag"># image retrieval</a>
+          
+            <a href="/tags/Hamming-Embedding/" rel="tag"># Hamming Embedding</a>
+          
+        </div>
+      
+
+      
+      
+      
+
+      
+        <div class="post-nav">
+          <div class="post-nav-next post-nav-item">
+            
+              <a href="/2018/12/06/2018-12-06-mnist embedding using triplet loss/" rel="next" title="mnist embedding using triplet loss">
+                <i class="fa fa-chevron-left"></i> mnist embedding using triplet loss
+              </a>
+            
+          </div>
+
+          <span class="post-nav-divider"></span>
+
+          <div class="post-nav-prev post-nav-item">
+            
+          </div>
+        </div>
+      
+
+      
+      
+    </footer>
+  </div>
+  
+  
+  
+  </article>
+
+
+
+    <div class="post-spread">
+      
+    </div>
+  </div>
+
+
+          </div>
+          
+
+
+          
+
+  
+
+
+
+        </div>
+        
+          
+  
+  <div class="sidebar-toggle">
+    <div class="sidebar-toggle-line-wrap">
+      <span class="sidebar-toggle-line sidebar-toggle-line-first"></span>
+      <span class="sidebar-toggle-line sidebar-toggle-line-middle"></span>
+      <span class="sidebar-toggle-line sidebar-toggle-line-last"></span>
+    </div>
+  </div>
+
+  <aside id="sidebar" class="sidebar">
+    
+    <div class="sidebar-inner">
+
+      
+
+      
+        <ul class="sidebar-nav motion-element">
+          <li class="sidebar-nav-toc sidebar-nav-active" data-target="post-toc-wrap">
+            文章目录
+          </li>
+          <li class="sidebar-nav-overview" data-target="site-overview-wrap">
+            站点概览
+          </li>
+        </ul>
+      
+
+      <section class="site-overview-wrap sidebar-panel">
+        <div class="site-overview">
+          <div class="site-author motion-element" itemprop="author" itemscope="" itemtype="http://schema.org/Person">
+            
+              <img class="site-author-image" itemprop="image" src="/avatar/home-self.jpg" alt="donkey">
+            
+              <p class="site-author-name" itemprop="name">donkey</p>
+              <p class="site-description motion-element" itemprop="description">want to be an engineer</p>
+          </div>
+
+          <nav class="site-state motion-element">
+
+            
+              <div class="site-state-item site-state-posts">
+              
+                <a href="/archives/">
+              
+                  <span class="site-state-item-count">47</span>
+                  <span class="site-state-item-name">日志</span>
+                </a>
+              </div>
+            
+
+            
+
+            
+              
+              
+              <div class="site-state-item site-state-tags">
+                <a href="/tags/index.html">
+                  <span class="site-state-item-count">24</span>
+                  <span class="site-state-item-name">标签</span>
+                </a>
+              </div>
+            
+
+          </nav>
+
+          
+
+          
+            <div class="links-of-author motion-element">
+                
+                  <span class="links-of-author-item">
+                    <a href="https://github.com/littletomatodonkey" target="_blank" title="GitHub">
+                      
+                        <i class="fa fa-fw fa-github"></i>GitHub</a>
+                  </span>
+                
+                  <span class="links-of-author-item">
+                    <a href="https://blog.csdn.net/u012526003" target="_blank" title="CSDN">
+                      
+                        <i class="fa fa-fw fa-crosshairs"></i>CSDN</a>
+                  </span>
+                
+            </div>
+          
+
+          
+          
+
+          
+          
+
+          
+
+        </div>
+      </section>
+
+      
+      <!--noindex-->
+        <section class="post-toc-wrap motion-element sidebar-panel sidebar-panel-active">
+          <div class="post-toc">
+
+            
+              
+            
+
+            
+              <div class="post-toc-content"><ol class="nav"><li class="nav-item nav-level-2"><a class="nav-link" href="#简介"><span class="nav-number">1.</span> <span class="nav-text">简介</span></a></li><li class="nav-item nav-level-2"><a class="nav-link" href="#补充知识"><span class="nav-number">2.</span> <span class="nav-text">补充知识</span></a><ol class="nav-child"><li class="nav-item nav-level-3"><a class="nav-link" href="#TF-IDF-term-frequency–inverse-document-frequency"><span class="nav-number">2.1.</span> <span class="nav-text">TF-IDF(term frequency–inverse document frequency)</span></a><ol class="nav-child"><li class="nav-item nav-level-4"><a class="nav-link" href="#计算词频-tf"><span class="nav-number">2.1.1.</span> <span class="nav-text">计算词频(tf)</span></a></li><li class="nav-item nav-level-4"><a class="nav-link" href="#计算逆文档频率-idf"><span class="nav-number">2.1.2.</span> <span class="nav-text">计算逆文档频率(idf)</span></a></li><li class="nav-item nav-level-4"><a class="nav-link" href="#计算tf-idf"><span class="nav-number">2.1.3.</span> <span class="nav-text">计算tf-idf</span></a></li></ol></li><li class="nav-item nav-level-3"><a class="nav-link" href="#Bag-of-feature-model"><span class="nav-number">2.2.</span> <span class="nav-text">Bag-of-feature model</span></a><ol class="nav-child"><li class="nav-item nav-level-4"><a class="nav-link" href="#feature-representation"><span class="nav-number">2.2.1.</span> <span class="nav-text">feature representation</span></a></li><li class="nav-item nav-level-4"><a class="nav-link" href="#codebook-generation"><span class="nav-number">2.2.2.</span> <span class="nav-text">codebook generation</span></a></li><li class="nav-item nav-level-4"><a class="nav-link" href="#quantize-features"><span class="nav-number">2.2.3.</span> <span class="nav-text">quantize features</span></a></li></ol></li><li class="nav-item nav-level-3"><a class="nav-link" href="#reference"><span class="nav-number">2.3.</span> <span class="nav-text">reference</span></a></li></ol></li><li class="nav-item nav-level-2"><a class="nav-link" href="#Weakness-of-quantization-based-approaches"><span class="nav-number">3.</span> <span class="nav-text">Weakness of quantization-based approaches</span></a></li><li class="nav-item nav-level-2"><a class="nav-link" href="#Hamming-embedding-of-local-image-descriptors"><span class="nav-number">4.</span> <span class="nav-text">Hamming embedding of local image descriptors</span></a><ol class="nav-child"><li class="nav-item nav-level-3"><a class="nav-link" href="#offline"><span class="nav-number">4.1.</span> <span class="nav-text">offline</span></a></li><li class="nav-item nav-level-3"><a class="nav-link" href="#online"><span class="nav-number">4.2.</span> <span class="nav-text">online</span></a></li></ol></li></ol></div>
+            
+
+          </div>
+        </section>
+      <!--/noindex-->
+      
+
+      
+
+    </div>
+  </aside>
+
+
+        
+      </div>
+    </main>
+
+    <footer id="footer" class="footer">
+      <div class="footer-inner">
+        
+<div class="copyright">&copy; <span itemprop="copyrightYear">2018</span>
+  <span class="with-love">
+    <i class="fa fa-user"></i>
+  </span>
+  <span class="author" itemprop="copyrightHolder">donkey</span>
+
+  
+
+
+</div>
+
+
+  <div class="powered-by">由 <a class="theme-link" target="_blank" href="https://hexo.io">Hexo</a> 强力驱动</div>
+
+
+
+  <span class="post-meta-divider">|</span>
+
+
+
+  <div class="theme-info">主题 &mdash; <a class="theme-link" target="_blank" href="https://github.com/iissnan/hexo-theme-next">NexT.Muse</a> v5.1.4</div>
+
+
+
+
+        
+<div class="busuanzi-count">
+  <script async src="https://busuanzi.ibruce.info/busuanzi/2.3/busuanzi.pure.mini.js"></script>
+
+  
+
+  
+</div>
+
+
+
+
+
+
+
+
+        
+      </div>
+    </footer>
+
+    
+      <div class="back-to-top">
+        <i class="fa fa-arrow-up"></i>
+        
+      </div>
+    
+
+    
+
+  </div>
+
+  
+
+<script type="text/javascript">
+  if (Object.prototype.toString.call(window.Promise) !== '[object Function]') {
+    window.Promise = null;
+  }
+</script>
+
+
+
+
+
+
+
+
+
+  
+
+
+
+
+
+
+
+
+
+
+
+
+  
+  
+    <script type="text/javascript" src="/lib/jquery/index.js?v=2.1.3"></script>
+  
+
+  
+  
+    <script type="text/javascript" src="/lib/fastclick/lib/fastclick.min.js?v=1.0.6"></script>
+  
+
+  
+  
+    <script type="text/javascript" src="/lib/jquery_lazyload/jquery.lazyload.js?v=1.9.7"></script>
+  
+
+  
+  
+    <script type="text/javascript" src="/lib/velocity/velocity.min.js?v=1.2.1"></script>
+  
+
+  
+  
+    <script type="text/javascript" src="/lib/velocity/velocity.ui.min.js?v=1.2.1"></script>
+  
+
+  
+  
+    <script type="text/javascript" src="/lib/fancybox/source/jquery.fancybox.pack.js?v=2.1.5"></script>
+  
+
+
+  
+
+
+  <script type="text/javascript" src="/js/src/utils.js?v=5.1.4"></script>
+
+  <script type="text/javascript" src="/js/src/motion.js?v=5.1.4"></script>
+
+
+
+  
+  
+
+  
+  <script type="text/javascript" src="/js/src/scrollspy.js?v=5.1.4"></script>
+<script type="text/javascript" src="/js/src/post-details.js?v=5.1.4"></script>
+
+
+
+  
+
+
+  <script type="text/javascript" src="/js/src/bootstrap.js?v=5.1.4"></script>
+
+
+
+  
+
+
+  
+
+
+
+
+	
+
+
+
+
+
+  
+
+
+
+
+
+  
+
+
+
+
+
+
+
+
+
+
+
+
+  
+
+
+
+
+
+  
+
+  
+
+  
+
+  
+  
+
+  
+  
+    <script type="text/x-mathjax-config">
+      MathJax.Hub.Config({
+        tex2jax: {
+          inlineMath: [ ['$','$'], ["\\(","\\)"]  ],
+          processEscapes: true,
+          skipTags: ['script', 'noscript', 'style', 'textarea', 'pre', 'code']
+        }
+      });
+    </script>
+
+    <script type="text/x-mathjax-config">
+      MathJax.Hub.Queue(function() {
+        var all = MathJax.Hub.getAllJax(), i;
+        for (i=0; i < all.length; i += 1) {
+          all[i].SourceElement().parentNode.className += ' has-jax';
+        }
+      });
+    </script>
+    <script type="text/javascript" src="//cdn.bootcss.com/mathjax/2.7.1/latest.js?config=TeX-AMS-MML_HTMLorMML"></script>
+  
+
+
+  
+
+  
+
+
+</body>
+</html>
