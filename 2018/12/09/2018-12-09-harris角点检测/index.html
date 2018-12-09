@@ -68,7 +68,7 @@
 
 
 
-  <meta name="keywords" content="论文,detection,">
+  <meta name="keywords" content="image retrieval,feature extraction,">
 
 
 
@@ -79,18 +79,22 @@
 
 
 
-<meta name="description" content="SSD 论文地址：https://arxiv.org/abs/1512.02325Abstract SSD之一种one stage的目标检测方法，可以直接实现端到端的detection。 SSD生成大量default box(这是在很多feature map上使用不同的aspect ratio以及scale，即每个位置都会生成很多box)，然后预测其所属类别概率，并对box位置进行调整，最终得到预">
-<meta name="keywords" content="论文,detection">
+<meta name="description" content="简介 角点检测是计算机视觉中获取图像特征的一种方法，在运动检测、图像匹配等任务中都有比较广泛的应用。 角点被定义为两条边的交点，由于视觉任务的特殊性，角点检测的鲁棒性一般都是从平移、灰度变换、旋转、尺度变换等角度去评价。 最早有Moravec角点检测算法，是通过计算自相关函数，找到局部方差和最大的点，作为角点，但是这种方法只能比较8个方向(8邻域)的特征变换，而且自相关函数的窗口是方形的，且是二元">
+<meta name="keywords" content="image retrieval,feature extraction">
 <meta property="og:type" content="article">
-<meta property="og:title" content="目标检测之SSD">
-<meta property="og:url" content="git@github.com:littletomatodonkey/littletomatodonkey.github.io.git/2018/07/23/2018-07-23-目标检测之SSD/index.html">
+<meta property="og:title" content="harris角点检测">
+<meta property="og:url" content="git@github.com:littletomatodonkey/littletomatodonkey.github.io.git/2018/12/09/2018-12-09-harris角点检测/index.html">
 <meta property="og:site_name" content="donkey&#39;s blog">
-<meta property="og:description" content="SSD 论文地址：https://arxiv.org/abs/1512.02325Abstract SSD之一种one stage的目标检测方法，可以直接实现端到端的detection。 SSD生成大量default box(这是在很多feature map上使用不同的aspect ratio以及scale，即每个位置都会生成很多box)，然后预测其所属类别概率，并对box位置进行调整，最终得到预">
+<meta property="og:description" content="简介 角点检测是计算机视觉中获取图像特征的一种方法，在运动检测、图像匹配等任务中都有比较广泛的应用。 角点被定义为两条边的交点，由于视觉任务的特殊性，角点检测的鲁棒性一般都是从平移、灰度变换、旋转、尺度变换等角度去评价。 最早有Moravec角点检测算法，是通过计算自相关函数，找到局部方差和最大的点，作为角点，但是这种方法只能比较8个方向(8邻域)的特征变换，而且自相关函数的窗口是方形的，且是二元">
 <meta property="og:locale" content="zh-Hans">
-<meta property="og:updated_time" content="2018-10-23T08:41:10.796Z">
+<meta property="og:image" content="/img/post/20181209-harris-corner-flat-line.png">
+<meta property="og:image" content="/img/post/20181209-harris-R-contour.png">
+<meta property="og:image" content="/img/post/20181209-harris-chessboard.png">
+<meta property="og:updated_time" content="2018-12-09T07:30:58.789Z">
 <meta name="twitter:card" content="summary">
-<meta name="twitter:title" content="目标检测之SSD">
-<meta name="twitter:description" content="SSD 论文地址：https://arxiv.org/abs/1512.02325Abstract SSD之一种one stage的目标检测方法，可以直接实现端到端的detection。 SSD生成大量default box(这是在很多feature map上使用不同的aspect ratio以及scale，即每个位置都会生成很多box)，然后预测其所属类别概率，并对box位置进行调整，最终得到预">
+<meta name="twitter:title" content="harris角点检测">
+<meta name="twitter:description" content="简介 角点检测是计算机视觉中获取图像特征的一种方法，在运动检测、图像匹配等任务中都有比较广泛的应用。 角点被定义为两条边的交点，由于视觉任务的特殊性，角点检测的鲁棒性一般都是从平移、灰度变换、旋转、尺度变换等角度去评价。 最早有Moravec角点检测算法，是通过计算自相关函数，找到局部方差和最大的点，作为角点，但是这种方法只能比较8个方向(8邻域)的特征变换，而且自相关函数的窗口是方形的，且是二元">
+<meta name="twitter:image" content="/img/post/20181209-harris-corner-flat-line.png">
 
 
 
@@ -120,13 +124,13 @@
 
 
 
-  <link rel="canonical" href="git@github.com:littletomatodonkey/littletomatodonkey.github.io.git/2018/07/23/2018-07-23-目标检测之SSD/">
+  <link rel="canonical" href="git@github.com:littletomatodonkey/littletomatodonkey.github.io.git/2018/12/09/2018-12-09-harris角点检测/">
 
 
 
 
 
-  <title>目标检测之SSD | donkey's blog</title>
+  <title>harris角点检测 | donkey's blog</title>
   
 
 
@@ -253,7 +257,7 @@
   
   
   <div class="post-block">
-    <link itemprop="mainEntityOfPage" href="git@github.com:littletomatodonkey/littletomatodonkey.github.io.git/2018/07/23/2018-07-23-目标检测之SSD/">
+    <link itemprop="mainEntityOfPage" href="git@github.com:littletomatodonkey/littletomatodonkey.github.io.git/2018/12/09/2018-12-09-harris角点检测/">
 
     <span hidden itemprop="author" itemscope="" itemtype="http://schema.org/Person">
       <meta itemprop="name" content="donkey">
@@ -270,7 +274,7 @@
 
         
         
-          <h1 class="post-title" itemprop="name headline">目标检测之SSD</h1>
+          <h1 class="post-title" itemprop="name headline">harris角点检测</h1>
         
 
         <div class="post-meta">
@@ -282,8 +286,8 @@
               
                 <span class="post-meta-item-text">发表于</span>
               
-              <time title="创建于" itemprop="dateCreated datePublished" datetime="2018-07-23T12:00:00+08:00">
-                2018-07-23
+              <time title="创建于" itemprop="dateCreated datePublished" datetime="2018-12-09T12:00:00+08:00">
+                2018-12-09
               </time>
             
 
@@ -327,43 +331,88 @@
       
 
       
-        <h2 id="SSD"><a href="#SSD" class="headerlink" title="SSD"></a>SSD</h2><ul>
-<li>论文地址：<a href="https://arxiv.org/abs/1512.02325" target="_blank" rel="noopener">https://arxiv.org/abs/1512.02325</a><h3 id="Abstract"><a href="#Abstract" class="headerlink" title="Abstract"></a>Abstract</h3></li>
-<li>SSD之一种<code>one stage</code>的目标检测方法，可以直接实现端到端的detection。</li>
-<li>SSD生成大量<code>default box</code>(这是在很多feature map上使用不同的aspect ratio以及scale，即每个位置都会生成很多box)，然后预测其所属类别概率，并对box位置进行调整，最终得到预测结果。</li>
+        <h2 id="简介"><a href="#简介" class="headerlink" title="简介"></a>简介</h2><ul>
+<li>角点检测是计算机视觉中获取图像特征的一种方法，在运动检测、图像匹配等任务中都有比较广泛的应用。</li>
+<li>角点被定义为<code>两条边的交点</code>，由于视觉任务的特殊性，角点检测的鲁棒性一般都是从平移、灰度变换、旋转、尺度变换等角度去评价。</li>
+<li>最早有<code>Moravec角点检测算法</code>，是通过计算自相关函数，找到局部方差和最大的点，作为角点，但是这种方法只能比较8个方向(8邻域)的特征变换，而且自相关函数的窗口是方形的，且是二元的，因此响应函数可能会有噪声。</li>
 </ul>
-<h3 id="introduction"><a href="#introduction" class="headerlink" title="introduction"></a>introduction</h3><ul>
-<li>fasterRCNN等方法是<code>two stage</code>的方法，首先生成很多proposal box，然后再对其进行分类。SSD由于是一种<code>one stage</code>的方法，因此在保证精度保持<code>state of art</code>的前提下，仍然能够达到实时的效果（去除了候选框生成的过程）。</li>
-<li>SSD使用卷积层去预测物体类别以及bbox的offset(之前在很多类别预测的任务中，最后都是加上全连接层，再用softmax激活函数做处理)，同时对于不同<code>aspect ratio</code>的detection，使用不同的filter。<h3 id="The-Single-Shot-Detector"><a href="#The-Single-Shot-Detector" class="headerlink" title="The Single Shot Detector"></a>The Single Shot Detector</h3></li>
+<h2 id="harris角点检测讲解"><a href="#harris角点检测讲解" class="headerlink" title="harris角点检测讲解"></a>harris角点检测讲解</h2><h3 id="像素点描述"><a href="#像素点描述" class="headerlink" title="像素点描述"></a>像素点描述</h3><ul>
+<li>窗口发生$[u,v]$移动时，滑动窗口的像素灰度变换描述如下(借鉴了自相关函数的概念)</li>
 </ul>
-<h4 id="model"><a href="#model" class="headerlink" title="model"></a>model</h4><ul>
-<li>SSD是基于前向的CNN，生成国定数目的bbox，然后再使用NMS去除一些bbox，得到最终的结果。</li>
-<li>对多个不同尺度的feature map做detection，这使得SSD针对多尺度的物体检测的效果也很好。Yolo只在一个feature map上做detection，SSD则是在不同的feature map上做detection。</li>
-<li>使用CNN做detection的预测。对于一个$m \times n \times p$的feature map，只需要使用一个$3 \times 3 \times p$的filter，就可以实现feature map上每个点的预测(对于特定类别物体的得分或者相对default box的offset)。</li>
-<li>在每个feature map cell中，都会生成一系列的<code>default box</code>，这是通过设置aspect ratio和scale生成的，假设一个feature map cell中会生成k个default box，则对于每个default box，会计算其针对c个类别的得分以及box相对于default box的offset的信息，因此对于一个大小为$m \times n$的feature map，会生成$mnk(c+4)$个输出。这个<code>default box</code>的概念与anchor box的概念类似，但是SSD中，对不同尺度的feature map都使用了<code>default box</code>。</li>
-</ul>
-<h4 id="training"><a href="#training" class="headerlink" title="training"></a>training</h4><ul>
-<li>在训练过程中，主要就是怎样将<code>gt box</code>与default box做匹配。SSD中使用的匹配策略如下：如果<code>gt box</code>与某个default box的IOU大于某个阈值(论文中设置的是0.5)，则认为这个default box与<code>gt box</code>可以匹配。因此每个<code>gt box</code>可能会与多个bbox进行匹配。</li>
-<li>SSD的loss的由定位误差和类别误差进行确定，具体公式如下<br>$$L(x, c, l, g) = \frac{1}{N}(Lconf(x, c) + \alpha Lloc(x, l, g))$$<br>其中N是匹配的default box的个数，(N=0的话，loss为0)，定位误差使用Smooth L1 loss，物体confidence loss使用softmax loss，$\alpha$是超参数。</li>
-<li>为了处理不同的尺度的物体检测，使用不同的aspect ratio与scale去生成不同的default box。假设总共处理m个feature map(大小依次递减)，则对于每个feature map，其scale计算方式如下：<br>$$s_k = s_{min} + \frac{s_{max}-s_{min}}{m-1}(k+1),k=1,2,…,m$$</li>
-</ul>
-<p>作者设置$s_{min}=0.2,s_{max}=0.9,a_r={ 1,2,3,\frac{1}{2},\frac{1}{3}}$，每个default box的$w_k^a=s_k \sqrt{a_r}$,$h_k^a=s_k / \sqrt{a_r}$，中心点为$(\frac{i + 0.5}{\left| {f_k} \right|},\frac{j + 0.5}{\left| {f_k} \right|})$，其中$f_k$是第k个feature map的大小。</p>
+<p>$$E(u,v) = \sum\limits_{(x,y) \in W(u,v)} {w(x,y){[I(x + u,y + v) - I(x,y)]}^2}$$</p>
+<p>$[u,v]$是窗口的偏移量，$(x,y)$是窗口内的像素位置，$w(x,y)$是窗口函数，一般有常数窗口(<code>1 inside and 0 outside</code>)或者高斯窗口。</p>
 <ul>
-<li>因为设置了很多个default box，因此在训练的时候，有很多个negative box，只有很少的positive box(与gt box匹配的都是positive，其他的都是negative)，因此我们不使用全部的negative box，基于confidence loss进行排序，只选取loss最高的那些negative box，使得最终的negative:positive最多为3:1。</li>
-<li>论文中使用了集中数据增强的方式<ul>
-<li>使用整张输入图像</li>
-<li>取图像块，使得patch与物体的IOU分别为0.1,0.3,0.5,0.7或者0.9。</li>
-<li>随机采样图像块(在原图中随机裁剪出一个图像块，使得图像块与CNN的输入大小相同即可。)</li>
+<li>因此在灰度变换平缓的区域，一般$E(u,v)$都比较小，而在灰度变换比较剧烈的区域，$E(u,v)$很大。</li>
 </ul>
+<h3 id="E-u-v-泰勒展开"><a href="#E-u-v-泰勒展开" class="headerlink" title="$E(u,v)$泰勒展开"></a>$E(u,v)$泰勒展开</h3><ul>
+<li>利用泰勒公式，将$I(x+u,y+v)$进行泰勒展开，得到下式</li>
+</ul>
+<p>$$E(u,v) = \sum\limits_{(x,y) \in W(x,y)} { (u I_x + v I_y)^2}  = \sum\limits_{(x,y) \in W(x,y)} {\left[ u \; v \right]<br>\left[ {\begin{array}{*20c}<br>{I_x^2}&amp; I_x I_y\\<br>I_x I_y &amp; {I_y^2}<br>\end{array}} \right]<br>\left[ u \; v \right]^T}$$</p>
+<p>令$M = \sum w(x,y){\left[ \begin{array}{*20c}<br>{I_x^2}&amp; I_x I_y\\<br>I_x I_y &amp; {I_y^2}<br>\end{array} \right]} $，则有</p>
+<p>$$E(u,v) = \left[ u \; v \right]<br>M<br>\left[ \begin{array}{*20c}<br>u\\<br>v<br>\end{array} \right]$$</p>
+<h3 id="M矩阵分析"><a href="#M矩阵分析" class="headerlink" title="M矩阵分析"></a>M矩阵分析</h3><ul>
+<li>图像中主要有3种区域：flat area，line和corner，对于flat area，灰度在x和y方向上变化都比较平缓；对于line，灰度在一个方向上变化很剧烈(不一定是水平或者竖直方向，可以使任意方向)，在另一方向上变化平缓；对于corner，灰度在2个方向的变化都很剧烈。具体如下图所示</li>
+</ul>
+<p><img src="/img/post/20181209-harris-corner-flat-line.png" alt="image"></p>
+<ul>
+<li><p>特征值对应特征向量的权重，特征向量可以使任意方向的。对于M矩阵的特征值，如果2个特征值都很大，则可以认为是corner，如果只有1个大，则可以认为是line，如果2个都小，则可以认为flat area。</p>
+</li>
+<li><p>因此定义变量$R$，度量角点响应，计算方法如下</p>
 </li>
 </ul>
-<h3 id="result"><a href="#result" class="headerlink" title="result"></a>result</h3><ul>
-<li>作者通过实验，证明了在SSD中，数据增强是非常重要的，在<code>VOC2007</code>上可以使得mAP提升8.8%，大当然使用更多的aspect ratio也会使得效果更好。</li>
-<li>如果只在很少的feature map上进行bbox的预测，则mAP会下降很多，因此何种multi feature map的设计对提升mAP是很有好处的。</li>
-<li>此外作者在VOC2012，coco等数据集上做了测试，效果都是state of art的，同时速度可以达到实时。</li>
+<p>$$R=det(M)-k(trace(M))^2$$</p>
+<p>其中$det(M)=\lambda _1 \lambda _2$，$trace(M)=\lambda _1 + \lambda _2$。</p>
+<p>其中$\lambda _i$是$M$的特征值，$k$一般取0.04~0.06左右，可以画出等高线如下，可以看出基本呈现出双曲线的形式，我们需要的是特征值都很大的点，因此这种度量方式符合要求。</p>
+<p><img src="/img/post/20181209-harris-R-contour.png" alt="image"></p>
+<ul>
+<li>绘图的matlab代码如下</li>
 </ul>
-<h3 id="conclusion"><a href="#conclusion" class="headerlink" title="conclusion"></a>conclusion</h3><ul>
-<li>SSD512比fasterRCNN快3倍以上，同时在pascal voc以及coco数据集上，mAP都超过了fasterRCNN。SSD300可以达到59FPS，比yolo的速度快，精度方面也有明显的优势。</li>
+<pre><code>clc,clear,close all
+x = linspace(0.01, 10, 100);
+[x, y] = meshgrid( x );
+
+k = 0.06;
+
+z = x.*y - k*(x+y).^2;
+contour( x, y, z, &apos;ShowText&apos;,&apos;on&apos; )
+xlabel(&apos;$\lambda _ 1$&apos;, &apos;Interpreter&apos;, &apos;latex&apos;, &apos;FontSize&apos;, 16);
+ylabel(&apos;$\lambda _ 2$&apos;, &apos;Interpreter&apos;, &apos;latex&apos;, &apos;FontSize&apos;, 16);
+</code></pre><h3 id="优缺点"><a href="#优缺点" class="headerlink" title="优缺点"></a>优缺点</h3><ul>
+<li>由上述表述可知，harris对于灰度仿射是具有不变性的（<code>灰度值平移与尺度变换</code>），对于<code>图像旋转也是具有不变性</code>的(计算只与特征值有关，与特征向量无关)，但是对于图像<code>尺度变换不具有不变性</code>(没有使用图像金字塔等结构)。</li>
+</ul>
+<h3 id="角点检测代码测试"><a href="#角点检测代码测试" class="headerlink" title="角点检测代码测试"></a>角点检测代码测试</h3><ul>
+<li>基于harris的角点检测算法代码如下，使用<code>python+opencv</code>完成，代码参考了opencv官网。</li>
+<li><p>reference:<a href="https://docs.opencv.org/3.0-beta/doc/py_tutorials/py_feature2d/py_features_harris/py_features_harris.html" target="_blank" rel="noopener">https://docs.opencv.org/3.0-beta/doc/py_tutorials/py_feature2d/py_features_harris/py_features_harris.html</a></p>
+<pre><code>import cv2
+import numpy as np
+import matplotlib.pyplot as plt
+%matplotlib inline
+
+filename = &apos;image/chessboard.png&apos;
+img = cv2.imread(filename)
+gray = cv2.cvtColor(img,cv2.COLOR_BGR2GRAY)
+img_after = img.copy()
+gray = np.float32(gray)
+dst = cv2.cornerHarris(gray, 2, 3, 0.04)
+
+#result is dilated for marking the corners, not important
+dst = cv2.dilate(dst, None)
+
+# Threshold for an optimal value, it may vary depending on the image.
+img_after[dst&gt;0.01*dst.max()]=[255,0,0]
+
+plt.figure( figsize=(12,6) )
+plt.subplot( 121 )
+plt.imshow( img )
+plt.title(&quot;origianl&quot;)
+plt.subplot( 122 )
+plt.imshow( img_after )
+plt.title(&quot;harris detection&quot;)
+plt.show()
+</code></pre></li>
+</ul>
+<ul>
+<li>检测效果如下所示<br><img src="/img/post/20181209-harris-chessboard.png" alt="image"></li>
 </ul>
 
       
@@ -382,9 +431,9 @@
       
         <div class="post-tags">
           
-            <a href="/tags/论文/" rel="tag"># 论文</a>
+            <a href="/tags/image-retrieval/" rel="tag"># image retrieval</a>
           
-            <a href="/tags/detection/" rel="tag"># detection</a>
+            <a href="/tags/feature-extraction/" rel="tag"># feature extraction</a>
           
         </div>
       
@@ -397,8 +446,8 @@
         <div class="post-nav">
           <div class="post-nav-next post-nav-item">
             
-              <a href="/2018/07/22/2018-07-22-YOLO及其V2V3/" rel="next" title="YOLO及其V2V3">
-                <i class="fa fa-chevron-left"></i> YOLO及其V2V3
+              <a href="/2018/12/07/2018-12-07-Hamming Ebedding讲解/" rel="next" title="Hamming Embedding讲解">
+                <i class="fa fa-chevron-left"></i> Hamming Embedding讲解
               </a>
             
           </div>
@@ -406,10 +455,6 @@
           <span class="post-nav-divider"></span>
 
           <div class="post-nav-prev post-nav-item">
-            
-              <a href="/2018/08/29/2018-08-29-RCNN流派的检测方法总结/" rel="prev" title="RCNN流派的检测方法总结">
-                RCNN流派的检测方法总结 <i class="fa fa-chevron-right"></i>
-              </a>
             
           </div>
         </div>
@@ -550,7 +595,7 @@
             
 
             
-              <div class="post-toc-content"><ol class="nav"><li class="nav-item nav-level-2"><a class="nav-link" href="#SSD"><span class="nav-number">1.</span> <span class="nav-text">SSD</span></a><ol class="nav-child"><li class="nav-item nav-level-3"><a class="nav-link" href="#Abstract"><span class="nav-number">1.1.</span> <span class="nav-text">Abstract</span></a></li><li class="nav-item nav-level-3"><a class="nav-link" href="#introduction"><span class="nav-number">1.2.</span> <span class="nav-text">introduction</span></a></li><li class="nav-item nav-level-3"><a class="nav-link" href="#The-Single-Shot-Detector"><span class="nav-number">1.3.</span> <span class="nav-text">The Single Shot Detector</span></a><ol class="nav-child"><li class="nav-item nav-level-4"><a class="nav-link" href="#model"><span class="nav-number">1.3.1.</span> <span class="nav-text">model</span></a></li><li class="nav-item nav-level-4"><a class="nav-link" href="#training"><span class="nav-number">1.3.2.</span> <span class="nav-text">training</span></a></li></ol></li><li class="nav-item nav-level-3"><a class="nav-link" href="#result"><span class="nav-number">1.4.</span> <span class="nav-text">result</span></a></li><li class="nav-item nav-level-3"><a class="nav-link" href="#conclusion"><span class="nav-number">1.5.</span> <span class="nav-text">conclusion</span></a></li></ol></li></ol></div>
+              <div class="post-toc-content"><ol class="nav"><li class="nav-item nav-level-2"><a class="nav-link" href="#简介"><span class="nav-number">1.</span> <span class="nav-text">简介</span></a></li><li class="nav-item nav-level-2"><a class="nav-link" href="#harris角点检测讲解"><span class="nav-number">2.</span> <span class="nav-text">harris角点检测讲解</span></a><ol class="nav-child"><li class="nav-item nav-level-3"><a class="nav-link" href="#像素点描述"><span class="nav-number">2.1.</span> <span class="nav-text">像素点描述</span></a></li><li class="nav-item nav-level-3"><a class="nav-link" href="#E-u-v-泰勒展开"><span class="nav-number">2.2.</span> <span class="nav-text">$E(u,v)$泰勒展开</span></a></li><li class="nav-item nav-level-3"><a class="nav-link" href="#M矩阵分析"><span class="nav-number">2.3.</span> <span class="nav-text">M矩阵分析</span></a></li><li class="nav-item nav-level-3"><a class="nav-link" href="#优缺点"><span class="nav-number">2.4.</span> <span class="nav-text">优缺点</span></a></li><li class="nav-item nav-level-3"><a class="nav-link" href="#角点检测代码测试"><span class="nav-number">2.5.</span> <span class="nav-text">角点检测代码测试</span></a></li></ol></li></ol></div>
             
 
           </div>
